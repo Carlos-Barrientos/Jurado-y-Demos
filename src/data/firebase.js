@@ -26,13 +26,13 @@ import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage'
 
 // Official Firebase configuration for Reto IA Prosur
 export const firebaseConfig = {
-  apiKey: "AIzaSyA8lEUhNYQJA22DNTex0JRvPahqMrmapvs",
-  authDomain: "reto-ia-prosur.firebaseapp.com",
-  projectId: "reto-ia-prosur",
-  storageBucket: "reto-ia-prosur.firebasestorage.app",
-  messagingSenderId: "674667540011",
-  appId: "1:674667540011:web:ff7724d2c7b1f43852c46e",
-  measurementId: "G-XW3PPB719W"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA8lEUhNYQJA22DNTex0JRvPahqMrmapvs",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "reto-ia-prosur.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "reto-ia-prosur",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "reto-ia-prosur.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "674667540011",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:674667540011:web:ff7724d2c7b1f43852c46e",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-XW3PPB719W"
 };
 
 // Check if credentials are properly set
