@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Demo Showcase - Project Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#c8102e",
+                        "on-tertiary-container": "#e4e1e1",
+                        "secondary": "#5b5f61",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-surface": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "surface-bright": "#f8f9fa",
+                        "surface-tint": "#bf0229",
+                        "tertiary": "#4d4c4c",
+                        "on-secondary-container": "#616567",
+                        "secondary-fixed": "#e0e3e5",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#410007",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#ffb3b1",
+                        "on-primary-container": "#ffdad8",
+                        "outline-variant": "#e5bdbb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "background": "#f8f9fa",
+                        "inverse-surface": "#2e3132",
+                        "secondary-container": "#e0e3e5",
+                        "secondary-fixed-dim": "#c4c7c9",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e1e3e4",
+                        "on-secondary-fixed-variant": "#444749",
+                        "surface-container": "#edeeef",
+                        "primary-fixed": "#ffdad8",
+                        "on-primary-fixed-variant": "#92001c",
+                        "primary-fixed-dim": "#ffb3b1",
+                        "surface-container-high": "#e7e8e9",
+                        "tertiary-container": "#656464",
+                        "primary": "#9e001f",
+                        "on-background": "#191c1d",
+                        "outline": "#906f6e",
+                        "on-surface-variant": "#5c403f",
+                        "on-secondary-fixed": "#191c1e",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "surface-container-low": "#f3f4f5",
+                        "error-container": "#ffdad6",
+                        "surface": "#f8f9fa",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "max-width": "1440px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "xl": "40px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "label-sm": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; background-color: #F8F9FA; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(225, 227, 228, 0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-surface-variant shadow-sm docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto h-16">
+<div class="flex items-center gap-6">
+<span class="text-headline-md font-headline-md font-bold text-primary">AI Demo Showcase</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-label-md font-label-md text-secondary hover:text-primary transition-colors" href="#">Explore</a>
+<a class="text-label-md font-label-md text-secondary hover:text-primary transition-colors" href="#">Companies</a>
+<a class="text-label-md font-label-md text-secondary hover:text-primary transition-colors" href="#">Leaderboard</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-secondary hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-secondary hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-lg md:py-xl grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Video & Details -->
+<div class="lg:col-span-8 flex flex-col gap-lg">
+<!-- Video Player Area -->
+<div class="w-full aspect-video bg-black rounded-xl overflow-hidden relative shadow-[0_4px_20px_rgba(0,0,0,0.1)] group">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" data-alt="A high quality, cinematic still frame from a corporate AI presentation video. The scene features a futuristic, slightly blurred data visualization in the background with bright white and subtle red glowing elements. A sleek, minimalist play button overlay sits in the center. The aesthetic is clean, professional, and tech-forward, matching a light-mode modern UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJwSB0PsMj_J0-ud4T25uP7rtNcHYbrFsQtI5_kJYKqiCjO-QP1c_V9weyn5YqTAzWrrI_6pD1Y2VABxvCYuo4JD2ydiJfQFxZc6g8DWthuIjdG2CCFhc_RdmuoEKolXTbaQZI_DxKOxqn9XGjl7R2v2rdNb2SNAXL57RHXUHYfvgQxpTuvcxwvQGfvTI2nL2v_bvcdo8vxeO3wM12BwzsSKrCBrt5kFQCt6pL3PRDONB2uQ7HuCk56g"/>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-20 h-20 bg-primary/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-white text-4xl ml-2" data-icon="play_arrow" data-weight="fill" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<!-- Title & Interactions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-sm border-b border-surface-variant pb-sm">
+<div>
+<div class="flex gap-2 mb-2">
+<span class="bg-surface-container-low text-secondary px-2 py-1 rounded-sm text-label-sm font-label-sm">Generative AI</span>
+<span class="bg-surface-container-low text-secondary px-2 py-1 rounded-sm text-label-sm font-label-sm">Automation</span>
+</div>
+<h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-on-background mb-1">Automated Quality Control Vision System</h1>
+<p class="text-body-md font-body-md text-secondary">By Prosur Advanced Tech Team • 2 days ago</p>
+</div>
+<div class="flex items-center gap-4 mt-4 md:mt-0">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+<span class="text-label-md font-label-md">12.4k views</span>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-4 py-2 rounded-full border border-surface-variant bg-surface hover:bg-surface-container-low text-secondary hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="thumb_up">thumb_up</span>
+<span class="text-label-md font-label-md">Like</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full border border-surface-variant bg-surface hover:bg-surface-container-low text-secondary hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="share">share</span>
+<span class="text-label-md font-label-md">Share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Description -->
+<div class="glass-card rounded-xl p-md md:p-lg">
+<h3 class="text-headline-md font-headline-md mb-sm text-on-background">About this Demo</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mb-4 leading-relaxed">
+                    This demonstration highlights our new AI-driven computer vision system designed for real-time quality control on the Prosur manufacturing line. By leveraging a custom convolutional neural network trained on thousands of defect samples, the system can identify microscopic anomalies in product packaging with 99.8% accuracy.
+                </p>
+<p class="text-body-md font-body-md text-on-surface-variant leading-relaxed">
+                    The model runs on edge devices directly at the inspection stations, ensuring zero latency and allowing for immediate mechanical sorting of defective units before they proceed to shipping.
+                </p>
+</div>
+<!-- Image Gallery -->
+<div>
+<h3 class="text-headline-md font-headline-md mb-md text-on-background">System Screenshots</h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-sm">
+<div class="aspect-square rounded-lg overflow-hidden border border-surface-variant bg-surface-container-low">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-500 cursor-pointer" data-alt="A clean, minimalist UI screenshot of an AI quality control dashboard. The dashboard features a large central video feed showing products on a conveyor belt with green bounding boxes highlighting perfect items. The side panel displays a structured list of metrics in dark gray text on a white background, accented with subtle red data points." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9oEBBYz_dN0p5HY5LcIJzhieYA8qaQA5Yj05w5EugNUnUUNisq8IXECzlYi-spYCgB9gW1QZswVVUm_UjWy2unvEz6AwJRPXTa1Q6aw6vPOwVpLLgqjWkk_Il6dPvbYFNids-l8UC2-5yrJkkwgYjc7qVv6XuHZr9zJXs8LSxv-gW0D8yUcgx80KfTIWiJC_vzfcpihISHdCzhoygdVIZVBahW93ystUzdDfYZp_vjGUNfeS4H1YVYQ"/>
+</div>
+<div class="aspect-square rounded-lg overflow-hidden border border-surface-variant bg-surface-container-low">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-500 cursor-pointer" data-alt="A detailed view of a computer vision analysis screen. The image shows a close-up of a product package with a highly technical, glowing red highlight indicating a microscopic defect. The surrounding interface is stark white and light gray, utilizing a structured fluid grid layout typical of modern enterprise software." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjkdIxplY56z9gAerIM2ptAktvnAO4gb9OLENFv58vfMF7sfxviNUODvG80gmEvOVeHIr7l-o4kcyelvKnG06LZ8f0-x3a-_jtRAp7iIMotb9v9tmVnIxSZ9QWsNgoc36dv7cw0Ff7GRaibA1dSkNd1SMN3vXSTCrjQbUqmNu-EBV4eVZahkYDm5vVSqC2Le3FiJVpA8TbfN_fgx2A4LkvbovPduolqYe3_ZhCCix0rIXl2yW_SYkW-A"/>
+</div>
+<div class="aspect-square rounded-lg overflow-hidden border border-surface-variant bg-surface-container-low hidden md:block">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-500 cursor-pointer" data-alt="A performance metrics graph from an AI monitoring system. The graph displays a clean, minimalist line chart with a prominent red line tracking accuracy over time against a stark white background. The typography is modern and sans-serif, with subtle gray grid lines providing structure." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg5JGmGAkP9lNGb9foEJU3HLEmAR3RRGEZoSsL7-CHShKABMLYwcGc8LW6wKl3c7adlJjJgh76wSi22e6tHZEunBiUHt93Xs3YKRj-Fsof9hhxJmbro7V13p1oEUXZqQ_9_R-hf7aA5EgWAvEEm3YAFTYH_qwG9-lgrsmA8YUCT4C-M7lqVzgaSH8jjd0yO8fZLFdaquSl9Evd2ODr3JmWeCml8RQLooh-PE2DXPPFXrrOAryPukTBAg"/>
+</div>
+</div>
+</div>
+<!-- Comments Section -->
+<div class="mt-sm">
+<h3 class="text-headline-md font-headline-md mb-md text-on-background">Discussion (3)</h3>
+<!-- Comment Input -->
+<div class="flex gap-4 mb-lg items-start">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden flex-shrink-0 border border-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate user, wearing modern business casual attire against a clean, light gray background. The lighting is soft and flattering, suitable for a corporate directory profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyHLUeB8enPxyNH-Zq7eq-_MUxwOrmIELCZK8go__DwxJ4FPOiUers8PW_ftjRpC78xCNO26rqjT8u2Ytb7XsIQ8moXT9XsIlCkWW3fcYVQ3ZTL_YqPY6W5KpUQhuUlGY19bputTd71192-sWQotXfBf1voYICfOafoGODi-kh1hZ_lum_ieTf6_h1veGiVB2JT9xxK_urrYKquWISLYHk4FF8PQHC3--taL8nQ0ZJSnQnBzmfawpxGw"/>
+</div>
+<div class="flex-grow flex flex-col gap-2">
+<textarea class="w-full bg-surface-container-low focus:bg-white border-none rounded-lg p-sm text-body-md font-body-md placeholder:text-secondary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Add a comment..." rows="2"></textarea>
+<div class="flex justify-end">
+<button class="bg-primary text-on-primary px-4 py-2 rounded-full text-label-md font-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm">Post Comment</button>
+</div>
+</div>
+</div>
+<!-- Comment List -->
+<div class="flex flex-col gap-md">
+<!-- Comment 1 -->
+<div class="flex gap-4 pb-md border-b border-surface-variant">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A small circular avatar showing a female engineer with glasses, smiling softly in a brightly lit modern office environment. The style is professional and clean." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGWbcY-EmGyaVcWWd7hS3T7zjITsjbABJkU_ULhXWE6Fh4FKZ_xvOCSPfOx0EsSwzXk0pgJyRXxgN8NN2m0M-N28bSXosXa8C2RLSbszycLo2nlHH_zmmEsBGrJHCrcCdSEUWnv9wNILlaoQ1kMUJLbC8niO7xdZ7EMwbqxiJcBtFJXhhhXrMFbtC_hdNZ6aVlsOnuo4ACn-35f2OkJDDH-vYMbwQE5Sxx0aGe6SdfTUet9bMn_AdLyg"/>
+</div>
+<div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="text-label-md font-label-md text-on-background">Sarah Jenkins</span>
+<span class="text-label-sm font-label-sm text-secondary">Prosur R&amp;D • 1 day ago</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant">Incredible accuracy improvements. Are you planning to roll this out to the secondary packaging lines as well, or just primary?</p>
+<div class="flex gap-4 mt-2">
+<button class="text-label-sm font-label-sm text-secondary hover:text-primary flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="thumb_up">thumb_up</span> 12</button>
+<button class="text-label-sm font-label-sm text-secondary hover:text-primary">Reply</button>
+</div>
+</div>
+</div>
+<!-- Comment 2 (Reply) -->
+<div class="flex gap-4 pb-md border-b border-surface-variant ml-8">
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A small circular avatar of a male software developer in a dark t-shirt, working in a well-lit studio. Professional and crisp." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpxkDAGRaclLkGHLFOvpf8p93mudoJO8kVSoFD41mQP7V5vspgfN9nkL4SIKGj3c0U-QDRGlLpYiA3ojK2YIL2rA6K7E-zRkn_zsoNHGV7Hd-XAr4OSt4lSLWm9iIzA2Y6eSRniQNtp-GV5evN7rxO9xLFsOg8c-zY8I0jNXDRprrKqfbBPKLcVL-k3xc5b-4wazZfY3H4TqAogDEeXA_Zbag6VIOQc5iSbevo7RjPNawWJoFkcbXn6A"/>
+</div>
+<div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="text-label-md font-label-md text-on-background">Mark Thorne</span>
+<span class="text-label-sm font-label-sm text-secondary bg-surface-variant px-1 rounded">Author</span>
+<span class="text-label-sm font-label-sm text-secondary">5 hours ago</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant">Yes! Secondary packaging is scheduled for Q3. We are currently gathering the training dataset for those specific box types.</p>
+<div class="flex gap-4 mt-2">
+<button class="text-label-sm font-label-sm text-secondary hover:text-primary flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="thumb_up">thumb_up</span> 4</button>
+<button class="text-label-sm font-label-sm text-secondary hover:text-primary">Reply</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Sidebar -->
+<aside class="lg:col-span-4 flex flex-col gap-lg">
+<div class="glass-card rounded-xl p-md">
+<h3 class="text-headline-md font-headline-md mb-md text-on-background border-b border-surface-variant pb-2">More from Prosur</h3>
+<div class="flex flex-col gap-md mt-sm">
+<!-- Related Item 1 -->
+<div class="flex gap-sm group cursor-pointer">
+<div class="w-32 aspect-video bg-surface-variant rounded-md overflow-hidden relative flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A small thumbnail image showing a 3D structural model of a chemical compound, rendered in stark white and gray with bright red bonds. The background is a clean, minimal light gray, emphasizing the technical nature of the AI structural analysis." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBET3qcIJXPILSXiN24_7vdRGSOdMwW4uHySHPT9P_qumtm6UbpaCRAy3e31dqbi4j85wCKQlDIAal9pScKTmOZ_ROl_rHAfo0wfl6zuR1rck4qDEy1Gp3PpfDGPvQVPAG7KdOjsvsPc7iMIxXGgi28UbXxHLm8YeVn0UI7KCQXMtdO8L_XubV6MTjcit5f4p6zyguqonNxH4DSRoFpCpFZx0P9iX79EIKUeeomyr1w0hYRBSFdlp-g3A"/>
+<div class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded">4:12</div>
+</div>
+<div class="flex flex-col justify-start">
+<h4 class="text-label-md font-label-md text-on-background group-hover:text-primary line-clamp-2 mb-1">Predictive Maintenance AI for Mixing Vats</h4>
+<span class="text-label-sm font-label-sm text-secondary">8.2k views</span>
+</div>
+</div>
+<!-- Related Item 2 -->
+<div class="flex gap-sm group cursor-pointer">
+<div class="w-32 aspect-video bg-surface-variant rounded-md overflow-hidden relative flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A small thumbnail image depicting a sleek dashboard interface displaying supply chain logistics routing. Map elements are simplified in minimal light gray tones with bright red path lines highlighting optimized routes. Clean, corporate, light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvB78SivGN-g2ebQB9mWKBOtdf-33VyIiWXJvVNxtEWkBS62SYSawEJ6ICa-Amih9jlFcUgbibE-8YCLepW89t9swQlWpp0l00Pq5S9KCIq1zxgNuNnlxSoar_3UAk7mqoGziAMJyxGgn4K2rWYO2RwrFEB2ZrmW8L8RaFMpCsZBGvHsoUwvejrHsfNEnm_-XZF_EghS7B5kAqFStgdtcGpMy5Y2Qq9BJNf-65LQPA96xK8Zw0-EV_JQ"/>
+<div class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded">12:05</div>
+</div>
+<div class="flex flex-col justify-start">
+<h4 class="text-label-md font-label-md text-on-background group-hover:text-primary line-clamp-2 mb-1">Supply Chain Optimization using LLMs</h4>
+<span class="text-label-sm font-label-sm text-secondary">15.1k views</span>
+</div>
+</div>
+<!-- Related Item 3 -->
+<div class="flex gap-sm group cursor-pointer">
+<div class="w-32 aspect-video bg-surface-variant rounded-md overflow-hidden relative flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A small thumbnail image showing a robotic arm in a pristine, brightly lit laboratory setting. The arm is interacting with a touchscreen panel displaying stark white and red UI elements. The overall look is highly polished, modern, and clinical." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn_KXWMt5hP3q5_1XAuKihj8V8vBoBeQik7oZwGe5FqmxO8_WBQ9m0UYF5Klk_HMRnJzQ_Lduh1Wxij25D5b5C3BBHbZcnWga4hh-_kX-sKAQ5054yczQOZWSx2Nnwno0UzTjmbL7oDqljpPzAsbKKFt4T2q_mcsQNV4bxXH-SYDvXybd1HiUADDH6kqDRuSrJUMg1GjwPKQwAnFdLCx0l9zsbCvewVla9kNoQxvSSAAANRrgma4Z_Dw"/>
+<div class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded">2:45</div>
+</div>
+<div class="flex flex-col justify-start">
+<h4 class="text-label-md font-label-md text-on-background group-hover:text-primary line-clamp-2 mb-1">Robotic Formulation Assistant Demo</h4>
+<span class="text-label-sm font-label-sm text-secondary">3.4k views</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Company Info Widget -->
+<div class="rounded-xl border border-surface-variant bg-surface p-md text-center flex flex-col items-center">
+<div class="w-16 h-16 bg-surface-container-lowest rounded-full flex items-center justify-center border border-surface-variant mb-3 shadow-sm text-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="business">business</span>
+</div>
+<h4 class="text-headline-md font-headline-md text-on-background">Prosur</h4>
+<p class="text-label-sm font-label-sm text-secondary mt-1 mb-4">Leading innovation in food technology</p>
+<button class="w-full bg-white border border-surface-variant text-secondary font-label-md text-label-md py-2 rounded-full hover:bg-surface-container-low transition-colors">View all 24 Demos</button>
+</div>
+</aside>
+</main>
+</body></html>

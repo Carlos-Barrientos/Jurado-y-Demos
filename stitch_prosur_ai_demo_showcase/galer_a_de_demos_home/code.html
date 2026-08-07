@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Demo Showcase - Grupo Prosur</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config from Design System -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#c8102e",
+                    "on-tertiary-container": "#e4e1e1",
+                    "secondary": "#5b5f61",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-surface": "#191c1d",
+                    "surface-dim": "#d9dadb",
+                    "surface-bright": "#f8f9fa",
+                    "surface-tint": "#bf0229",
+                    "tertiary": "#4d4c4c",
+                    "on-secondary-container": "#616567",
+                    "secondary-fixed": "#e0e3e5",
+                    "tertiary-fixed": "#e5e2e1",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#410007",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#ffb3b1",
+                    "on-primary-container": "#ffdad8",
+                    "outline-variant": "#e5bdbb",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "background": "#f8f9fa",
+                    "inverse-surface": "#2e3132",
+                    "secondary-container": "#e0e3e5",
+                    "secondary-fixed-dim": "#c4c7c9",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e1e3e4",
+                    "on-secondary-fixed-variant": "#444749",
+                    "surface-container": "#edeeef",
+                    "primary-fixed": "#ffdad8",
+                    "on-primary-fixed-variant": "#92001c",
+                    "primary-fixed-dim": "#ffb3b1",
+                    "surface-container-high": "#e7e8e9",
+                    "tertiary-container": "#656464",
+                    "primary": "#9e001f",
+                    "on-background": "#191c1d",
+                    "outline": "#906f6e",
+                    "on-surface-variant": "#5c403f",
+                    "on-secondary-fixed": "#191c1e",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "surface-container-low": "#f3f4f5",
+                    "error-container": "#ffdad6",
+                    "surface": "#f8f9fa",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "48px",
+                    "base": "4px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "max-width": "1440px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "xl": "40px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "label-md": ["Hanken Grotesk"],
+                    "label-sm": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-family: 'Material Symbols Outlined';
+          font-weight: normal;
+          font-style: normal;
+          font-size: 24px;
+          line-height: 1;
+          letter-spacing: normal;
+          text-transform: none;
+          display: inline-block;
+          white-space: nowrap;
+          word-wrap: normal;
+          direction: ltr;
+          -webkit-font-feature-settings: 'liga';
+          -webkit-font-smoothing: antialiased;
+        }
+        
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        .demo-card {
+            transition: all 0.3s ease;
+        }
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar (Predicted Component) -->
+<nav class="hidden lg:flex flex-col h-screen p-md gap-sm border-r border-outline-variant bg-surface-container-low dark:bg-surface-container-highest h-screen w-64 docked left-0 sticky top-0 shrink-0">
+<div class="mb-lg px-md">
+<h2 class="text-headline-md font-headline-md font-bold text-primary">Business Units</h2>
+<p class="text-label-md font-label-md text-secondary mt-1">Filter by company</p>
+</div>
+<ul class="flex flex-col gap-xs flex-1 overflow-y-auto">
+<!-- All Filter -->
+<li>
+<a class="flex items-center gap-md px-md py-sm bg-primary-container dark:bg-primary-fixed-dim text-on-primary-container dark:text-on-primary-fixed-variant rounded-full font-bold scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-md font-label-md">All Demos</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-secondary-fixed-dim hover:bg-surface-variant dark:hover:bg-tertiary-container rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="business">business</span>
+<span class="text-label-md font-label-md">Prosur</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-secondary-fixed-dim hover:bg-surface-variant dark:hover:bg-tertiary-container rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="forest">forest</span>
+<span class="text-label-md font-label-md">5 Pinos</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-secondary-fixed-dim hover:bg-surface-variant dark:hover:bg-tertiary-container rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="text-label-md font-label-md">Calzamoda</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-secondary-fixed-dim hover:bg-surface-variant dark:hover:bg-tertiary-container rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="text-label-md font-label-md">CaFi</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-secondary-fixed-dim hover:bg-surface-variant dark:hover:bg-tertiary-container rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="diversity_3">diversity_3</span>
+<span class="text-label-md font-label-md">Grupo Chesa</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto flex flex-col gap-sm">
+<button class="w-full bg-primary text-on-primary py-sm px-md rounded-full text-label-md font-label-md font-bold hover:bg-primary/90 transition-colors">
+                Submit Demo
+            </button>
+<div class="h-px bg-outline-variant my-sm"></div>
+<ul class="flex flex-col gap-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-secondary-fixed-dim hover:bg-surface-variant dark:hover:bg-tertiary-container rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-md font-label-md">Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-secondary-fixed-dim hover:bg-surface-variant dark:hover:bg-tertiary-container rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="text-label-md font-label-md">Help</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- TopNavBar (Predicted Component) -->
+<header class="flex justify-between items-center w-full px-margin-desktop max-w-max-width mx-auto h-16 sticky top-0 z-50 bg-surface dark:bg-inverse-surface border-b border-surface-variant dark:border-outline-variant shadow-sm dark:shadow-none docked full-width top-0">
+<div class="flex items-center gap-md">
+<!-- Mobile Menu Button -->
+<button class="lg:hidden p-2 text-secondary hover:bg-surface-container-low rounded-full">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<img alt="Grupo Prosur Logo" class="h-8 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKodQTJZJEcFt-aE4ZuKoR8AU1gYrHatgGjlLJQPVTysDj5IITtEakJvr1bEBdmNgXLoKeZUj6lSCU8GSUquUIyr-L8X-kGyRHZeHkIMH1v9MVYhASW3uL1BNYGfaaRtpI9z_UwESktKTnJ0FcQN0g1rHX1eHTdJq7VNmm_o8d__KBXAiDs4vrPuDGhY5CnW2WS5T9EaZDlPA5h3Chld00Q9Lvzm2lFXaAEyg0v47ZZ-KUO-kF4DL2AB1Moc0HzCt8R7k"/>
+<span class="text-headline-md font-headline-lg font-bold text-primary dark:text-on-primary-fixed ml-sm hidden md:block">AI Demo Showcase</span>
+</div>
+<nav class="hidden md:flex gap-lg h-full">
+<a class="flex items-center h-full text-primary dark:text-primary-fixed-dim border-b-2 border-primary dark:border-primary-fixed-dim pb-1 text-label-md font-label-md opacity-80 scale-95 transition-all" href="#">Explore</a>
+<a class="flex items-center h-full text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim text-label-md font-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors px-2" href="#">Companies</a>
+<a class="flex items-center h-full text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim text-label-md font-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors px-2" href="#">Leaderboard</a>
+</nav>
+<div class="flex items-center gap-sm">
+<!-- Search Bar -->
+<div class="relative hidden sm:block">
+<input class="pl-10 pr-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary text-body-md font-body-md w-64" placeholder="Search demos..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-secondary" data-icon="search">search</span>
+</div>
+<button class="p-2 text-secondary hover:bg-surface-container-low rounded-full transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<button class="p-1 rounded-full hover:bg-surface-container-low transition-colors">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small circular user profile picture showing a professional headshot of a person in a corporate setting, with good lighting and a neutral background, conveying a sense of reliability and competence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1h_dw4NJUGgsl0JuzvFFA8H78qk31-2Frh6LHGQQrxJZWnL18bb08KbjkVNSFGzV-YXmKSDmKEkdaDqr6GZYYF-ugQyjFGThnVV5XeV5g3PNSbKLtrVkBRZ4ey-PlU0ILyv_xJD_-7Ti7smv_Jwjh1nvYF6eoUcUOk6LejF73F8kpt1Z3metkyibeXjPU9tGnM5C-q54eTiF-mFprilqqdfLunwYdJdozvS0c2umljiDJZue1LzGHDw"/>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-margin-mobile md:p-margin-desktop max-w-max-width mx-auto w-full flex-1">
+<!-- Hero Section -->
+<section class="mb-xl text-center md:text-left py-lg">
+<h1 class="text-display-lg font-display-lg text-on-background mb-sm">IA Demo Showcase</h1>
+<p class="text-body-lg font-body-lg text-secondary max-w-2xl">
+                    Discover how Grupo Prosur and its business units are leveraging Artificial Intelligence to drive innovation, automate processes, and build the future of our industries.
+                </p>
+</section>
+<!-- Demos Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<article class="demo-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col h-full">
+<div class="relative aspect-video group cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A high-quality YouTube-style video thumbnail showing a modern software dashboard with charts and graphs, representing predictive analytics in supply chain management. The aesthetic is clean, professional, and slightly futuristic, with a light mode color scheme featuring corporate blues and subtle red accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCof3yH5D5pFIXikyyhdycQK2b8KIvWYlxNqvbdLEAswa-ig7JITekdDa7dTJorCvFRqn_0clPGLca414h0S6K0H4ojV2JCPf-buHiVNnghThiguD20ymxyJjlE0geJtTSKFWM67AbdDHiq8lR2VroyUqec3LAxbugx0XWDx6e9s5TkZdk7DBpesjTcqKBAe_MtnWNfl6IvvtI6U8x1QxgwAL5r86EUaFLpM20J_sZPdmy2iyGDtWV4nA"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+<div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="play_arrow">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-md">
+                            4:25
+                        </div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex gap-2 mb-2">
+<span class="bg-surface-container-low text-secondary text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-sm">Analytics</span>
+<span class="bg-surface-container-low text-secondary text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-sm">Supply Chain</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface mb-sm line-clamp-2">Predictive Inventory Management with AI</h3>
+<div class="mt-auto pt-md flex items-center justify-between border-t border-surface-variant">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border border-surface-variant" data-alt="A small circular avatar showing a young professional woman smiling slightly, professionally dressed, neutral background, bright even lighting, conveying approachability and expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwia--3t4mB5xOkFhJ4vkgwtuuIGYqVfa0yOkUXhyAL4tAjufrrsa08y2CFhOGwgRP0ilh7ZtZ0PRkOF-HrRvQmjOlggr8eVQUSTDMmkqBBMr6g3rrCjTsOYdBpnU2tiIdc-shBGt-xE10PFjkSLlzo-dV8t8MlJy5LXA81gHW9nku11XBZ3vO8P1BuJcL1kfXCZBrpOjd_5Kk8o6CJ9qPhZiyMGNw5SvtQTxJrB9Bdz3_CeGU1vbWUA"/>
+<div>
+<p class="text-label-md font-label-md text-on-surface">Maria Gonzalez</p>
+<p class="text-label-sm font-label-sm text-primary">Prosur</p>
+</div>
+</div>
+<button class="flex items-center gap-1 text-secondary hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:fill-current" data-icon="favorite">favorite</span>
+<span class="text-label-md font-label-md">142</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="demo-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col h-full">
+<div class="relative aspect-video group cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A video thumbnail depicting a sleek, modern mobile application interface for retail customers, highlighting personalized AI product recommendations. The visual style is crisp and commercial, using a light mode palette with soft shadows and elegant typography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2a-2cqnvJ7eg30MG8u5I0Ovkr61OLsNUda6cJgUO7_y5SdcbTqtJ4VFgilBcwKAFvOSeoqk5gd74RrPSv4snzszB3rVoVDaviJnneZagLJK9EEeh1_PZ0mEFul26u985ntBbNC5e64wGvVAglkAkPY5bWaTUDLvHAFIXQQVQ923dn6d3DLvOW3qSNjRtR5KaLQTx6JkghinAABDOaUTWQCybOq-d9mxNoD0SWKgImgVjKabrph7F3ow"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+<div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="play_arrow">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-md">
+                            2:18
+                        </div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex gap-2 mb-2">
+<span class="bg-surface-container-low text-secondary text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-sm">Generative AI</span>
+<span class="bg-surface-container-low text-secondary text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-sm">Retail</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface mb-sm line-clamp-2">Hyper-Personalized Shopping Assistant</h3>
+<div class="mt-auto pt-md flex items-center justify-between border-t border-surface-variant">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border border-surface-variant" data-alt="A small circular avatar of a man with glasses and a beard, wearing a casual button-down shirt, looking focused but friendly, professional lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBivuFSOlwZkxtKV6ePLNxcMcCj1nhHympMFEnZXlCDwnl0OdUkukt-LSx_eO8Ve6_9nAH-qgfvhPWPncwTL5tAuK8Mey0nPUgi2t_3wXLYl9KvJFdzStqmwdP2plSJYXETkzyXySsgXSdME59fDulgMf77-AOdw5LhEy7YRLYLhcIGzM55EdXI38Enaj6cOejaUgsEcRK7Y3SvM85rk2MwnRgtGlmaNuTd0v20IACk_X6Na0w9lJyt6g"/>
+<div>
+<p class="text-label-md font-label-md text-on-surface">Carlos Ruiz</p>
+<p class="text-label-sm font-label-sm text-[#006039]">5 Pinos</p>
+</div>
+</div>
+<button class="flex items-center gap-1 text-secondary hover:text-primary transition-colors group">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="text-label-md font-label-md">89</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="demo-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col h-full">
+<div class="relative aspect-video group cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A video thumbnail showing a split screen: on one side, a chaotic pile of documents; on the other, a structured, cleanly formatted digital database. The aesthetic represents automation and order, with a bright, minimalist corporate design language." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoomCzqeLmJK3BrG5Fs1Y5INFlCQ5enP3a6lE76t1vLWfOtpXKUh60vg_zT4dKL4YmqnkGBTsVcDBv1nVT69ueGMyrX7CFrT1nh_c5Zo6gm7tXlNAuZelxaHh5nA9ycHE9tGm1chEwjUehlHjOPyQgdzomo1LPr81MsWxa6fvxVTrwrYLa4MucgSXsCjVzTrJaLMdl6zOOtDrn6_zfF-Q9kPEHZwi8aDsObOLeCdkgBVoG3GDkMT9IKA"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+<div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="play_arrow">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-md">
+                            6:05
+                        </div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex gap-2 mb-2">
+<span class="bg-surface-container-low text-secondary text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-sm">Automation</span>
+<span class="bg-surface-container-low text-secondary text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-sm">Finance</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface mb-sm line-clamp-2">Automated Invoice Processing Pipeline</h3>
+<div class="mt-auto pt-md flex items-center justify-between border-t border-surface-variant">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border border-surface-variant" data-alt="A small circular avatar of an older woman with short hair, wearing a blazer, projecting authority and experience in a modern office setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeFEbfHjB0H9Sod8BPVr5h8djPB2cTANVDXkJvZyphf8Gh16WrmZkLGJZvYwLbJkvZuoCSaTzR7KgY17i8Ob1urDIaTiKCxkFDk7swGv0J44-FGkuiy6U9Ipipn-tD9oZKQezBie04QDl-WuO2V8I92u-7tehkG-QZzLs_3HOC5xTWMXwSrVTKXfs_BdLYRfYLptivLQ7oyzmw36Bcj4k9MS3ezwaUuBJVRgedQtpJcqITiWnyzFHgfQ"/>
+<div>
+<p class="text-label-md font-label-md text-on-surface">Elena Silva</p>
+<p class="text-label-sm font-label-sm text-[#005a9c]">CaFi</p>
+</div>
+</div>
+<button class="flex items-center gap-1 text-secondary hover:text-primary transition-colors group">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="text-label-md font-label-md">215</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<div class="mt-lg flex justify-center">
+<button class="px-lg py-sm border border-outline-variant rounded-full text-label-md font-label-md font-bold text-on-surface hover:bg-surface-container-low transition-colors">
+                    Load More Demos
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Predicted Component - Mobile Only) -->
+<nav class="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface/80 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)] shadow-lg dark:shadow-none bg-surface dark:bg-inverse-surface docked full-width bottom-0 rounded-t-xl">
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-full px-4 py-1 scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-label-sm font-label-sm-mobile mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:bg-surface-variant px-4 py-1 rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="smart_display">smart_display</span>
+<span class="text-label-sm font-label-sm-mobile mt-1">Demos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:bg-surface-variant px-4 py-1 rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+<span class="text-label-sm font-label-sm-mobile mt-1">Companies</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:bg-surface-variant px-4 py-1 rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm-mobile mt-1">Profile</span>
+</a>
+</nav>
+</body></html>
