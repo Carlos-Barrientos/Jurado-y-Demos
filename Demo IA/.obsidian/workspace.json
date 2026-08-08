@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "55f429f8a220e314",
+        "id": "42f357e7e7f2707c",
         "type": "tabs",
         "children": [
           {
-            "id": "5e761f2ceb48436d",
+            "id": "e674789030f8e6f9",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -181,7 +181,7 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "5e761f2ceb48436d",
+  "active": "e674789030f8e6f9",
   "lastOpenFiles": [
     "Bienvenido.md"
   ]
