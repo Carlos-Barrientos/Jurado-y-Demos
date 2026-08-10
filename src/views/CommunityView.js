@@ -7,6 +7,24 @@ export function renderCommunityView() {
   return getCommunityHtml();
 }
 
+function getActiveMembers() {
+  const users = state.users || [];
+  const demos = state.demos || [];
+  
+  const activeList = users.map(user => {
+    const userDemos = demos.filter(d => String(d.authorId) === String(user.id) || d.author === user.name);
+    return {
+      name: user.name,
+      avatar: user.avatar,
+      unit: user.unit || user.roleTitle || (user.roleType === 'admin' ? 'Super Admin' : user.roleType === 'judge' ? 'Jurado' : 'Participante'),
+      demoCount: userDemos.length
+    };
+  });
+  
+  activeList.sort((a, b) => b.demoCount - a.demoCount);
+  return activeList.slice(0, 5);
+}
+
 function getCommunityHtml() {
   return `
     <div class="max-w-[1440px] mx-auto px-4 md:px-12 py-8 space-y-8 animate-fadeIn">
@@ -125,26 +143,18 @@ function getCommunityHtml() {
           <div class="bg-white p-6 rounded-2xl border border-surface-container-high space-y-4">
             <h3 class="font-bold text-sm text-on-surface uppercase tracking-wider">Miembros Más Activos</h3>
             <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250" alt="Elena" class="w-8 h-8 rounded-full object-cover"/>
-                  <div>
-                    <span class="font-bold text-xs text-on-surface block">Dra. Elena Rostova</span>
-                    <span class="text-[11px] text-secondary">Prosur Biotech</span>
+              ${getActiveMembers().map(m => `
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <img src="${m.avatar}" alt="${m.name}" class="w-8 h-8 rounded-full object-cover"/>
+                    <div>
+                      <span class="font-bold text-xs text-on-surface block">${m.name}</span>
+                      <span class="text-[11px] text-secondary">${m.unit}</span>
+                    </div>
                   </div>
+                  <span class="text-xs font-bold text-primary">${m.demoCount} Demo${m.demoCount === 1 ? '' : 's'}</span>
                 </div>
-                <span class="text-xs font-bold text-primary">14 Demos</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=250" alt="Mariana" class="w-8 h-8 rounded-full object-cover"/>
-                  <div>
-                    <span class="font-bold text-xs text-on-surface block">Lic. Mariana Gómez</span>
-                    <span class="text-[11px] text-secondary">Prosur Corporate</span>
-                  </div>
-                </div>
-                <span class="text-xs font-bold text-primary">9 Demos</span>
-              </div>
+              `).join('')}
             </div>
           </div>
 
