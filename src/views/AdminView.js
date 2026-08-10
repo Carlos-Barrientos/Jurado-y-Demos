@@ -22,12 +22,8 @@ function getAdminHtml() {
             <span class="material-symbols-outlined text-3xl text-primary">admin_panel_settings</span>
             <h1 class="text-2xl md:text-3xl font-bold text-on-surface">Panel de Administración Integral</h1>
           </div>
-          <p class="text-sm text-secondary">Gestión completa de usuarios, asignación de demos, enlaces de video y restablecimiento del sistema.</p>
+          <p class="text-sm text-secondary">Gestión completa de usuarios, asignación de demos y enlaces de video del sistema.</p>
         </div>
-
-        <button id="resetStateBtn" class="px-4 py-2 bg-error-container text-error hover:bg-error hover:text-white font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 border border-error/20">
-          <span class="material-symbols-outlined text-base">restart_alt</span> Restablecer Datos de Ejemplo
-        </button>
       </div>
 
       <!-- Main Layout Grid -->
@@ -490,16 +486,6 @@ function attachAdminEvents() {
         alert('Enlace de video actualizado exitosamente.');
         if (editVideoModal) editVideoModal.classList.add('hidden');
         refreshAdminView();
-      }
-    });
-  }
-
-  // Reset State
-  const resetBtn = document.getElementById('resetStateBtn');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      if (confirm('¿Restablecer los datos de demostración a su estado inicial por defecto?')) {
-        resetState();
       }
     });
   }
