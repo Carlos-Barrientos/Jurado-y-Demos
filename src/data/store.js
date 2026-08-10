@@ -984,8 +984,17 @@ if (isFirebaseConfigured()) {
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
         const demoId = isNaN(Number(docSnap.id)) ? docSnap.id : Number(docSnap.id);
-        if (!deleted.includes(String(demoId))) {
-          cloudMap.set(String(demoId), { id: demoId, ...data });
+        const strId = String(demoId);
+        
+        if (data.isDeleted) {
+          if (!state.deletedDemoIds.includes(strId)) {
+            state.deletedDemoIds.push(strId);
+          }
+          if (!deleted.includes(strId)) {
+            deleted.push(strId);
+          }
+        } else if (!deleted.includes(strId)) {
+          cloudMap.set(strId, { id: demoId, ...data });
         }
       });
     }
@@ -1009,7 +1018,7 @@ if (isFirebaseConfigured()) {
         ...defDemo,
         ...local,
         ...cloud,
-        videoUrl: formatYoutubeEmbedUrl((cloud && cloud.videoUrl) || (local && local.videoUrl) || defDemo.videoUrl),
+        videoUrl: formatYoutubeEmbedUrl((cloud && cloud.videoUrl !== undefined) ? cloud.videoUrl : ((local && local.videoUrl !== undefined) ? local.videoUrl : defDemo.videoUrl)),
         images: (cloud && cloud.images && cloud.images.length > 0) ? cloud.images : ((local && local.images) || []),
         evaluations: (cloud && cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : ((local && local.evaluations) || []),
         likes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : ((local && local.realLikes !== undefined) ? local.realLikes : (defDemo.likes || 0)),
@@ -1377,7 +1386,7 @@ export function deleteUser(userId) {
   
   saveState();
   if (isFirebaseConfigured()) {
-    deleteDoc(doc(db, 'users', userId)).catch(() => {});
+    setDoc(doc(db, 'users', userId), { isDeleted: true }, { merge: true }).catch(() => {});
   }
   return true;
 }
@@ -1397,7 +1406,7 @@ export function deleteDemo(demoId) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    deleteDoc(doc(db, 'demos', strId)).catch(() => {});
+    setDoc(doc(db, 'demos', strId), { isDeleted: true }, { merge: true }).catch(() => {});
   }
   return true;
 }
