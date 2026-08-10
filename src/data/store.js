@@ -463,16 +463,37 @@ const defaultState = {
   posts: []
 };
 
-// Clear legacy state if old schema was present
-function getCleanInitialState() {
-  localStorage.removeItem(STORAGE_KEY);
+// Load initial state with localStorage persistence
+function loadInitialState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && Array.isArray(parsed.users) && parsed.users.length > 0) {
+        let activeUser = null;
+        if (parsed.activeUserId) {
+          activeUser = parsed.users.find(u => u.id === parsed.activeUserId) || null;
+        }
+        return {
+          ...defaultState,
+          ...parsed,
+          users: parsed.users,
+          demos: (Array.isArray(parsed.demos) && parsed.demos.length > 0) ? parsed.demos : defaultState.demos,
+          currentUser: activeUser
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('Could not parse localStorage state:', e);
+  }
+
   return {
     ...defaultState,
     currentUser: null
   };
 }
 
-export const state = getCleanInitialState();
+export const state = loadInitialState();
 
 export function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -490,46 +511,54 @@ export function saveState() {
 // FIREBASE REALTIME SYNC & FIRESTORE INTEGRATION
 // -------------------------------------------------------------
 if (isFirebaseConfigured()) {
-  console.log('🔥 Syncing clean state with Firebase Firestore...');
+  console.log('🔥 Syncing state with Firebase Firestore...');
   
   onSnapshot(collection(db, 'users'), (snapshot) => {
-    if (!snapshot.empty) {
+    if (snapshot && !snapshot.empty) {
       const cloudUsers = [];
       snapshot.forEach(docSnap => cloudUsers.push({ id: docSnap.id, ...docSnap.data() }));
-      state.users = cloudUsers;
-      if (state.activeUserId) {
-        state.currentUser = state.users.find(u => u.id === state.activeUserId) || state.currentUser;
+      if (cloudUsers.length > 0) {
+        state.users = cloudUsers;
+        if (state.activeUserId) {
+          state.currentUser = state.users.find(u => u.id === state.activeUserId) || state.currentUser;
+        }
+        saveState();
       }
-      saveState();
     } else {
-      seedFirestoreUsers();
+      seedFirestoreUsers().catch(err => console.warn('Seed users warning:', err));
     }
+  }, (err) => {
+    console.warn('Firestore users snapshot warning:', err);
   });
 
   onSnapshot(collection(db, 'demos'), (snapshot) => {
-    if (!snapshot.empty) {
+    if (snapshot && !snapshot.empty) {
       const cloudDemos = [];
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
         cloudDemos.push({ id: isNaN(Number(docSnap.id)) ? docSnap.id : Number(docSnap.id), ...data });
       });
-      state.demos = cloudDemos;
-      saveState();
+      if (cloudDemos.length > 0) {
+        state.demos = cloudDemos;
+        saveState();
+      }
     } else {
-      seedFirestoreDemos();
+      seedFirestoreDemos().catch(err => console.warn('Seed demos warning:', err));
     }
+  }, (err) => {
+    console.warn('Firestore demos snapshot warning:', err);
   });
 }
 
 async function seedFirestoreUsers() {
   for (const u of defaultState.users) {
-    await setDoc(doc(db, 'users', u.id), u);
+    try { await setDoc(doc(db, 'users', u.id), u); } catch (e) {}
   }
 }
 
 async function seedFirestoreDemos() {
   for (const d of defaultState.demos) {
-    await setDoc(doc(db, 'demos', String(d.id)), d);
+    try { await setDoc(doc(db, 'demos', String(d.id)), d); } catch (e) {}
   }
 }
 
@@ -706,7 +735,7 @@ export function submitJudgeEvaluation(demoId, scores, feedback) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    updateDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations, rating: demo.rating });
+    updateDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations, rating: demo.rating }).catch(() => {});
   }
   return true;
 }
@@ -732,7 +761,7 @@ export function createUser(userData) {
   state.users.push(newUser);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', newId), newUser);
+    setDoc(doc(db, 'users', newId), newUser).catch(() => {});
   }
   return true;
 }
@@ -777,7 +806,7 @@ export function createDemo(demoData, authorId) {
   state.demos.push(newDemo);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', String(newId)), newDemo);
+    setDoc(doc(db, 'demos', String(newId)), newDemo).catch(() => {});
   }
   return true;
 }
@@ -798,7 +827,7 @@ export function assignDemo(demoId, authorId) {
         author: author.name,
         authorRole: author.roleTitle,
         authorAvatar: author.avatar
-      });
+      }).catch(() => {});
     }
     return true;
   }
@@ -827,7 +856,7 @@ export function updateUser(userId, data) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', userId), user);
+    setDoc(doc(db, 'users', userId), user).catch(() => {});
   }
   return true;
 }
@@ -839,7 +868,7 @@ export function deleteUser(userId) {
     state.users.splice(idx, 1);
     saveState();
     if (isFirebaseConfigured()) {
-      deleteDoc(doc(db, 'users', userId));
+      deleteDoc(doc(db, 'users', userId)).catch(() => {});
     }
     return true;
   }
@@ -853,7 +882,7 @@ export function deleteDemo(demoId) {
     state.demos.splice(idx, 1);
     saveState();
     if (isFirebaseConfigured()) {
-      deleteDoc(doc(db, 'demos', String(demoId)));
+      deleteDoc(doc(db, 'demos', String(demoId))).catch(() => {});
     }
     return true;
   }
@@ -881,7 +910,7 @@ export function addPost(title, content, category) {
   state.posts.unshift(newPost);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'posts', newPost.id), newPost);
+    setDoc(doc(db, 'posts', newPost.id), newPost).catch(() => {});
   }
 }
 
