@@ -928,48 +928,59 @@ if (isFirebaseConfigured()) {
   console.log('🔥 Syncing state with Firebase Firestore...');
   
   onSnapshot(collection(db, 'users'), (snapshot) => {
+    const cloudMap = new Map();
+    const deleted = state.deletedUserIds || [];
+
     if (snapshot && !snapshot.empty) {
-      const deleted = state.deletedUserIds || [];
-      const cloudMap = new Map();
       snapshot.forEach(docSnap => {
         const u = { id: docSnap.id, ...docSnap.data() };
         if (!deleted.includes(u.id)) {
           cloudMap.set(u.id, u);
         }
       });
-
-      const updatedUsers = state.users.map(local => {
-        const cloud = cloudMap.get(local.id);
-        if (cloud) {
-          cloudMap.delete(local.id);
-          return { ...local, ...cloud };
-        }
-        return local;
-      }).filter(u => !deleted.includes(u.id));
-
-      cloudMap.forEach(cloudUser => {
-        if (!deleted.includes(cloudUser.id)) {
-          updatedUsers.push(cloudUser);
-        }
-      });
-
-      state.users = updatedUsers;
-      if (state.activeUserId) {
-        state.currentUser = state.users.find(u => u.id === state.activeUserId) || state.currentUser;
-      }
-      saveState();
-      window.dispatchEvent(new CustomEvent('state-updated'));
-    } else {
-      seedFirestoreUsers().catch(err => console.warn('Seed users warning:', err));
     }
+
+    // Auto-sync missing default users to Firestore
+    defaultState.users.forEach(defUser => {
+      if (!deleted.includes(defUser.id) && !cloudMap.has(defUser.id)) {
+        setDoc(doc(db, 'users', defUser.id), defUser, { merge: true }).catch(() => {});
+        cloudMap.set(defUser.id, defUser);
+      }
+    });
+
+    const updatedUsers = defaultState.users.map(defUser => {
+      const cloud = cloudMap.get(defUser.id);
+      const local = state.users.find(l => l.id === defUser.id);
+      if (cloud) cloudMap.delete(defUser.id);
+
+      return {
+        ...defUser,
+        ...local,
+        ...cloud
+      };
+    }).filter(u => !deleted.includes(u.id));
+
+    cloudMap.forEach(cloudUser => {
+      if (!deleted.includes(cloudUser.id)) {
+        updatedUsers.push(cloudUser);
+      }
+    });
+
+    state.users = updatedUsers;
+    if (state.activeUserId) {
+      state.currentUser = state.users.find(u => u.id === state.activeUserId) || state.currentUser;
+    }
+    saveState();
+    window.dispatchEvent(new CustomEvent('state-updated'));
   }, (err) => {
-    console.warn('Firestore users snapshot warning:', err);
+    console.warn('🔥 Firestore users snapshot warning:', err);
   });
 
   onSnapshot(collection(db, 'demos'), (snapshot) => {
+    const cloudMap = new Map();
+    const deleted = state.deletedDemoIds || [];
+
     if (snapshot && !snapshot.empty) {
-      const deleted = state.deletedDemoIds || [];
-      const cloudMap = new Map();
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
         const demoId = isNaN(Number(docSnap.id)) ? docSnap.id : Number(docSnap.id);
@@ -977,54 +988,61 @@ if (isFirebaseConfigured()) {
           cloudMap.set(String(demoId), { id: demoId, ...data });
         }
       });
-
-      const updatedDemos = state.demos.map(local => {
-        const key = String(local.id);
-        const cloud = cloudMap.get(key);
-        if (cloud) {
-          cloudMap.delete(key);
-          return {
-            ...local,
-            ...cloud,
-            videoUrl: cloud.videoUrl ? formatYoutubeEmbedUrl(cloud.videoUrl) : formatYoutubeEmbedUrl(local.videoUrl),
-            images: (cloud.images && cloud.images.length > 0) ? cloud.images : (local.images || []),
-            evaluations: (cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : (local.evaluations || []),
-            likes: (cloud.realLikes !== undefined ? cloud.realLikes : (cloud.likes || local.likes || 0)),
-            realLikes: (cloud.realLikes !== undefined ? cloud.realLikes : (cloud.likes || local.likes || 0))
-          };
-        }
-        return local;
-      }).filter(d => !deleted.includes(String(d.id)));
-
-      cloudMap.forEach(cloudDemo => {
-        if (!deleted.includes(String(cloudDemo.id))) {
-          updatedDemos.push({
-            ...cloudDemo,
-            videoUrl: formatYoutubeEmbedUrl(cloudDemo.videoUrl)
-          });
-        }
-      });
-
-      state.demos = updatedDemos;
-      saveState();
-      window.dispatchEvent(new CustomEvent('state-updated'));
-    } else {
-      seedFirestoreDemos().catch(err => console.warn('Seed demos warning:', err));
     }
+
+    // Auto-sync missing default 38 demos to Firestore
+    defaultState.demos.forEach(defDemo => {
+      const key = String(defDemo.id);
+      if (!deleted.includes(key) && !cloudMap.has(key)) {
+        setDoc(doc(db, 'demos', key), defDemo, { merge: true }).catch(() => {});
+        cloudMap.set(key, defDemo);
+      }
+    });
+
+    const updatedDemos = defaultState.demos.map(defDemo => {
+      const key = String(defDemo.id);
+      const cloud = cloudMap.get(key);
+      const local = state.demos.find(l => String(l.id) === key);
+      if (cloud) cloudMap.delete(key);
+
+      return {
+        ...defDemo,
+        ...local,
+        ...cloud,
+        videoUrl: formatYoutubeEmbedUrl((cloud && cloud.videoUrl) || (local && local.videoUrl) || defDemo.videoUrl),
+        images: (cloud && cloud.images && cloud.images.length > 0) ? cloud.images : ((local && local.images) || []),
+        evaluations: (cloud && cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : ((local && local.evaluations) || []),
+        likes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : ((local && local.realLikes !== undefined) ? local.realLikes : (defDemo.likes || 0)),
+        realLikes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : ((local && local.realLikes !== undefined) ? local.realLikes : (defDemo.likes || 0))
+      };
+    }).filter(d => !deleted.includes(String(d.id)));
+
+    cloudMap.forEach(cloudDemo => {
+      if (!deleted.includes(String(cloudDemo.id))) {
+        updatedDemos.push({
+          ...cloudDemo,
+          videoUrl: formatYoutubeEmbedUrl(cloudDemo.videoUrl)
+        });
+      }
+    });
+
+    state.demos = updatedDemos;
+    saveState();
+    window.dispatchEvent(new CustomEvent('state-updated'));
   }, (err) => {
-    console.warn('Firestore demos snapshot warning:', err);
+    console.warn('🔥 Firestore demos snapshot warning:', err);
   });
 }
 
 async function seedFirestoreUsers() {
   for (const u of defaultState.users) {
-    try { await setDoc(doc(db, 'users', u.id), u); } catch (e) {}
+    try { await setDoc(doc(db, 'users', u.id), u, { merge: true }); } catch (e) {}
   }
 }
 
 async function seedFirestoreDemos() {
   for (const d of defaultState.demos) {
-    try { await setDoc(doc(db, 'demos', String(d.id)), d); } catch (e) {}
+    try { await setDoc(doc(db, 'demos', String(d.id)), d, { merge: true }); } catch (e) {}
   }
 }
 
