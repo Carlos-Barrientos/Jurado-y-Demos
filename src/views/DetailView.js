@@ -13,6 +13,7 @@ import {
   addCommentToDemo, 
   isFavorite, 
   toggleFavorite,
+  formatYoutubeEmbedUrl,
   companies
 } from '../data/store.js';
 
@@ -27,6 +28,8 @@ function getDetailHtml(demo) {
   const userIsOwner = isOwner(demo) || isAdmin();
   const userIsJudge = isJudge();
   const activeUser = state.currentUser;
+  const formattedEmbed = formatYoutubeEmbedUrl(demo.videoUrl);
+  const iframeSrc = formattedEmbed ? (formattedEmbed.includes('?') ? `${formattedEmbed}&autoplay=0` : `${formattedEmbed}?autoplay=0`) : '';
 
   // Calculate judge evaluations average
   const evals = demo.evaluations || [];
@@ -70,7 +73,7 @@ function getDetailHtml(demo) {
           <!-- Embedded Player Container -->
           <div class="bg-black rounded-2xl overflow-hidden shadow-xl aspect-video relative group">
             <iframe 
-              src="${demo.videoUrl}?autoplay=0" 
+              src="${iframeSrc}" 
               title="${demo.title}"
               class="w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

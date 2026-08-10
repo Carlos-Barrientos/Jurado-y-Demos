@@ -818,7 +818,8 @@ function loadInitialState() {
           .map(d => ({
             ...d,
             likes: d.realLikes || 0,
-            views: d.realViews || 0
+            views: d.realViews || 0,
+            videoUrl: formatYoutubeEmbedUrl(d.videoUrl)
           }));
 
         return {
@@ -1015,6 +1016,22 @@ export function addCommentToDemo(demoId, commentText) {
   }
 }
 
+export function formatYoutubeEmbedUrl(url) {
+  if (!url) return '';
+  url = url.trim();
+  
+  if (url.includes('youtube.com/embed/')) {
+    return url;
+  }
+  
+  const watchMatch = url.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([^&?#/]+)/);
+  if (watchMatch && watchMatch[1]) {
+    return `https://www.youtube.com/embed/${watchMatch[1]}`;
+  }
+  
+  return url;
+}
+
 export function updateDemo(demoId, data) {
   const demo = getDemoById(demoId);
   if (!demo || (!isOwner(demo) && !isAdmin())) return false;
@@ -1025,11 +1042,11 @@ export function updateDemo(demoId, data) {
   if (data.category) demo.category = data.category;
   if (data.problemStatement) demo.problemStatement = data.problemStatement;
   if (data.impactMetrics) demo.impactMetrics = data.impactMetrics;
-  if (data.videoUrl !== undefined) demo.videoUrl = data.videoUrl;
+  if (data.videoUrl !== undefined) demo.videoUrl = formatYoutubeEmbedUrl(data.videoUrl);
 
   saveState();
   if (isFirebaseConfigured()) {
-    updateDoc(doc(db, 'demos', String(demoId)), demo);
+    updateDoc(doc(db, 'demos', String(demoId)), demo).catch(() => {});
   }
   return true;
 }
