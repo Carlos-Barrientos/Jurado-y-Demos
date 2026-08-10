@@ -12,6 +12,7 @@ import { state, isAdmin } from '../data/store.js';
 export function initRouter() {
   window.addEventListener('hashchange', handleRoute);
   window.addEventListener('load', handleRoute);
+  window.addEventListener('state-updated', handleRoute);
   // Execute immediately on initialization
   handleRoute();
 }

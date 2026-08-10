@@ -942,7 +942,7 @@ if (isFirebaseConfigured()) {
         const cloud = cloudMap.get(local.id);
         if (cloud) {
           cloudMap.delete(local.id);
-          return { ...cloud, ...local };
+          return { ...local, ...cloud };
         }
         return local;
       }).filter(u => !deleted.includes(u.id));
@@ -958,6 +958,7 @@ if (isFirebaseConfigured()) {
         state.currentUser = state.users.find(u => u.id === state.activeUserId) || state.currentUser;
       }
       saveState();
+      window.dispatchEvent(new CustomEvent('state-updated'));
     } else {
       seedFirestoreUsers().catch(err => console.warn('Seed users warning:', err));
     }
@@ -983,13 +984,13 @@ if (isFirebaseConfigured()) {
         if (cloud) {
           cloudMap.delete(key);
           return {
-            ...cloud,
             ...local,
-            videoUrl: local.videoUrl ? formatYoutubeEmbedUrl(local.videoUrl) : formatYoutubeEmbedUrl(cloud.videoUrl),
-            images: (local.images && local.images.length > 0) ? local.images : (cloud.images || []),
-            evaluations: (local.evaluations && local.evaluations.length > 0) ? local.evaluations : (cloud.evaluations || []),
-            likes: (local.realLikes !== undefined ? local.realLikes : (local.likes || cloud.likes || 0)),
-            realLikes: (local.realLikes !== undefined ? local.realLikes : (local.likes || cloud.likes || 0))
+            ...cloud,
+            videoUrl: cloud.videoUrl ? formatYoutubeEmbedUrl(cloud.videoUrl) : formatYoutubeEmbedUrl(local.videoUrl),
+            images: (cloud.images && cloud.images.length > 0) ? cloud.images : (local.images || []),
+            evaluations: (cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : (local.evaluations || []),
+            likes: (cloud.realLikes !== undefined ? cloud.realLikes : (cloud.likes || local.likes || 0)),
+            realLikes: (cloud.realLikes !== undefined ? cloud.realLikes : (cloud.likes || local.likes || 0))
           };
         }
         return local;
@@ -1006,6 +1007,7 @@ if (isFirebaseConfigured()) {
 
       state.demos = updatedDemos;
       saveState();
+      window.dispatchEvent(new CustomEvent('state-updated'));
     } else {
       seedFirestoreDemos().catch(err => console.warn('Seed demos warning:', err));
     }
