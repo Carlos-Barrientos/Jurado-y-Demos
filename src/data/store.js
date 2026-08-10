@@ -27,59 +27,388 @@ export const companies = [
   'Otra'
 ];
 
-// Official list of Teams (Equipos) from the Reto IA Prosur Table
+// Official list of Teams (Equipos) from the Reto IA Prosur Google Sheet
 export const rawTeamsData = [
-  { name: 'AI', company: 'Grupo Chesa', department: 'MANTENIMIENTO', members: 'RICARDO CASTILLEJA DELGADO' },
-  { name: 'El ingeniero', company: 'Calzamoda', department: 'Sub Gerente', members: '120034, 121805, 121830, 121750, 121476, 121406' },
-  { name: 'IA conec', company: 'Grupo Chesa', department: 'Ventas', members: 'Erick Jhovanny babadua cerda, Iris Velez Morales' },
-  { name: 'Impulso Inteligente', company: 'Grupo Chesa', department: 'BDC', members: 'Angel Francisco Lievano Trejo, Iván Esaú Nájera López' },
-  { name: 'IVA Corporativa', company: 'Grupo Chesa', department: 'Innovación', members: 'Armando Renato Ruiz Gomez, Victor Hugo Liévano Pérez' },
-  { name: 'NIRAMI', company: 'Grupo Chesa', department: 'CONTABILIDAD', members: 'ANGEL MARIN RUIZ RUIZ, Aleida Ivan Jiménez Morales' },
-  { name: 'Prompt-actores', company: 'Grupo Chesa', department: 'Contabilidad', members: 'Alejandro Dominguez castellanos, Angel Marin Ruiz Ruiz' },
-  { name: 'Synergy', company: '5 Pinos', department: 'Construcción', members: 'Mario Alberto Hernández Solís' },
-  { name: 'Arquitectos de Ideas', company: 'Grupo Chesa', department: 'Tesoreria', members: 'Dulce Rocío Shilon Gómez, Beatriz Del Carmen Shilon Gomez, Karina Guadalupe Ruiz Martinez, Eber Alberto Lopez Torres, Luis Daniel Garcia Moreno' },
-  { name: 'Cobranza', company: 'CaFi', department: 'Cobranza', members: 'Teresa Gomez Ruiz, Guadalupe Vazquez Maldonado, Martha De Jesus Gonzales Hernandez, Quebin Braitan Trujillo Dominguez' },
-  { name: 'Conta Comercialitas', company: 'Otra', department: 'Contabilidad', members: 'Rosangela Lopez De La Cruz, Jaqueline Agustín González López, Daniel Arturo Morales Ton' },
-  { name: 'Expediente Digital', company: 'Grupo Chesa', department: 'Soporte administrativo y Expediente Digital', members: 'Jonathan De Jesus Penagos Espinoza, Carlos Eduardo Garcia Villafuerte, Brayan Santiz Camaras, Uriel Duque Lara' },
-  { name: 'Foresight Innovation', company: 'Grupo Chesa', department: 'Gerencia General', members: 'Francisco Javier Garcia Solis' },
-  { name: 'IA Corporativa', company: 'Grupo Chesa', department: 'Innovación', members: 'Iván Esaú Nájera López, Armando Renato Ruiz Gomez' },
-  { name: 'Lead Pilot', company: 'Grupo Chesa', department: 'Ventas', members: 'VALERIA CAROLINA CONTRERAS GÓMEZ' },
-  { name: 'Lit (legal inivation team)', company: 'CaFi', department: 'Jurídico', members: 'Luis Roberto Ruiz Abarca, Jose Antonio Gutierrez Najera' },
-  { name: 'Los chicos que van a llorar', company: 'Grupo Chesa', department: 'Análisis de Datos', members: 'Luis Gustavo Santiago Bonifaz, Brandon Humberto Nepomuceno Cruz, Susana Elizabeth Santiz Vazquez, Jose Armando Pinacho Lopez' },
-  { name: 'Los chicos que ya lloraron', company: 'Grupo Chesa', department: 'Análisis de Datos', members: 'Iván Esaú Nájera López, Brandon Humberto Nepomuceno Cruz, Susana Elizabeth Santiz Vazquez, Jose Armando Pinacho Lopez, Luis Gustavo Santiago Bonifaz' },
-  { name: 'Los que perdieron', company: 'Grupo Chesa', department: 'MKT', members: 'Marlon Octavio Giles Garcia, Giovanni Trejo Matias' },
-  { name: 'Miguel y sus teclados A.C.', company: 'CaFi', department: 'Auditoria', members: 'Miguel Angel Martínez Gómez y Luis Fernando Hernández Gómez' },
-  { name: 'OPERACIONES', company: 'CaFi', department: 'OPERACIONES', members: 'LUIS ENRIQUE SANTOS ENRIQUEZ, MELECIO ANTONIO RUIZ DEL CARPIO' },
-  { name: 'OpTeam', company: 'Grupo Chesa', department: 'Ventas', members: 'Fernando De Jesús Mora Saldaña' },
-  { name: 'Victor Flores Casas', company: '5 Pinos', department: 'Finanzas y proyectos estrategicos', members: 'Victor Flores Casas' },
-  { name: 'RefaBot Team', company: 'Grupo Chesa', department: 'Refacciones', members: 'Carlos de Jesús Camacho Sánchez, Jose Iván Mayorga Ruiz' },
-  { name: 'Apex GP', company: 'Grupo Chesa', department: 'Capacitación', members: 'Weynner Joaseth Gordillo Morales, Maria Elizabeth Ovalle Islas' },
-  { name: 'Chesa tu Nassan', company: 'Grupo Chesa', department: 'Posventa', members: 'Guadalupe del Carmen Solorzano Garcia' },
-  { name: 'El oraculo corporativo', company: 'CaFi', department: 'Mejora Continua', members: 'Laura villafuerte y erika camacho' },
-  { name: 'El señor de los entrenamientos', company: 'CaFi', department: 'Contabilidad', members: 'Vicente Jimenez Najera' },
-  { name: 'El Var del sandwich', company: 'Otra', department: 'Operación', members: 'Luis Eugenio Lopez Najera, Jared Adin Lopez Cueto, Livi Orlando Mazariegos Guillen' },
-  { name: 'Enlace inteligente', company: 'CaFi', department: 'Riesgos', members: 'Jonathan De Jesus Penagos Espinoza, Luis Fernando Trujillo Gerardo, Esteban Sanchez Huerta, Linet Anahi Pimentel Castro' },
-  { name: 'Erick Samuel Garcia Jimenez', company: '5 Pinos', department: 'Talento Humano', members: 'Erick Samuel Garcia Jimenez' },
-  { name: 'G&A', company: 'CaFi', department: 'Administración', members: 'KARINA SUAREZ ALVAREZ, JUAN GONZALO CRUZ LOPEZ, RIGOBERTO IVAN MALDONADO RAMOS' },
-  { name: 'Jüptar', company: 'Grupo Chesa', department: 'Mejora Continua', members: 'MARIO ARTURO LOPEZ GOMEZ, Ivonne Courtois' },
-  { name: 'La cazatraspasos', company: 'CaFi', department: 'Contabilidad', members: 'Nayely del Carmen Bautista Ramirez, Vicente Jimenez Najera' },
-  { name: 'La patrulla del chip perdido', company: 'CaFi', department: 'Administración', members: 'Stephania Hernández y Cesar Flores, Vicente Jimenez Najera' },
-  { name: 'La santa conciliación', company: 'CaFi', department: 'Contabilidad', members: 'Elizabeth Carpio, Vicente Jimenez Najera' },
-  { name: 'LEXIA', company: 'Grupo Prosur', department: 'Planeación', members: '1. Juan Carlos Pérez, 2. Claudia Roxana Ruiz Ruiz, 3. Alondra Montserrat Hernandez Sanchez' },
-  { name: 'Los chicos que lloran', company: 'Grupo Chesa', department: 'Análisis de Datos', members: 'Iván Esaú Nájera López, Brandon Humberto Nepomuceno Cruz, Susana Elizabeth Santiz Vazquez, Jose Armando Pinacho Lopez, Luis Gustavo Santiago Bonifaz' },
-  { name: 'Papeles de trabajo', company: 'Grupo Prosur', department: 'Contraloría', members: '1. Jose Francisco Flores Zuñiga, 2. Andrea Ricarda Velazco Trejo, 3. Maria Nicolasa Santiz Diaz, 4. Carina Alicia Santiz Lopez, 5. Guadalupe del Carmen Jimenez Najera' },
-  { name: 'Procesos', company: 'Calzamoda', department: 'Auditoria y Procesos', members: 'Diego López Guzmán, Felipe de Jesús Paniagua Ruiz' },
-  { name: 'Reclutapower', company: 'CaFi', department: 'Talento Humano', members: 'Jazmin Garduza Luna, Cintrya Velazquez Perez' },
-  { name: 'Smart Norm', company: 'Grupo Chesa', department: 'Talento Humano', members: 'Richard Alonso Nataren Chacon, GIBRAN HASHMED GARCIA CRUZ, LAURA JOVANNA TRUJILLO SOLORZANO' },
-  { name: 'T-800', company: 'CaFi', department: 'Marketing', members: 'Oswaldo Rafael Hernández Rodriguez' },
-  { name: 'Talentia 360', company: 'Grupo Chesa', department: 'Talento Humano', members: 'MARIA ELIZABETH OVALLE ISLAS, ALEJANDRA JOCABETH GORDILLO MORALES' },
-  { name: 'Talento Humano', company: 'Grupo Chesa', department: 'Recursos Humanos', members: 'MARIA ELIZABETH OVALLE ISLAS, ALEJANDRA JOCABETH GORDILLO MORALES' },
-  { name: 'Talento y Desempeño con IA', company: 'Grupo Chesa', department: 'Talento Humano', members: 'FATIMA PENELOPE PEREZ CERON, MARIA ELIZABETH OVALLE ISLAS, ALEJANDRA JOCABETH GORDILLO MORALES' },
-  { name: 'TEAM AMOS', company: 'CaFi', department: 'OPERATIVA - COMERCIAL', members: 'ANGELINA ASUNCION DIAZ HERNANDEZ, MONTSERRAT SANDOVAL ZEPEDA, OSWALDO RAFAEL HERNANDEZ RODRIGUEZ, MAYRA BERENICE MONTOYA GARCIA' },
-  { name: 'TORQUE LEAD IA', company: 'Grupo Chesa', department: 'Ventas', members: 'YAHIR IVAN LOPEZ GOMEZ' },
-  { name: 'TU GUARDIAN CAFI', company: 'CaFi', department: 'Prevención de fraudes', members: 'Claudia Patricia Morales Gordillo, Guadalupe Alejandra Bermudez Abarca' },
-  { name: 'VocalIA', company: 'Grupo Chesa', department: 'Talento Humano', members: 'Alejandra Jocabeth Gordillo Morales, Maria Elizabeth Ovalle Islas' },
-  { name: 'Talento IA', company: 'Grupo Prosur', department: 'Recursos Humanos', members: 'Yazmin Mijangos Zepeda, Jose Martin Flores Gomez' }
+  {
+    name: 'TORQUE LEAD IA',
+    company: 'Grupo Chesa',
+    department: 'Ventas',
+    members: 'YAHIR IVAN LOPEZ GOMEZ',
+    projectTitle: 'RMP CENTER IA',
+    problem: 'Nuestro principal reto es Seekop, es un CRM necesario para el proceso de ventas pero con carencias de actualización.',
+    solution: 'Basado en Seekop pero con integración de motores generadores de Multimedia, análisis de perfil de clientes, propuestas de cierre de ventas basadas en el comportamiento actual de compra, generador de argumentos inteligentes dirigidos a la persuasión y un cierre de ventas con seguimientos efectivos.',
+    metrics: 'Satisfacción del usuario 24/7'
+  },
+  {
+    name: 'Lead Pilot',
+    company: 'Grupo Chesa',
+    department: 'Ventas',
+    members: 'VALERIA CAROLINA CONTRERAS GÓMEZ',
+    projectTitle: 'Lead Pilot — Atención Digital',
+    problem: 'Lentitud y poca objetividad en atención digital al cliente y perfilamiento.',
+    solution: 'Asistente de IA para automatizar la atención digital inicial, perfilamiento objetivo de prospectos y agendamiento de citas en tiempo real.',
+    metrics: 'Aumento en velocidad de respuesta y tasa de conversión de prospectos digitalizados.'
+  },
+  {
+    name: 'Los que perdieron',
+    company: 'Grupo Chesa',
+    department: 'MKT',
+    members: 'Marlon Octavio Giles García, Giovanni Trejo Matias',
+    projectTitle: 'Recordatorio Inteligente de Servicios MKT',
+    problem: 'Muchos clientes olvidan sus servicios de mantenimiento y ponen en riesgo la garantía de sus vehículos.',
+    solution: 'Sistema automatizado de comunicación proactiva por WhatsApp y correo para alertar a clientes sobre fechas clave de servicio de garantía.',
+    metrics: 'Reducción de garantías perdidas e incremento en retención de clientes en taller.'
+  },
+  {
+    name: 'Procesos',
+    company: 'Calzamoda',
+    department: 'Auditoria y Procesos',
+    members: 'Diego López Guzmán, Felipe de Jesús Paniagua Ruiz',
+    projectTitle: 'Resurtido_compras_rv',
+    problem: 'La planeación de compras en la empresa RIO VINYL DE MÉXICO requiere la extracción, validación y consolidación manual de información desde el ERP (Microsip) hacia hojas de cálculo, tomando 4 horas por ciclo operativo.',
+    solution: 'Sistema que ejecuta automáticamente la planeación de compras y resurtido mediante un agente de IA Groq que procesa comandos por correo electrónico ("Realizar Resurtido") y ejecuta scripts automatizados de cálculo.',
+    metrics: 'Tiempo por ciclo: de 4 horas a menos de 10 minutos. Errores de cálculo: de variable a cero. Dependencia de persona clave: eliminada.'
+  },
+  {
+    name: 'T-800',
+    company: 'CaFi',
+    department: 'Marketing',
+    members: 'Oswaldo Rafael Hernández Rodríguez',
+    projectTitle: 'Automatización de captura, asignación de leads y atención de prospectos',
+    problem: 'Proceso manual de asignación de leads desde CRM Kommo hacia Excel, demorando más de 4 horas en volumen elevado.',
+    solution: 'Automatización integrada entre CRM Kommo, Google Sheets y agentes de IA de ElevenLabs mediante n8n/make. Fuera del horario laboral, un agente de IA realiza el primer contacto telefónico/chat con el prospecto.',
+    metrics: 'Automatizar el 100% de asignación de leads. Ahorrar +20 horas semanales (80 hrs/mes), reduciendo tiempo de asignación de horas a segundos.'
+  },
+  {
+    name: 'El ingeniero',
+    company: 'Calzamoda',
+    department: 'Sub Gerente',
+    members: 'Los ingenieros (120034, 121805, 121830, 121750, 121476, 121405)',
+    projectTitle: 'Venta Sugestiva e Inteligente',
+    problem: 'La venta sugestiva y la atención a clientes por mensajería se realizan de forma manual, provocando respuestas tardías e inconsistentes.',
+    solution: 'Bot conversacional con IA para mensajería directa que envía mensajes de venta sugestiva personalizada y resuelve preguntas frecuentes en tiempo real.',
+    metrics: 'Incremento en ventas cruzadas y reducción inmediata en tiempo de respuesta al cliente.'
+  },
+  {
+    name: 'RefaBot Team',
+    company: 'Grupo Chesa',
+    department: 'Refacciones',
+    members: 'Carlos de Jesús Camacho Sánchez',
+    projectTitle: 'RefaBot Posventa',
+    problem: 'Falta de seguimiento inmediato del personal de refacciones y estancamiento en WhatsApp para solicitudes de insumos de mantenimiento Changan y Renault.',
+    solution: 'Bot con inteligencia artificial de catálogo de refacciones para atender y priorizar solicitudes de insumos por WhatsApp para agencias y talleres.',
+    metrics: 'Eliminación de cuellos de botella operativos en refacciones y aceleración en tiempos de entrega al cliente.'
+  },
+  {
+    name: 'G&A',
+    company: 'CaFi',
+    department: 'Administración',
+    members: 'KARINA SUAREZ ALVAREZ, JUAN GONZALO CRUZ LOPEZ, RIGOBERTO IVAN MALDONADO RAMOS, MARIO ARTURO LOPEZ GOMEZ',
+    projectTitle: 'ContaAnalytics',
+    problem: 'Grandes volúmenes de información financiera y operativa dispersos en múltiples archivos Excel/PDF entre sucursales, dificultando el análisis y retrasando reportes.',
+    solution: 'ContaAnalytics: plataforma inteligente de análisis y visualización de datos que transforma automáticamente archivos de sucursales en dashboards ejecutivos, KPIs de inventarios, ventas, compras, gastos y costos.',
+    metrics: 'Reducción drástica del tiempo de consolidación financiera, eliminación de errores manuales y disponibilidad de datos 24/7 para toma de decisiones.'
+  },
+  {
+    name: 'OpTeam',
+    company: 'Grupo Chesa',
+    department: 'Ventas',
+    members: 'Fernando De Jesús Mora Saldaña',
+    projectTitle: 'OpTeam CRM Inteligente',
+    problem: 'Dificultad para clasificar y dar seguimiento oportuno a prospectos en viajes o prospección fuera de agencia.',
+    solution: 'Sistema móvil asistido por IA para categorización automática de prospectos por urgencia y recordatorios inteligentes de seguimiento.',
+    metrics: 'Cero prospectos fríos olvidados y aumento del 30% en tasa de contacto efectivo.'
+  },
+  {
+    name: 'TalentIA 360',
+    company: 'Grupo Chesa',
+    department: 'Talento Humano',
+    members: 'MARIA ELIZABETH OVALLE ISLAS, ALEJANDRA JOCABETH GORDILLO MORALES',
+    projectTitle: 'TalentIA360',
+    problem: 'Gestión de más de 800 colaboradores en 24 agencias mediante 6 archivos Excel desconectados. Reportes tardaban 7 a 10 días de consolidación manual.',
+    solution: 'Dashboard web conectado en tiempo real a plataforma interna que centraliza reclutamiento, rotación, polígrafo y vacantes en un solo panel ejecutivo.',
+    metrics: 'Consolidación de reportes reducida de 7-10 días a 0 minutos (tiempo real). Ahorro de 5h/semana en carga manual. Costo $0 en infraestructura existente.'
+  },
+  {
+    name: 'Impulso Inteligente',
+    company: 'Grupo Chesa',
+    department: 'BDC',
+    members: 'Angel Francisco Lievano Trejo',
+    projectTitle: 'PULSO BDC Servicio',
+    problem: 'Uso de información dispersa de DMS, CRM, PROSUR y SIMA requería depurar y clasificar a mano registro por registro durante 12 horas-persona por semana.',
+    solution: 'Tablero web que recibe archivos Excel de cualquier sucursal, detecta automáticamente el tipo de reporte, deduce la marca por VIN y clasifica órdenes/citas.',
+    metrics: 'Ahorro de 12 horas a 1 hora por corte en consolidación y clasificación, entregando información el mismo día.'
+  },
+  {
+    name: 'Smart Norm',
+    company: 'Grupo Chesa',
+    department: 'Talento Humano',
+    members: 'GIBRAN HASHMED GARCIA CRUZ, LAURA JOVANNA TRUJILLO SOLORZANO',
+    projectTitle: 'Cumplimiento normativo (STPS)',
+    problem: 'Procesar más de 52,000 registros mensuales de asistencia de 600 colaboradores en 20 agencias para evaluar la norma de jornada laboral (40 hrs).',
+    solution: 'Plataforma HTML con Claude que procesa 52,000 datos en menos de 15 minutos, calcula KPIs de jornada y genera PDF con firma tripartita para soporte documental STPS.',
+    metrics: 'De semanas de trabajo manual a menos de 15 minutos. Eliminación total de checadas manuales.'
+  },
+  {
+    name: 'La patrulla del chip perdido',
+    company: 'CaFi',
+    department: 'Administración',
+    members: 'Stephanie Hernández, Cesar Flores, Vicente Jimenez Najera',
+    projectTitle: 'Los GuardIAnes del Activo 🦹‍♂️🤖',
+    problem: 'Control manual de activos fijos en Microsip y Excel consumiendo 8+ horas semanales, con riesgo de error en depreciaciones y falta de resguardos digitales.',
+    solution: 'Sistema Inteligente de Control de Activos Fijos y Flotilla Vehicular en Claude: integra OCR para facturas PDF/XML, clasificación contable/ISR con LLM, visión artificial para inventario por códigos QR y pólizas automáticas para CONTPAQi.',
+    metrics: 'Ahorro >80% de horas/mes en control de activos. Reducción del 90% en errores de depreciación. 100% resguardos digitales.'
+  },
+  {
+    name: 'La santa conciliación',
+    company: 'CaFi',
+    department: 'Contabilidad',
+    members: 'Elizabeth Carpio, Vicente Jimenez Najera',
+    projectTitle: 'Conciliación tarjeta clara',
+    problem: 'Conciliación manual de viáticos de Tarjeta Clara consumía 20 horas/mes cruzando 3 fuentes distintas contra provisión en Excel.',
+    solution: 'Aplicación de escritorio con motor de conciliación de 3 pasadas y coincidencia aproximada de texto (rapidfuzz), generando pólizas automáticas CONTPAQi y correos de seguimiento a tarjetahabientes.',
+    metrics: 'Ciclo completo 24 veces más rápido (4 horas a 10 min). Ahorro de 19.2 h/mes (-95.8% del tiempo). 100% de movimientos clasificados en julio 2026 ($294,716 MXN).'
+  },
+  {
+    name: 'El Señor de los arrendamientos',
+    company: 'CaFi',
+    department: 'Contabilidad',
+    members: 'Vicente Jiménez',
+    projectTitle: 'Plataforma NIF Inteligente',
+    problem: 'Cálculos de NIF D-3 (Pasivo laboral), D-4 (Impuesto diferido) y D-5 (Arrendamientos) hechos en hojas de trabajo manuales en Excel con alto riesgo de auditoría.',
+    solution: 'Plataforma Flask + SQLite que automatiza el cálculo de pasivos por arrendamiento NIF D-5, provisiones NIF D-3 e impuestos diferidos NIF D-4, integrando un asistente conversacional Claude Sonnet 4.6 especializado.',
+    metrics: 'Reducción de 10 a 12 horas por contador por cierre mensual. Generación de los 4 estados financieros NIF en menos de 15 minutos.'
+  },
+  {
+    name: 'El oráculo corporativo',
+    company: 'CaFi',
+    department: 'Mejora Continua',
+    members: 'Laura Villafuerte, Erika Camacho, Vicente Jimenez Najera',
+    projectTitle: 'ProsurGPT',
+    problem: 'Documentación de políticas, manuales y leyes dispersa y poco accesible, generando interrupciones constantes a las áreas de RRHH, Finanzas y Mejora Continua.',
+    solution: 'ProsurGPT: Copiloto de conocimiento RAG que responde en lenguaje natural sobre manuales, políticas y directivas oficiales, citando fuente y página sin alucinaciones.',
+    metrics: 'Búsqueda de información reducida de 30 minutos a 15 segundos. Reducción esperada del 40% en consultas repetitivas en los primeros 3 meses.'
+  },
+  {
+    name: 'Apex GP',
+    company: 'Grupo Chesa',
+    department: 'Capacitación',
+    members: 'José Iván Mayorga Ruiz, Alejandra Jocabeth Gordillo Morales, María Elizabeth Ovalle Islas',
+    projectTitle: 'Apex Nissan',
+    problem: 'Dificultad y lentitud para recopilar datos técnicos de vehículos y transformarlos en contenido de capacitación para colaboradores.',
+    solution: 'Plataforma gamificada con IA Generativa (estilo Duolingo) para aprendizaje automotriz interactivo con rutas adaptativas según el desempeño del colaborador.',
+    metrics: 'Reducción del 80% en tiempo de creación de contenido. Aumento en tasa de finalización de cursos y retención del conocimiento.'
+  },
+  {
+    name: 'TU GUARDIAN CAFI',
+    company: 'CaFi',
+    department: 'Prevención de fraudes',
+    members: 'Claudia Fabiola Morales Gordillo, Guadalupe Alejandra Bermúdez Abarca',
+    projectTitle: 'Tu GuardIAn Cafi!!',
+    problem: 'Revisión manual de 850 expedientes de crédito al mes (250 h/mes) para detectar alteraciones documentales en INE, comprobantes y nóminas.',
+    solution: 'Sistema automatizado con Claude Sonnet 4.6 (Visión AI) que examina documentos en 45 segundos, validando CURP, MRZ, estructuras de nómina y coherencia de datos.',
+    metrics: 'Tiempo de análisis por documento reducido de 15 minutos a 45 segundos. Liberación de +320 horas mensuales.'
+  },
+  {
+    name: 'Talento Humano',
+    company: 'Grupo Chesa',
+    department: 'Recursos Humanos',
+    members: 'MARIA ELIZABETH OVALLE ISLAS, ALEJANDRA JOCABETH GORDILLO MORALES, FATIMA PENELOPE PEREZ CERON',
+    projectTitle: 'Autogestión Sala de Capacitación',
+    problem: 'Reserva manual de sala de capacitación vía WhatsApp o llamadas, generando empalmes de horario y pérdida de tiempo.',
+    solution: 'Aplicación web de autoservicio en Claude que valida automáticamente traslapes y permite reservar salas en tiempo real sin intermediarios.',
+    metrics: 'Reducción del tiempo de coordinación de horas a segundos. Cero reservaciones dobles.'
+  },
+  {
+    name: 'IVA Corporativa',
+    company: 'Grupo Chesa',
+    department: 'Innovación',
+    members: 'Iván Esaú Nájera López, Armando Renato Ruiz Gómez, Víctor Hugo Liévano Pérez',
+    projectTitle: 'Integración y pagos de reclamos de garantías CHESA',
+    problem: 'Falta de orden y digitalización de reclamos de garantía en proceso y liquidados por la marca.',
+    solution: 'Expediente digital automatizado conforme al manual de normas y procedimientos de garantías para agilizar reembolsos.',
+    metrics: 'Ahorro sustancial de horas hombre e identificación inmediata de folios de reclamo pendientes.'
+  },
+  {
+    name: 'Los chicos que lloran',
+    company: 'Grupo Chesa',
+    department: 'Análisis de Datos',
+    members: 'Ivan Esau Najera Lopez, Brandon Humberto Nepomuceno Cruz, Susana Elizabeth Santiz Vazquez, Jose Armando Pinacho Lopez, Luis Gustavo Santiago Bonifaz',
+    projectTitle: 'Centralización y Gestión de Información Corporativa',
+    problem: 'Información de políticas y datos corporativos dispersa en múltiples archivos sin control de ciberseguridad.',
+    solution: 'Repositorio centralizado con anonimización y encriptación de datos sensibles para uso seguro de IA en la organización.',
+    metrics: '100% de información corporativa estandarizada y segura.'
+  },
+  {
+    name: 'Enlace inteligente',
+    company: 'CaFi',
+    department: 'Riesgos',
+    members: 'Luis Fernando Trujillo Gerardo, Esteban Sánchez Huerta, Linett Anahi Pimentel Castro',
+    projectTitle: 'DataBridge AI',
+    problem: 'Información operativa en Excel con estructuras deshomologadas. El área de Riesgos invertía de 2 a 5 días por ciclo limpiando datos.',
+    solution: 'Herramienta web local con backend Python y LLM que reconoce columnas de Excel ambiguas y las homologa automáticamente contra un catálogo estándar.',
+    metrics: 'Tiempo de homologación reducido de 2-5 días a menos de 5 minutos por archivo. Trazabilidad del 100%.'
+  },
+  {
+    name: 'El Var del sándwich',
+    company: 'Otra',
+    department: 'Operacion',
+    members: 'Luis Eugenio Lopez Najera, Jared Adin Lopez Cueto, Uri Orlando Mazariegos Guillen, Jonathan de Jesus Penagos Espinoza',
+    projectTitle: 'SubGestor',
+    problem: 'Control manual de inventarios, caducidades y facturas en restaurantes con múltiples sucursales, generando mermas y desabastos.',
+    solution: 'SubGestor: plataforma integral web para control automático de stock, alertas de caducidad estilo semáforo y sugerencias inteligentes de compra.',
+    metrics: 'Reducción del 50% en tiempo de gestión de inventario y 50% menos pérdidas por mermas.'
+  },
+  {
+    name: 'La cazatraspasos',
+    company: 'CaFi',
+    department: 'Contabilidad',
+    members: 'Nayely del Carmen Bautista Ramírez, Vicente Jimenez Najera',
+    projectTitle: 'La cazatraspasos',
+    problem: 'Captura manual de 25 comprobantes PDF diarios de traspasos bancarios entre cuentas para registro en CONTPAQi.',
+    solution: 'Aplicación de escritorio que lee automáticamente comprobantes bancarios en PDF y genera la póliza de importación directa para CONTPAQi.',
+    metrics: 'Generación instantánea de pólizas contables y 0% error de transcripción.'
+  },
+  {
+    name: 'TEAM AMOS',
+    company: 'CaFi',
+    department: 'OPERATIVA - COMERCIAL',
+    members: 'ANGELINA ASUNSUNCION DIAZ HERNANDEZ, MAYRA BERENICE MONTOYA GARCIA, MONTSERRAT SANDOVAL ZEPEDA, OSWALDO RAFAEL HERNANDEZ RODRIGUEZ',
+    projectTitle: 'Automatización de adquisición de seguros',
+    problem: 'Contacto tardío con clientes para renovación de pólizas de seguro.',
+    solution: 'Flujo automatizado con IA para notificar y tramitar la renovación de pólizas de seguro de clientes de forma ágil.',
+    metrics: 'Reducción de tiempos de respuesta e incremento en renovaciones de pólizas efectivas.'
+  },
+  {
+    name: 'Chesa tu Nissan',
+    company: 'Grupo Chesa',
+    department: 'Posventa',
+    members: 'Guadalupe del Carmen Solórzano García',
+    projectTitle: 'Chesa tu Unidad DiadnoIA tu Nissan',
+    problem: 'La recepción de unidades con fallas requiere 25 a 30 minutos por falta de precisión técnica en los comentarios del cliente.',
+    solution: 'Formulario digital inteligente que aplica IA de texto a la Hoja de Diagnóstico Nissan para sugerir fallas probables y estimaciones de costo al técnico.',
+    metrics: 'Tiempo de recepción en taller reducido de 25-30 min a 15-20 min.'
+  },
+  {
+    name: 'AI',
+    company: 'Grupo Chesa',
+    department: 'MANTENIMIENTO',
+    members: 'RICARDO CASTILLEJA DELGADO',
+    projectTitle: 'Implementacion de calidad (tiempo, procesos y revision)',
+    problem: 'Reloj checador desfasado (1.5h perdidas/mes) y revisiones nocturnas de unidades vulnerables a fallas visuales.',
+    solution: 'Sincronización NTP del biométrico + Asistente IA para auditorías de mantenimiento + Escáner fotográfico 3D de carrocería.',
+    metrics: 'Sincronización exacta de nómina y reporte instantáneo de daños de carrocería en tiempo real.'
+  },
+  {
+    name: 'NIRAM',
+    company: 'Grupo Chesa',
+    department: 'CONTABILIDAD',
+    members: 'ANGEL MARIN RUIZ RUIZ',
+    projectTitle: 'BOT_CONTABLE',
+    problem: 'Registro manual de 700 a 1000 notas de cargo mensuales en el sistema SIA, tomando de 5 a 10 minutos por registro.',
+    solution: 'Bot contable local en Node.js + Playwright + interfaz HTML que simula la captura y completa registros en SIA automáticamente.',
+    metrics: 'Tiempo por registro reducido de 10 minutos a 1 minuto. Eliminación de errores de captura.'
+  },
+  {
+    name: 'Reclutapower',
+    company: 'CaFi',
+    department: 'Talento Humano',
+    members: 'Felipe de Jesus Paniagua Ruiz, Jazmin Garduza Luna, Cinthya Velazquez Perez, Richard Alonso Nataren Chacon',
+    projectTitle: 'TalentIQ CAFI — Sistema Inteligente de Talento y Reclutamiento',
+    problem: 'Seguimiento de vacantes en Excel compartido sin captura simultánea, con 50% de candidato con estatus desactualizados.',
+    solution: 'Sistema web en Node.js con captura simultánea en tiempo real, validaciones de datos y 2 capas de IA Claude para resúmenes ejecutivos y diagnósticos de reclutamiento.',
+    metrics: 'Eliminación de 6 a 8 horas/semana de bloqueos por archivo compartido. Reportes ejecutivos en segundos.'
+  },
+  {
+    name: 'Synergy',
+    company: '5 Pinos',
+    department: 'Construcción',
+    members: 'Mario Alberto Hernández Solís',
+    projectTitle: 'Uso de Claude IA como asistente en el diseño y construcción de proyectos eléctricos',
+    problem: 'Cálculo de cuadros de carga y memorias técnicas eléctricas requiere días de trabajo manual y recalcular todo ante cualquier cambio de diseño.',
+    solution: 'Flujo de trabajo con Claude Cowork que recibe datos de cargas y genera cuadro de cargas en Excel con fórmulas vivas y memoria de cálculo en Word según NOM-001-SEDE.',
+    metrics: 'Reducción del 80% en tiempo de elaboración de memorias técnicas eléctricas y 0% margen de error de cálculo.'
+  },
+  {
+    name: 'IA conec',
+    company: 'Grupo Chesa',
+    department: 'Ventas',
+    members: 'Erick jhovanny zebadua cerda, Ibis Velez Morales',
+    projectTitle: 'IA conec',
+    problem: 'Redacción manual repetitiva de mensajes de WhatsApp y falta de clasificación para priorizar ~200 prospectos por asesor.',
+    solution: 'Asistente de IA que prioriza prospectos (frío, tibio, caliente) y genera mensajes personalizados de WhatsApp por modelo (Versa, Sentra, Kicks).',
+    metrics: 'Tiempo de redacción por mensaje de 5-8 min a <1 min. 1 a 2 horas diarias recuperadas por asesor.'
+  },
+  {
+    name: 'Prompt-adores',
+    company: 'Grupo Chesa',
+    department: 'Contabilidad',
+    members: 'Alexis Ivan Jiménez Morales, Alejandro Domínguez castellanos, Angel Marin Ruiz Ruiz',
+    projectTitle: 'Herramienta HTML Conectores de WhatsApp y Playwright',
+    problem: 'Carga manual de movimientos de tarjetas de crédito Clara y seguimiento tedioso a usuarios con comprobaciones pendientes.',
+    solution: 'Sistema integrado de orquestación de datos que descarga movimientos y envía alertas automáticas por WhatsApp a tarjetahabientes pendientes.',
+    metrics: 'Ahorro de horas hombre en carga de gastos y creación de hábito de comprobación oportuna.'
+  },
+  {
+    name: 'Júpiter',
+    company: 'Grupo Chesa',
+    department: 'Mejora Continua',
+    members: 'Ivonne Courtois',
+    projectTitle: 'Tablero PitStop Posventa',
+    problem: 'Ausencia de tablero en tiempo real para avance de taller (19.5% de inconformidades de clientes causadas por demoras).',
+    solution: 'Tablero digital en tiempo real conectado al DMS con algoritmo predictivo que calcula la urgencia y asigna órdenes de reparación a técnicos libres.',
+    metrics: 'Disminución del 20% en inconformidades por tiempo en servicio y aumento en CSI de marcas.'
+  },
+  {
+    name: 'Erick Samuel García Jiménez',
+    company: '5 Pinos',
+    department: 'Talento Humano',
+    members: 'Erick Samuel García Jiménez',
+    projectTitle: 'SAM — Sistema de Análisis Milimétrico',
+    problem: 'Cotejo manual de expedientes de personal y proveedores requiere 45 a 90 minutos por expediente con vulnerabilidad a firmas o documentos apócrifos.',
+    solution: 'SAM: Plataforma de auditoría forense documental con OCR Visión IA, grafoscopía digital y matriz de coherencia cruzada contra SAT/INE/RENAPO.',
+    metrics: 'Tiempo por expediente reducido de 1 hora a 3 minutos. Liberación de +20 horas/semana por usuario.'
+  },
+  {
+    name: 'LexIA',
+    company: 'Grupo Prosur',
+    department: 'Planeación',
+    members: 'Juan Carlos López Pérez, Claudia Roxana Ruíz Ruiz, Alondra Montserrat Hernández Sánchez',
+    projectTitle: 'Portal de Accionistas — Grupo Prosur',
+    problem: 'Redacción manual repetitiva de actas y libros corporativos, con riesgo legal por poderes notariales vencidos no identificados a tiempo.',
+    solution: 'Asistente corporativo con Claude (Anthropic) + Portal Web de Accionistas que alerta vigencia de poderes y redacta libros bajo Ley General de Sociedades Mercantiles.',
+    metrics: 'Cero uso de poderes vencidos. Reducción de horas en búsqueda y redacción legal.'
+  },
+  {
+    name: 'Papeles de trabajo',
+    company: 'Grupo Prosur',
+    department: 'Contraloria',
+    members: 'José Francisco Flores Zuñiga, Andrea Ricarda Velazco Trejo, Maria Nicolasa Santiz Diaz, Carina Alicia Santiz Lopez, Guadalupe del Carmen Jimenez Najera',
+    projectTitle: 'Papeles de trabajo (Depreciaciones)',
+    problem: 'Cálculo manual en Excel de depreciaciones contables/fiscales e INPC en activos fijos, con riesgo de sanciones o recargos del SAT.',
+    solution: 'Aplicación que calcula sistemáticamente las depreciaciones según disposiciones fiscales e importa listados de activos e INPC automáticamente.',
+    metrics: 'Eliminación completa de errores en cálculo de depreciaciones e INPC.'
+  },
+  {
+    name: 'VacaIA',
+    company: 'Grupo Chesa',
+    department: 'Talento Humano',
+    members: 'Alejandra Jocabeth Gordillo Morales, Maria Elizabeth Ovalle Islas',
+    projectTitle: 'VacaIA — Dashboard Inteligente de Vacaciones CHESA',
+    problem: 'Cruce manual quincenal en Excel de 3 reportes distintos de nómina para 500+ colaboradores en 24 agencias (toma 4 a 6 horas).',
+    solution: 'Dashboard ejecutivo en el navegador donde se arrastran los 3 archivos Excel de nómina y genera al instante KPIs, ranking de riesgo y calendario visual.',
+    metrics: 'Proceso quincenal reducido de 4-6 horas a menos de 5 minutos. 100% de cobertura en 24 agencias.'
+  },
+  {
+    name: 'Talento y Desempeño con IA',
+    company: 'Grupo Chesa',
+    department: 'Talento Humano',
+    members: 'MARIA ELIZABETH OVALLE ISLAS, ALEJANDRA JOCABETH GORDILLO MORALES',
+    projectTitle: 'Talento y Desempeño con IA',
+    problem: 'Evaluación manual en papel de 10 competencias Nissan Way para 765 colaboradores en 16 agencias, tomando semanas sin trazabilidad.',
+    solution: 'Plataforma web en Netlify donde evaluadores califican competencias y Claude IA genera al instante el Plan de Desarrollo Individual (PDI) personalizado.',
+    metrics: 'Levantamiento reducido de 3 semanas a 2 días (-85% tiempo). PDI individual generado en <30 segundos (574 horas ahorradas).'
+  }
 ];
 
 // Helper to convert team name into clean email
@@ -104,6 +433,72 @@ const participantUsers = rawTeamsData.map((t, idx) => ({
   savedDemoIds: [],
   badges: ['Equipo Oficial']
 }));
+
+// Build default Demos list for every team and project from the Google Sheet
+const defaultDemosList = rawTeamsData.map((t, idx) => ({
+  id: idx + 1,
+  authorId: `usr-team-${idx + 1}`,
+  title: t.projectTitle || `Solución de IA: ${t.name}`,
+  subtitle: `Proyecto del ${t.name} (${t.company} - ${t.department}) para el Reto IA Prosur 2026.`,
+  description: t.solution || t.problem,
+  unit: t.company,
+  unitClass: 'badge-unit-agrifood',
+  category: t.company,
+  problemStatement: t.problem,
+  impactMetrics: t.metrics,
+  tags: [t.company, 'Reto IA Prosur', t.department],
+  author: `Equipo: ${t.name}`,
+  authorRole: `Equipo (${t.department})`,
+  authorAvatar: getAvatar(t.name),
+  views: Math.floor(Math.random() * 150) + 50,
+  likes: Math.floor(Math.random() * 25) + 5,
+  rating: 0,
+  duration: '3:30',
+  thumbnail: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800',
+  videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+  specs: {
+    modelType: 'Solución de IA Prosur',
+    latency: 'En tiempo real',
+    dataSources: `Base de datos ${t.company}`,
+    status: 'En evaluación'
+  },
+  images: [],
+  evaluations: [],
+  comments: []
+}));
+
+// Add Diego Lopez's showcase demo
+defaultDemosList.push({
+  id: defaultDemosList.length + 1,
+  authorId: 'usr-part-diego',
+  title: 'Plataforma de Inteligencia Artificial Grupo Prosur',
+  subtitle: 'Proyecto del Equipo Diego Lopez (Grupo Prosur).',
+  description: 'Innovación en inteligencia artificial para la gestión y presentación de soluciones de IA.',
+  unit: 'Grupo Prosur',
+  unitClass: 'badge-unit-pharma',
+  category: 'Grupo Prosur',
+  problemStatement: 'Centralizar y evaluar proyectos de innovación de IA en tiempo real.',
+  impactMetrics: '100% de proyectos evaluados bajo la rúbrica oficial.',
+  tags: ['Grupo Prosur', 'Reto IA', 'Showcase'],
+  author: 'Diego Lopez',
+  authorRole: 'Líder del Proyecto Reto IA',
+  authorAvatar: getAvatar('Diego Lopez'),
+  views: 240,
+  likes: 42,
+  rating: 0,
+  duration: '4:00',
+  thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
+  videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+  specs: {
+    modelType: 'Full-Stack SPA + Firebase',
+    latency: '<100ms',
+    dataSources: 'Firestore Cloud DB',
+    status: 'Desplegado en Producción'
+  },
+  images: [],
+  evaluations: [],
+  comments: []
+});
 
 // Build defaultState with Super Admin, 16 Judges, and all Teams as participants
 const defaultState = {
@@ -390,75 +785,12 @@ const defaultState = {
       badges: ['Jurado']
     },
 
-    // ALL EQUIPOS / TEAMS FROM TABLE IMAGE AS PARTICIPANTS
+    // ALL EQUIPOS / TEAMS FROM GOOGLE SHEET AS PARTICIPANTS
     ...participantUsers
   ],
 
   // AI Demos List
-  demos: [
-    {
-      id: 1,
-      authorId: 'usr-team-40', // Equipo Procesos (Calzamoda)
-      title: 'Solución de IA: Optimización de Auditoría y Procesos',
-      subtitle: 'Demo del Equipo Procesos (Calzamoda) para el Reto IA 2026.',
-      description: 'Sistema inteligente de análisis y automatización de flujos de auditoría interna.',
-      unit: 'Calzamoda',
-      unitClass: 'badge-unit-agrifood',
-      category: 'Calzamoda',
-      problemStatement: 'Demoras en la verificación manual de procesos e inventarios.',
-      impactMetrics: 'Reducción del 50% en tiempos de revisión de auditoría.',
-      tags: ['Calzamoda', 'Reto IA', 'Procesos'],
-      author: 'Equipo: Procesos',
-      authorRole: 'Equipo (Auditoria y Procesos)',
-      authorAvatar: getAvatar('Procesos'),
-      views: 120,
-      likes: 15,
-      rating: 0,
-      duration: '3:00',
-      thumbnail: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800',
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      specs: {
-        modelType: 'Custom AI Architecture',
-        latency: 'Real-time',
-        dataSources: 'Base de datos Calzamoda',
-        status: 'En evaluación'
-      },
-      images: [],
-      evaluations: [],
-      comments: []
-    },
-    {
-      id: 2,
-      authorId: 'usr-part-diego',
-      title: 'Plataforma de Inteligencia Artificial Grupo Prosur',
-      subtitle: 'Proyecto del Equipo Diego Lopez (Grupo Prosur).',
-      description: 'Innovación en inteligencia artificial para la gestión y presentación de soluciones de IA.',
-      unit: 'Grupo Prosur',
-      unitClass: 'badge-unit-pharma',
-      category: 'Grupo Prosur',
-      problemStatement: 'Centralizar y evaluar proyectos de innovación de IA en tiempo real.',
-      impactMetrics: '100% de proyectos evaluados bajo la rúbrica oficial.',
-      tags: ['Grupo Prosur', 'Reto IA', 'Showcase'],
-      author: 'Diego Lopez',
-      authorRole: 'Líder del Proyecto Reto IA',
-      authorAvatar: getAvatar('Diego Lopez'),
-      views: 240,
-      likes: 42,
-      rating: 0,
-      duration: '4:00',
-      thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      specs: {
-        modelType: 'Full-Stack SPA + Firebase',
-        latency: '<100ms',
-        dataSources: 'Firestore Cloud DB',
-        status: 'Desplegado en Producción'
-      },
-      images: [],
-      evaluations: [],
-      comments: []
-    }
-  ],
+  demos: defaultDemosList,
 
   posts: []
 };
