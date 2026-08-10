@@ -795,6 +795,8 @@ const defaultState = {
   posts: []
 };
 
+const CURRENT_DATA_VERSION = 3;
+
 // Load initial state with localStorage persistence
 function loadInitialState() {
   try {
@@ -802,18 +804,34 @@ function loadInitialState() {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed && Array.isArray(parsed.users)) {
-        let activeUser = null;
-        if (parsed.activeUserId) {
-          activeUser = parsed.users.find(u => u.id === parsed.activeUserId) || null;
-        }
-
         const deletedDemoIds = Array.isArray(parsed.deletedDemoIds) ? parsed.deletedDemoIds : [];
         const deletedUserIds = Array.isArray(parsed.deletedUserIds) ? parsed.deletedUserIds : [];
 
-        const users = (Array.isArray(parsed.users) ? parsed.users : defaultState.users)
-          .filter(u => !deletedUserIds.includes(u.id));
+        let users = parsed.users;
+        let demos = parsed.demos;
 
-        const demos = (Array.isArray(parsed.demos) ? parsed.demos : defaultState.demos)
+        // Auto-upgrade state if stored cache is from an older version (e.g. before 38 real projects import)
+        if (!parsed.dataVersion || parsed.dataVersion < CURRENT_DATA_VERSION) {
+          const existingUserEmails = new Set((users || []).map(u => (u.email || '').toLowerCase()));
+          const defaultUsersToAdd = defaultState.users.filter(
+            u => !existingUserEmails.has((u.email || '').toLowerCase()) && !deletedUserIds.includes(u.id)
+          );
+          users = [...defaultUsersToAdd, ...(users || [])];
+
+          // If cached demos list has fewer than 10 items, replace with 38 real projects
+          if (!demos || demos.length < 10) {
+            demos = defaultState.demos.filter(d => !deletedDemoIds.includes(String(d.id)));
+          } else {
+            const existingDemoTitles = new Set((demos || []).map(d => (d.title || '').toLowerCase().trim()));
+            const defaultDemosToAdd = defaultState.demos.filter(
+              d => !existingDemoTitles.has((d.title || '').toLowerCase().trim()) && !deletedDemoIds.includes(String(d.id))
+            );
+            demos = [...demos, ...defaultDemosToAdd];
+          }
+        }
+
+        users = users.filter(u => !deletedUserIds.includes(u.id));
+        demos = demos
           .filter(d => !deletedDemoIds.includes(String(d.id)))
           .map(d => ({
             ...d,
@@ -822,33 +840,75 @@ function loadInitialState() {
             videoUrl: formatYoutubeEmbedUrl(d.videoUrl)
           }));
 
-        return {
+        let activeUser = null;
+        if (parsed.activeUserId) {
+          activeUser = users.find(u => u.id === parsed.activeUserId) || null;
+        }
+
+        const newState = {
           ...defaultState,
           ...parsed,
+          dataVersion: CURRENT_DATA_VERSION,
           users,
           demos,
           deletedDemoIds,
           deletedUserIds,
           currentUser: activeUser
         };
+
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            dataVersion: CURRENT_DATA_VERSION,
+            isAuthenticated: newState.isAuthenticated,
+            activeUserId: newState.activeUserId,
+            selectedCategory: newState.selectedCategory,
+            selectedUnit: newState.selectedUnit,
+            users: newState.users,
+            demos: newState.demos,
+            posts: newState.posts,
+            deletedDemoIds: newState.deletedDemoIds,
+            deletedUserIds: newState.deletedUserIds
+          }));
+        } catch (err) {}
+
+        return newState;
       }
     }
   } catch (e) {
     console.warn('Could not parse localStorage state:', e);
   }
 
-  return {
+  const initialState = {
     ...defaultState,
+    dataVersion: CURRENT_DATA_VERSION,
     deletedDemoIds: [],
     deletedUserIds: [],
     currentUser: null
   };
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      dataVersion: CURRENT_DATA_VERSION,
+      isAuthenticated: initialState.isAuthenticated,
+      activeUserId: initialState.activeUserId,
+      selectedCategory: initialState.selectedCategory,
+      selectedUnit: initialState.selectedUnit,
+      users: initialState.users,
+      demos: initialState.demos,
+      posts: initialState.posts,
+      deletedDemoIds: [],
+      deletedUserIds: []
+    }));
+  } catch (err) {}
+
+  return initialState;
 }
 
 export const state = loadInitialState();
 
 export function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    dataVersion: CURRENT_DATA_VERSION,
     isAuthenticated: state.isAuthenticated,
     activeUserId: state.activeUserId,
     selectedCategory: state.selectedCategory,
