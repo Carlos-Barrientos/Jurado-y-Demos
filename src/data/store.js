@@ -929,26 +929,35 @@ if (isFirebaseConfigured()) {
   
   onSnapshot(collection(db, 'users'), (snapshot) => {
     if (snapshot && !snapshot.empty) {
-      const cloudUsers = [];
       const deleted = state.deletedUserIds || [];
+      const cloudMap = new Map();
       snapshot.forEach(docSnap => {
         const u = { id: docSnap.id, ...docSnap.data() };
         if (!deleted.includes(u.id)) {
-          cloudUsers.push(u);
+          cloudMap.set(u.id, u);
         }
       });
 
-      if (cloudUsers.length > 0) {
-        const existingLocalOnly = state.users.filter(local => 
-          !cloudUsers.some(cloud => cloud.id === local.id) &&
-          !deleted.includes(local.id)
-        );
-        state.users = [...cloudUsers, ...existingLocalOnly];
-        if (state.activeUserId) {
-          state.currentUser = state.users.find(u => u.id === state.activeUserId) || state.currentUser;
+      const updatedUsers = state.users.map(local => {
+        const cloud = cloudMap.get(local.id);
+        if (cloud) {
+          cloudMap.delete(local.id);
+          return { ...cloud, ...local };
         }
-        saveState();
+        return local;
+      }).filter(u => !deleted.includes(u.id));
+
+      cloudMap.forEach(cloudUser => {
+        if (!deleted.includes(cloudUser.id)) {
+          updatedUsers.push(cloudUser);
+        }
+      });
+
+      state.users = updatedUsers;
+      if (state.activeUserId) {
+        state.currentUser = state.users.find(u => u.id === state.activeUserId) || state.currentUser;
       }
+      saveState();
     } else {
       seedFirestoreUsers().catch(err => console.warn('Seed users warning:', err));
     }
@@ -958,24 +967,45 @@ if (isFirebaseConfigured()) {
 
   onSnapshot(collection(db, 'demos'), (snapshot) => {
     if (snapshot && !snapshot.empty) {
-      const cloudDemos = [];
       const deleted = state.deletedDemoIds || [];
+      const cloudMap = new Map();
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
         const demoId = isNaN(Number(docSnap.id)) ? docSnap.id : Number(docSnap.id);
         if (!deleted.includes(String(demoId))) {
-          cloudDemos.push({ id: demoId, ...data });
+          cloudMap.set(String(demoId), { id: demoId, ...data });
         }
       });
 
-      if (cloudDemos.length > 0) {
-        const existingLocalOnly = state.demos.filter(local => 
-          !cloudDemos.some(cloud => String(cloud.id) === String(local.id)) &&
-          !deleted.includes(String(local.id))
-        );
-        state.demos = [...cloudDemos, ...existingLocalOnly];
-        saveState();
-      }
+      const updatedDemos = state.demos.map(local => {
+        const key = String(local.id);
+        const cloud = cloudMap.get(key);
+        if (cloud) {
+          cloudMap.delete(key);
+          return {
+            ...cloud,
+            ...local,
+            videoUrl: local.videoUrl ? formatYoutubeEmbedUrl(local.videoUrl) : formatYoutubeEmbedUrl(cloud.videoUrl),
+            images: (local.images && local.images.length > 0) ? local.images : (cloud.images || []),
+            evaluations: (local.evaluations && local.evaluations.length > 0) ? local.evaluations : (cloud.evaluations || []),
+            likes: (local.realLikes !== undefined ? local.realLikes : (local.likes || cloud.likes || 0)),
+            realLikes: (local.realLikes !== undefined ? local.realLikes : (local.likes || cloud.likes || 0))
+          };
+        }
+        return local;
+      }).filter(d => !deleted.includes(String(d.id)));
+
+      cloudMap.forEach(cloudDemo => {
+        if (!deleted.includes(String(cloudDemo.id))) {
+          updatedDemos.push({
+            ...cloudDemo,
+            videoUrl: formatYoutubeEmbedUrl(cloudDemo.videoUrl)
+          });
+        }
+      });
+
+      state.demos = updatedDemos;
+      saveState();
     } else {
       seedFirestoreDemos().catch(err => console.warn('Seed demos warning:', err));
     }
@@ -1048,7 +1078,7 @@ export function toggleFavorite(demoId) {
   }
   saveState();
   if (isFirebaseConfigured()) {
-    updateDoc(doc(db, 'users', state.currentUser.id), { savedDemoIds: state.currentUser.savedDemoIds });
+    setDoc(doc(db, 'users', state.currentUser.id), { savedDemoIds: state.currentUser.savedDemoIds }, { merge: true }).catch(() => {});
   }
 }
 
@@ -1071,7 +1101,7 @@ export function addCommentToDemo(demoId, commentText) {
     demo.comments.push(newComment);
     saveState();
     if (isFirebaseConfigured()) {
-      updateDoc(doc(db, 'demos', String(demoId)), { comments: demo.comments });
+      setDoc(doc(db, 'demos', String(demoId)), { comments: demo.comments }, { merge: true }).catch(() => {});
     }
   }
 }
@@ -1103,10 +1133,12 @@ export function updateDemo(demoId, data) {
   if (data.problemStatement) demo.problemStatement = data.problemStatement;
   if (data.impactMetrics) demo.impactMetrics = data.impactMetrics;
   if (data.videoUrl !== undefined) demo.videoUrl = formatYoutubeEmbedUrl(data.videoUrl);
+  if (data.likes !== undefined) demo.likes = data.likes;
+  if (data.realLikes !== undefined) demo.realLikes = data.realLikes;
 
   saveState();
   if (isFirebaseConfigured()) {
-    updateDoc(doc(db, 'demos', String(demoId)), demo).catch(() => {});
+    setDoc(doc(db, 'demos', String(demoId)), demo, { merge: true }).catch(() => {});
   }
   return true;
 }
@@ -1127,7 +1159,7 @@ export function addDemoImage(demoId, imageUrl, caption) {
   demo.images.push(imgObj);
   saveState();
   if (isFirebaseConfigured()) {
-    updateDoc(doc(db, 'demos', String(demoId)), { images: demo.images });
+    setDoc(doc(db, 'demos', String(demoId)), { images: demo.images }, { merge: true }).catch(() => {});
   }
   return true;
 }
@@ -1138,7 +1170,7 @@ export function removeDemoImage(demoId, imageIndex) {
   demo.images.splice(imageIndex, 1);
   saveState();
   if (isFirebaseConfigured()) {
-    updateDoc(doc(db, 'demos', String(demoId)), { images: demo.images });
+    setDoc(doc(db, 'demos', String(demoId)), { images: demo.images }, { merge: true }).catch(() => {});
   }
   return true;
 }
@@ -1185,7 +1217,7 @@ export function submitJudgeEvaluation(demoId, scores, feedback) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    updateDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations, rating: demo.rating }).catch(() => {});
+    setDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations, rating: demo.rating }, { merge: true }).catch(() => {});
   }
   return true;
 }
@@ -1211,7 +1243,7 @@ export function createUser(userData) {
   state.users.push(newUser);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', newId), newUser).catch(() => {});
+    setDoc(doc(db, 'users', newId), newUser, { merge: true }).catch(() => {});
   }
   return true;
 }
@@ -1256,7 +1288,7 @@ export function createDemo(demoData, authorId) {
   state.demos.push(newDemo);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', String(newId)), newDemo).catch(() => {});
+    setDoc(doc(db, 'demos', String(newId)), newDemo, { merge: true }).catch(() => {});
   }
   return true;
 }
@@ -1272,12 +1304,12 @@ export function assignDemo(demoId, authorId) {
     demo.authorAvatar = author.avatar;
     saveState();
     if (isFirebaseConfigured()) {
-      updateDoc(doc(db, 'demos', String(demoId)), {
+      setDoc(doc(db, 'demos', String(demoId)), {
         authorId: author.id,
         author: author.name,
         authorRole: author.roleTitle,
         authorAvatar: author.avatar
-      }).catch(() => {});
+      }, { merge: true }).catch(() => {});
     }
     return true;
   }
