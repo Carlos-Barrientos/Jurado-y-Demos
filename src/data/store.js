@@ -615,7 +615,7 @@ export function addCommentToDemo(demoId, commentText) {
 
 export function updateDemo(demoId, data) {
   const demo = getDemoById(demoId);
-  if (!demo || !isOwner(demo)) return false;
+  if (!demo || (!isOwner(demo) && !isAdmin())) return false;
 
   if (data.title) demo.title = data.title;
   if (data.subtitle) demo.subtitle = data.subtitle;
@@ -623,7 +623,7 @@ export function updateDemo(demoId, data) {
   if (data.category) demo.category = data.category;
   if (data.problemStatement) demo.problemStatement = data.problemStatement;
   if (data.impactMetrics) demo.impactMetrics = data.impactMetrics;
-  if (data.videoUrl) demo.videoUrl = data.videoUrl;
+  if (data.videoUrl !== undefined) demo.videoUrl = data.videoUrl;
 
   saveState();
   if (isFirebaseConfigured()) {
@@ -632,9 +632,13 @@ export function updateDemo(demoId, data) {
   return true;
 }
 
+export function updateDemoVideoUrl(demoId, videoUrl) {
+  return updateDemo(demoId, { videoUrl });
+}
+
 export function addDemoImage(demoId, imageUrl, caption) {
   const demo = getDemoById(demoId);
-  if (!demo || !isOwner(demo)) return false;
+  if (!demo || (!isOwner(demo) && !isAdmin())) return false;
   
   if (!demo.images) demo.images = [];
   const imgObj = {
@@ -651,7 +655,7 @@ export function addDemoImage(demoId, imageUrl, caption) {
 
 export function removeDemoImage(demoId, imageIndex) {
   const demo = getDemoById(demoId);
-  if (!demo || !isOwner(demo) || !demo.images) return false;
+  if (!demo || (!isOwner(demo) && !isAdmin())) return false;
   demo.images.splice(imageIndex, 1);
   saveState();
   if (isFirebaseConfigured()) {

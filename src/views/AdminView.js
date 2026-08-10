@@ -1,4 +1,4 @@
-import { state, isAdmin, createUser, updateUser, deleteUser, createDemo, deleteDemo, assignDemo, resetState, companies } from '../data/store.js';
+import { state, isAdmin, createUser, updateUser, deleteUser, createDemo, deleteDemo, assignDemo, updateDemoVideoUrl, resetState, companies } from '../data/store.js';
 
 export function renderAdminView() {
   if (!isAdmin()) {
@@ -22,7 +22,7 @@ function getAdminHtml() {
             <span class="material-symbols-outlined text-3xl text-primary">admin_panel_settings</span>
             <h1 class="text-2xl md:text-3xl font-bold text-on-surface">Panel de Administración Integral</h1>
           </div>
-          <p class="text-sm text-secondary">Gestión completa de usuarios, asignación de demos y restablecimiento del sistema.</p>
+          <p class="text-sm text-secondary">Gestión completa de usuarios, asignación de demos, enlaces de video y restablecimiento del sistema.</p>
         </div>
 
         <button id="resetStateBtn" class="px-4 py-2 bg-error-container text-error hover:bg-error hover:text-white font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 border border-error/20">
@@ -182,13 +182,28 @@ function getAdminHtml() {
               ${demos.map(demo => `
                 <div class="p-4 bg-surface-bright rounded-xl border border-surface-container-high space-y-3">
                   <div class="flex items-start justify-between gap-2">
-                    <div>
+                    <div class="space-y-1">
                       <h4 class="font-bold text-sm text-on-surface">${demo.title}</h4>
                       <p class="text-xs text-secondary">Autor: <span class="font-bold text-primary">${demo.author}</span></p>
+                      
+                      <!-- Video Link Quick Edit Banner -->
+                      <div class="flex items-center gap-1.5 pt-1 text-xs">
+                        <span class="material-symbols-outlined text-sm text-primary">smart_display</span>
+                        <span class="font-semibold text-secondary">Video:</span>
+                        <button data-edit-video-id="${demo.id}" class="edit-video-btn inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded font-medium text-[11px] transition-colors" title="Editar link del video">
+                          <span class="material-symbols-outlined text-xs">edit</span> Editar Video Link
+                        </button>
+                      </div>
                     </div>
-                    <button data-del-demo-id="${demo.id}" class="del-demo-btn p-1 text-secondary hover:text-error transition-colors" title="Eliminar Proyecto">
-                      <span class="material-symbols-outlined text-base">delete</span>
-                    </button>
+
+                    <div class="flex items-center gap-1">
+                      <a href="#demo/${demo.id}" class="p-1 text-secondary hover:text-primary transition-colors" title="Ver Detalle del Proyecto">
+                        <span class="material-symbols-outlined text-base">visibility</span>
+                      </a>
+                      <button data-del-demo-id="${demo.id}" class="del-demo-btn p-1 text-secondary hover:text-error transition-colors" title="Eliminar Proyecto">
+                        <span class="material-symbols-outlined text-base">delete</span>
+                      </button>
+                    </div>
                   </div>
                   
                   <form class="assign-demo-form flex items-center gap-2" data-demo-id="${demo.id}">
@@ -211,7 +226,7 @@ function getAdminHtml() {
 
       </div>
 
-      <!-- MODAL: Edit User Modal -->
+      <!-- MODAL 1: Edit User Modal -->
       <div id="editUserModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
           <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
@@ -262,6 +277,43 @@ function getAdminHtml() {
             <div class="flex justify-end gap-2 pt-2 border-t border-surface-container-high">
               <button type="button" id="cancelEditUserBtn" class="px-4 py-2 bg-surface-container text-secondary font-semibold text-xs rounded-lg hover:bg-surface-container-high">Cancelar</button>
               <button type="submit" class="px-5 py-2 bg-primary text-white font-semibold text-xs rounded-lg hover:bg-primary-container">Guardar Cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- MODAL 2: Edit Video Link Modal (Admin) -->
+      <div id="editVideoModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">videocam</span>
+              <h3 class="font-bold text-lg text-on-surface">Editar Link de Video del Proyecto</h3>
+            </div>
+            <button id="closeEditVideoModalBtn" class="text-secondary hover:text-primary">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <form id="editVideoForm" class="space-y-3 text-sm">
+            <input type="hidden" id="editVideoDemoId"/>
+
+            <div>
+              <label class="block font-semibold text-xs text-secondary mb-1">Proyecto</label>
+              <input type="text" id="editVideoDemoTitle" readonly class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container text-secondary font-semibold cursor-not-allowed"/>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-xs text-secondary mb-1">Enlace del Video (URL Embed o Directa)</label>
+              <input type="url" id="editVideoUrlInput" required placeholder="https://www.youtube.com/embed/..." class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none font-mono text-xs"/>
+              <p class="text-[11px] text-secondary mt-1">Soporta enlaces embed de YouTube (https://www.youtube.com/embed/...) o videos MP4.</p>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-surface-container-high">
+              <button type="button" id="cancelEditVideoBtn" class="px-4 py-2 bg-surface-container text-secondary font-semibold text-xs rounded-lg hover:bg-surface-container-high">Cancelar</button>
+              <button type="submit" class="px-5 py-2 bg-primary text-white font-semibold text-xs rounded-lg hover:bg-primary-container flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">save</span> Guardar Video
+              </button>
             </div>
           </form>
         </div>
@@ -392,6 +444,41 @@ function attachAdminEvents() {
       }
     });
   });
+
+  // Edit Video Modal logic
+  const editVideoModal = document.getElementById('editVideoModal');
+  const closeEditVideoBtn = document.getElementById('closeEditVideoModalBtn');
+  const cancelEditVideoBtn = document.getElementById('cancelEditVideoBtn');
+
+  if (closeEditVideoBtn) closeEditVideoBtn.addEventListener('click', () => editVideoModal.classList.add('hidden'));
+  if (cancelEditVideoBtn) cancelEditVideoBtn.addEventListener('click', () => editVideoModal.classList.add('hidden'));
+
+  document.querySelectorAll('.edit-video-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const demoId = e.currentTarget.dataset.editVideoId;
+      const demo = state.demos.find(d => String(d.id) === String(demoId));
+      if (demo) {
+        document.getElementById('editVideoDemoId').value = demo.id;
+        document.getElementById('editVideoDemoTitle').value = demo.title;
+        document.getElementById('editVideoUrlInput').value = demo.videoUrl || '';
+        editVideoModal.classList.remove('hidden');
+      }
+    });
+  });
+
+  const editVideoForm = document.getElementById('editVideoForm');
+  if (editVideoForm) {
+    editVideoForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const demoId = document.getElementById('editVideoDemoId').value;
+      const videoUrl = document.getElementById('editVideoUrlInput').value.trim();
+      if (updateDemoVideoUrl(demoId, videoUrl)) {
+        alert('Enlace de video actualizado exitosamente.');
+        editVideoModal.classList.add('hidden');
+        refreshAdminView();
+      }
+    });
+  }
 
   // Reset State
   const resetBtn = document.getElementById('resetStateBtn');

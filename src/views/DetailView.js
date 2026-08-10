@@ -5,6 +5,7 @@ import {
   getDemoById, 
   isOwner, 
   isJudge, 
+  isAdmin,
   updateDemo, 
   addDemoImage, 
   removeDemoImage,
@@ -23,7 +24,7 @@ export function renderDetailView(demoId) {
 
 function getDetailHtml(demo) {
   const isFav = isFavorite(demo.id);
-  const userIsOwner = isOwner(demo);
+  const userIsOwner = isOwner(demo) || isAdmin();
   const userIsJudge = isJudge();
   const activeUser = state.currentUser;
 
