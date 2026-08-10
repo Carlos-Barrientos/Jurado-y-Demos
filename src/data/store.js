@@ -969,10 +969,12 @@ if (isFirebaseConfigured()) {
 
     const updatedUsers = defaultState.users.map(defUser => {
       const cloud = cloudMap.get(defUser.id);
+      const localUser = state.users.find(u => u.id === defUser.id);
       if (cloud) cloudMap.delete(defUser.id);
 
       return {
         ...defUser,
+        ...(localUser || {}),
         ...cloud
       };
     }).filter(u => !deleted.includes(u.id));
@@ -1028,17 +1030,26 @@ if (isFirebaseConfigured()) {
     const updatedDemos = defaultState.demos.map(defDemo => {
       const key = String(defDemo.id);
       const cloud = cloudMap.get(key);
+      const localDemo = state.demos.find(d => String(d.id) === key);
       if (cloud) cloudMap.delete(key);
 
-      return {
+      const merged = {
         ...defDemo,
-        ...cloud,
-        videoUrl: formatYoutubeEmbedUrl(cloud && cloud.videoUrl !== undefined ? cloud.videoUrl : defDemo.videoUrl),
-        images: (cloud && cloud.images && cloud.images.length > 0) ? cloud.images : [],
-        evaluations: (cloud && cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : [],
-        likes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : (defDemo.likes || 0),
-        realLikes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : (defDemo.likes || 0),
-        comments: (cloud && cloud.comments && cloud.comments.length > 0) ? cloud.comments : []
+        ...(localDemo || {}),
+        ...cloud
+      };
+
+      return {
+        ...merged,
+        videoUrl: formatYoutubeEmbedUrl(
+          cloud && cloud.videoUrl !== undefined ? cloud.videoUrl : 
+          (localDemo && localDemo.videoUrl !== undefined ? localDemo.videoUrl : defDemo.videoUrl)
+        ),
+        images: (cloud && cloud.images && cloud.images.length > 0) ? cloud.images : (localDemo?.images || []),
+        evaluations: (cloud && cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : (localDemo?.evaluations || []),
+        likes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : (localDemo?.likes || defDemo.likes || 0),
+        realLikes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : (localDemo?.realLikes || defDemo.likes || 0),
+        comments: (cloud && cloud.comments && cloud.comments.length > 0) ? cloud.comments : (localDemo?.comments || [])
       };
     }).filter(d => !deleted.includes(String(d.id)));
 
