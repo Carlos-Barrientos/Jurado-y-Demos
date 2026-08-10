@@ -330,12 +330,12 @@ function attachAdminEvents() {
     createUserForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const userData = {
-        name: document.getElementById('newUserName').value,
-        email: document.getElementById('newUserEmail').value,
-        password: document.getElementById('newUserPass').value,
-        roleType: document.getElementById('newUserRole').value,
-        roleTitle: document.getElementById('newUserTitle').value,
-        unit: document.getElementById('newUserUnit').value,
+        name: document.getElementById('newUserName')?.value || '',
+        email: document.getElementById('newUserEmail')?.value || '',
+        password: document.getElementById('newUserPass')?.value || '',
+        roleType: document.getElementById('newUserRole')?.value || '',
+        roleTitle: document.getElementById('newUserTitle')?.value || '',
+        unit: document.getElementById('newUserUnit')?.value || '',
       };
       
       if (createUser(userData)) {
@@ -352,10 +352,10 @@ function attachAdminEvents() {
     createDemoForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const demoData = {
-        title: document.getElementById('newDemoTitle').value,
-        category: document.getElementById('newDemoCategory').value
+        title: document.getElementById('newDemoTitle')?.value || '',
+        category: document.getElementById('newDemoCategory')?.value || ''
       };
-      const authorId = document.getElementById('newDemoAuthor').value;
+      const authorId = document.getElementById('newDemoAuthor')?.value || '';
       if (createDemo(demoData, authorId)) {
         alert('Proyecto Demo creado exitosamente.');
         createDemoForm.reset();
@@ -369,21 +369,30 @@ function attachAdminEvents() {
   const closeEditUserBtn = document.getElementById('closeEditUserModalBtn');
   const cancelEditUserBtn = document.getElementById('cancelEditUserBtn');
 
-  if (closeEditUserBtn) closeEditUserBtn.addEventListener('click', () => editUserModal.classList.add('hidden'));
-  if (cancelEditUserBtn) cancelEditUserBtn.addEventListener('click', () => editUserModal.classList.add('hidden'));
+  if (closeEditUserBtn && editUserModal) closeEditUserBtn.addEventListener('click', () => editUserModal.classList.add('hidden'));
+  if (cancelEditUserBtn && editUserModal) cancelEditUserBtn.addEventListener('click', () => editUserModal.classList.add('hidden'));
 
   document.querySelectorAll('.edit-user-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const userId = e.currentTarget.dataset.editUserId;
       const user = state.users.find(u => u.id === userId);
-      if (user) {
-        document.getElementById('editUserId').value = user.id;
-        document.getElementById('editUserName').value = user.name;
-        document.getElementById('editUserEmail').value = user.email;
-        document.getElementById('editUserPass').value = user.password;
-        document.getElementById('editUserRole').value = user.roleType;
-        document.getElementById('editUserTitle').value = user.roleTitle || '';
-        document.getElementById('editUserUnit').value = user.unit || '';
+      if (user && editUserModal) {
+        const idInput = document.getElementById('editUserId');
+        const nameInput = document.getElementById('editUserName');
+        const emailInput = document.getElementById('editUserEmail');
+        const passInput = document.getElementById('editUserPass');
+        const roleInput = document.getElementById('editUserRole');
+        const titleInput = document.getElementById('editUserTitle');
+        const unitInput = document.getElementById('editUserUnit');
+
+        if (idInput) idInput.value = user.id;
+        if (nameInput) nameInput.value = user.name;
+        if (emailInput) emailInput.value = user.email;
+        if (passInput) passInput.value = user.password;
+        if (roleInput) roleInput.value = user.roleType;
+        if (titleInput) titleInput.value = user.roleTitle || '';
+        if (unitInput) unitInput.value = user.unit || '';
+
         editUserModal.classList.remove('hidden');
       }
     });
@@ -393,17 +402,17 @@ function attachAdminEvents() {
   if (editUserForm) {
     editUserForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const userId = document.getElementById('editUserId').value;
+      const userId = document.getElementById('editUserId')?.value || '';
       const updated = {
-        name: document.getElementById('editUserName').value,
-        email: document.getElementById('editUserEmail').value,
-        password: document.getElementById('editUserPass').value,
-        roleType: document.getElementById('editUserRole').value,
-        roleTitle: document.getElementById('editUserTitle').value,
-        unit: document.getElementById('editUserUnit').value,
+        name: document.getElementById('editUserName')?.value || '',
+        email: document.getElementById('editUserEmail')?.value || '',
+        password: document.getElementById('editUserPass')?.value || '',
+        roleType: document.getElementById('editUserRole')?.value || '',
+        roleTitle: document.getElementById('editUserTitle')?.value || '',
+        unit: document.getElementById('editUserUnit')?.value || '',
       };
       if (updateUser(userId, updated)) {
-        editUserModal.classList.add('hidden');
+        if (editUserModal) editUserModal.classList.add('hidden');
         refreshAdminView();
       }
     });
@@ -437,7 +446,7 @@ function attachAdminEvents() {
       e.preventDefault();
       const demoId = form.dataset.demoId;
       const select = form.querySelector('select');
-      const authorId = select.value;
+      const authorId = select ? select.value : '';
       if (authorId && assignDemo(demoId, authorId)) {
         alert('Proyecto reasignado exitosamente.');
         refreshAdminView();
@@ -450,17 +459,22 @@ function attachAdminEvents() {
   const closeEditVideoBtn = document.getElementById('closeEditVideoModalBtn');
   const cancelEditVideoBtn = document.getElementById('cancelEditVideoBtn');
 
-  if (closeEditVideoBtn) closeEditVideoBtn.addEventListener('click', () => editVideoModal.classList.add('hidden'));
-  if (cancelEditVideoBtn) cancelEditVideoBtn.addEventListener('click', () => editVideoModal.classList.add('hidden'));
+  if (closeEditVideoBtn && editVideoModal) closeEditVideoBtn.addEventListener('click', () => editVideoModal.classList.add('hidden'));
+  if (cancelEditVideoBtn && editVideoModal) cancelEditVideoBtn.addEventListener('click', () => editVideoModal.classList.add('hidden'));
 
   document.querySelectorAll('.edit-video-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const demoId = e.currentTarget.dataset.editVideoId;
       const demo = state.demos.find(d => String(d.id) === String(demoId));
-      if (demo) {
-        document.getElementById('editVideoDemoId').value = demo.id;
-        document.getElementById('editVideoDemoTitle').value = demo.title;
-        document.getElementById('editVideoUrlInput').value = demo.videoUrl || '';
+      if (demo && editVideoModal) {
+        const idInput = document.getElementById('editVideoDemoId');
+        const titleInput = document.getElementById('editVideoDemoTitle');
+        const urlInput = document.getElementById('editVideoUrlInput');
+
+        if (idInput) idInput.value = demo.id;
+        if (titleInput) titleInput.value = demo.title;
+        if (urlInput) urlInput.value = demo.videoUrl || '';
+
         editVideoModal.classList.remove('hidden');
       }
     });
@@ -470,11 +484,11 @@ function attachAdminEvents() {
   if (editVideoForm) {
     editVideoForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const demoId = document.getElementById('editVideoDemoId').value;
-      const videoUrl = document.getElementById('editVideoUrlInput').value.trim();
+      const demoId = document.getElementById('editVideoDemoId')?.value || '';
+      const videoUrl = (document.getElementById('editVideoUrlInput')?.value || '').trim();
       if (updateDemoVideoUrl(demoId, videoUrl)) {
         alert('Enlace de video actualizado exitosamente.');
-        editVideoModal.classList.add('hidden');
+        if (editVideoModal) editVideoModal.classList.add('hidden');
         refreshAdminView();
       }
     });

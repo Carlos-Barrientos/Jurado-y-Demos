@@ -9,6 +9,18 @@ export function renderProfileView() {
 
 function getProfileHtml() {
   const user = state.currentUser;
+  if (!user) {
+    return `
+      <div class="max-w-[1440px] mx-auto px-4 py-16 text-center space-y-4">
+        <span class="material-symbols-outlined text-4xl text-secondary">no_accounts</span>
+        <h2 class="text-xl font-bold text-on-surface">No hay sesión activa</h2>
+        <p class="text-sm text-secondary">Por favor inicia sesión con tu usuario para acceder a tu perfil.</p>
+        <a href="#login" class="px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-lg inline-flex items-center gap-2 hover:bg-primary-container transition-all">
+          <span class="material-symbols-outlined">login</span> Iniciar Sesión
+        </a>
+      </div>
+    `;
+  }
   const userIsJudge = isJudge();
 
   const myDemos = state.demos.filter(d => d.authorId === user.id || d.author === user.name);

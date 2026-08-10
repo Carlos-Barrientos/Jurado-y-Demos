@@ -70,16 +70,19 @@ function attachLoginEvents() {
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const pass = document.getElementById('loginPassword').value;
+      const emailEl = document.getElementById('loginEmail');
+      const passEl = document.getElementById('loginPassword');
       const errorMsg = document.getElementById('loginError');
 
+      const email = emailEl ? emailEl.value : '';
+      const pass = passEl ? passEl.value : '';
+
       if (login(email, pass)) {
-        errorMsg.classList.add('hidden');
+        if (errorMsg) errorMsg.classList.add('hidden');
         navigateTo('#home'); // Force redirect
         handleRoute();       // Update the view & navbar
       } else {
-        errorMsg.classList.remove('hidden');
+        if (errorMsg) errorMsg.classList.remove('hidden');
       }
     });
   }
