@@ -517,8 +517,11 @@ function attachDetailEventListeners(demoId) {
     likeBtn.addEventListener('click', () => {
       const demo = getDemoById(demoId);
       if (demo) {
-        demo.likes += 1;
-        document.getElementById('likeCount').innerText = demo.likes;
+        demo.likes = (demo.likes || 0) + 1;
+        demo.realLikes = demo.likes;
+        updateDemo(demo.id, { likes: demo.likes, realLikes: demo.likes });
+        const countSpan = document.getElementById('likeCount');
+        if (countSpan) countSpan.innerText = demo.likes;
       }
     });
   }

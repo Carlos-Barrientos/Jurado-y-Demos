@@ -450,8 +450,8 @@ const defaultDemosList = rawTeamsData.map((t, idx) => ({
   author: `Equipo: ${t.name}`,
   authorRole: `Equipo (${t.department})`,
   authorAvatar: getAvatar(t.name),
-  views: Math.floor(Math.random() * 150) + 50,
-  likes: Math.floor(Math.random() * 25) + 5,
+  views: 0,
+  likes: 0,
   rating: 0,
   duration: '3:30',
   thumbnail: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800',
@@ -483,8 +483,8 @@ defaultDemosList.push({
   author: 'Diego Lopez',
   authorRole: 'Líder del Proyecto Reto IA',
   authorAvatar: getAvatar('Diego Lopez'),
-  views: 240,
-  likes: 42,
+  views: 0,
+  likes: 0,
   rating: 0,
   duration: '4:00',
   thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
@@ -814,7 +814,12 @@ function loadInitialState() {
           .filter(u => !deletedUserIds.includes(u.id));
 
         const demos = (Array.isArray(parsed.demos) ? parsed.demos : defaultState.demos)
-          .filter(d => !deletedDemoIds.includes(String(d.id)));
+          .filter(d => !deletedDemoIds.includes(String(d.id)))
+          .map(d => ({
+            ...d,
+            likes: d.realLikes || 0,
+            views: d.realViews || 0
+          }));
 
         return {
           ...defaultState,
