@@ -469,16 +469,28 @@ function loadInitialState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed && Array.isArray(parsed.users) && parsed.users.length > 0) {
+      if (parsed && Array.isArray(parsed.users)) {
         let activeUser = null;
         if (parsed.activeUserId) {
           activeUser = parsed.users.find(u => u.id === parsed.activeUserId) || null;
         }
+
+        const deletedDemoIds = Array.isArray(parsed.deletedDemoIds) ? parsed.deletedDemoIds : [];
+        const deletedUserIds = Array.isArray(parsed.deletedUserIds) ? parsed.deletedUserIds : [];
+
+        const users = (Array.isArray(parsed.users) ? parsed.users : defaultState.users)
+          .filter(u => !deletedUserIds.includes(u.id));
+
+        const demos = (Array.isArray(parsed.demos) ? parsed.demos : defaultState.demos)
+          .filter(d => !deletedDemoIds.includes(String(d.id)));
+
         return {
           ...defaultState,
           ...parsed,
-          users: parsed.users,
-          demos: (Array.isArray(parsed.demos) && parsed.demos.length > 0) ? parsed.demos : defaultState.demos,
+          users,
+          demos,
+          deletedDemoIds,
+          deletedUserIds,
           currentUser: activeUser
         };
       }
@@ -489,6 +501,8 @@ function loadInitialState() {
 
   return {
     ...defaultState,
+    deletedDemoIds: [],
+    deletedUserIds: [],
     currentUser: null
   };
 }
@@ -503,7 +517,9 @@ export function saveState() {
     selectedUnit: state.selectedUnit,
     users: state.users,
     demos: state.demos,
-    posts: state.posts
+    posts: state.posts,
+    deletedDemoIds: state.deletedDemoIds || [],
+    deletedUserIds: state.deletedUserIds || []
   }));
 }
 
@@ -516,9 +532,20 @@ if (isFirebaseConfigured()) {
   onSnapshot(collection(db, 'users'), (snapshot) => {
     if (snapshot && !snapshot.empty) {
       const cloudUsers = [];
-      snapshot.forEach(docSnap => cloudUsers.push({ id: docSnap.id, ...docSnap.data() }));
+      const deleted = state.deletedUserIds || [];
+      snapshot.forEach(docSnap => {
+        const u = { id: docSnap.id, ...docSnap.data() };
+        if (!deleted.includes(u.id)) {
+          cloudUsers.push(u);
+        }
+      });
+
       if (cloudUsers.length > 0) {
-        state.users = cloudUsers;
+        const existingLocalOnly = state.users.filter(local => 
+          !cloudUsers.some(cloud => cloud.id === local.id) &&
+          !deleted.includes(local.id)
+        );
+        state.users = [...cloudUsers, ...existingLocalOnly];
         if (state.activeUserId) {
           state.currentUser = state.users.find(u => u.id === state.activeUserId) || state.currentUser;
         }
@@ -534,12 +561,21 @@ if (isFirebaseConfigured()) {
   onSnapshot(collection(db, 'demos'), (snapshot) => {
     if (snapshot && !snapshot.empty) {
       const cloudDemos = [];
+      const deleted = state.deletedDemoIds || [];
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
-        cloudDemos.push({ id: isNaN(Number(docSnap.id)) ? docSnap.id : Number(docSnap.id), ...data });
+        const demoId = isNaN(Number(docSnap.id)) ? docSnap.id : Number(docSnap.id);
+        if (!deleted.includes(String(demoId))) {
+          cloudDemos.push({ id: demoId, ...data });
+        }
       });
+
       if (cloudDemos.length > 0) {
-        state.demos = cloudDemos;
+        const existingLocalOnly = state.demos.filter(local => 
+          !cloudDemos.some(cloud => String(cloud.id) === String(local.id)) &&
+          !deleted.includes(String(local.id))
+        );
+        state.demos = [...cloudDemos, ...existingLocalOnly];
         saveState();
       }
     } else {
@@ -863,30 +899,41 @@ export function updateUser(userId, data) {
 
 export function deleteUser(userId) {
   if (!isAdmin()) return false;
+  if (!state.deletedUserIds) state.deletedUserIds = [];
+  if (!state.deletedUserIds.includes(userId)) {
+    state.deletedUserIds.push(userId);
+  }
+  
   const idx = state.users.findIndex(u => u.id === userId);
   if (idx !== -1) {
     state.users.splice(idx, 1);
-    saveState();
-    if (isFirebaseConfigured()) {
-      deleteDoc(doc(db, 'users', userId)).catch(() => {});
-    }
-    return true;
   }
-  return false;
+  
+  saveState();
+  if (isFirebaseConfigured()) {
+    deleteDoc(doc(db, 'users', userId)).catch(() => {});
+  }
+  return true;
 }
 
 export function deleteDemo(demoId) {
   if (!isAdmin()) return false;
-  const idx = state.demos.findIndex(d => String(d.id) === String(demoId));
+  const strId = String(demoId);
+  if (!state.deletedDemoIds) state.deletedDemoIds = [];
+  if (!state.deletedDemoIds.includes(strId)) {
+    state.deletedDemoIds.push(strId);
+  }
+
+  const idx = state.demos.findIndex(d => String(d.id) === strId);
   if (idx !== -1) {
     state.demos.splice(idx, 1);
-    saveState();
-    if (isFirebaseConfigured()) {
-      deleteDoc(doc(db, 'demos', String(demoId))).catch(() => {});
-    }
-    return true;
   }
-  return false;
+
+  saveState();
+  if (isFirebaseConfigured()) {
+    deleteDoc(doc(db, 'demos', strId)).catch(() => {});
+  }
+  return true;
 }
 
 export function addPost(title, content, category) {
@@ -916,5 +963,20 @@ export function addPost(title, content, category) {
 
 export function resetState() {
   localStorage.removeItem(STORAGE_KEY);
+  state.isAuthenticated = false;
+  state.activeUserId = null;
+  state.currentUser = null;
+  state.selectedCategory = 'all';
+  state.selectedUnit = 'all';
+  state.deletedDemoIds = [];
+  state.deletedUserIds = [];
+  state.users = [...defaultState.users];
+  state.demos = [...defaultState.demos];
+  state.posts = [...defaultState.posts];
+  saveState();
+  if (isFirebaseConfigured()) {
+    seedFirestoreUsers().catch(() => {});
+    seedFirestoreDemos().catch(() => {});
+  }
   window.location.reload();
 }
