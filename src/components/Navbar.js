@@ -71,7 +71,7 @@ export function renderNavbar() {
             <img src="${current ? current.avatar : ''}" class="w-7 h-7 rounded-full object-cover" />
             <div class="flex flex-col">
               <span class="text-xs font-bold text-on-surface leading-none">${current ? current.name : ''}</span>
-              <span class="text-[10px] text-secondary">${current ? (current.roleType === 'judge' ? 'Jurado' : 'Participante') : ''}</span>
+              <span class="text-[10px] text-secondary font-medium">${current ? (current.roleType === 'admin' ? 'Administrador' : current.roleType === 'judge' ? 'Jurado' : 'Participante') : ''}</span>
             </div>
           </div>
           
