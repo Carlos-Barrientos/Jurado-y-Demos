@@ -455,7 +455,7 @@ const defaultDemosList = rawTeamsData.map((t, idx) => ({
   rating: 0,
   duration: '3:30',
   thumbnail: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800',
-  videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+  
   specs: {
     modelType: 'Solución de IA Prosur',
     latency: 'En tiempo real',
@@ -488,7 +488,7 @@ defaultDemosList.push({
   rating: 0,
   duration: '4:00',
   thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
-  videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+  
   specs: {
     modelType: 'Full-Stack SPA + Firebase',
     latency: '<100ms',
@@ -1303,7 +1303,7 @@ export function createDemo(demoData, authorId) {
     rating: 0,
     duration: '0:00',
     thumbnail: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&q=80&w=800',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    
     specs: {
       modelType: 'N/A',
       latency: 'N/A',
