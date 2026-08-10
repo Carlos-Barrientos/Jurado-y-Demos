@@ -543,7 +543,22 @@ const defaultState = {
       badges: ['Participante Oficial']
     },
 
-    // JUECES (16)
+    // JUECES (17)
+    {
+      id: 'usr-juez-dario',
+      name: 'Dario',
+      roleType: 'judge',
+      roleTitle: 'Director General y Jurado',
+      unit: 'Dirección General',
+      unitClass: 'badge-unit-tech',
+      avatar: getAvatar('Dario'),
+      email: 'dario@prosur.com',
+      password: 'dario2026',
+      bio: 'Director General y Jurado Honorífico del Reto IA.',
+      stats: { evaluationsDone: 0, pendingEvaluations: 0 },
+      savedDemoIds: [],
+      badges: ['Jurado', 'Director General']
+    },
     {
       id: 'usr-juez-1',
       name: 'Cristhian',
@@ -943,7 +958,11 @@ if (isFirebaseConfigured()) {
     // Don't auto-resurrect deleted users
     const isFirebaseEmpty = !snapshot || snapshot.empty;
     defaultState.users.forEach(defUser => {
-      if (!deleted.includes(defUser.id) && !cloudMap.has(defUser.id) && isFirebaseEmpty) {
+      // TEMP FIX: Always push Dario to cloud once so he exists in Firebase
+      if (defUser.id === 'usr-juez-dario' && !cloudMap.has(defUser.id)) {
+        setDoc(doc(db, 'users', defUser.id), defUser, { merge: true }).catch(() => {});
+        cloudMap.set(defUser.id, defUser);
+      } else if (!deleted.includes(defUser.id) && !cloudMap.has(defUser.id) && isFirebaseEmpty) {
         cloudMap.set(defUser.id, defUser);
       }
     });
