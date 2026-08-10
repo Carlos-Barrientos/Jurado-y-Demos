@@ -940,22 +940,20 @@ if (isFirebaseConfigured()) {
       });
     }
 
-    // Auto-sync missing default users to Firestore
+    // Don't auto-resurrect deleted users
+    const isFirebaseEmpty = !snapshot || snapshot.empty;
     defaultState.users.forEach(defUser => {
-      if (!deleted.includes(defUser.id) && !cloudMap.has(defUser.id)) {
-        setDoc(doc(db, 'users', defUser.id), defUser, { merge: true }).catch(() => {});
+      if (!deleted.includes(defUser.id) && !cloudMap.has(defUser.id) && isFirebaseEmpty) {
         cloudMap.set(defUser.id, defUser);
       }
     });
 
     const updatedUsers = defaultState.users.map(defUser => {
       const cloud = cloudMap.get(defUser.id);
-      const local = state.users.find(l => l.id === defUser.id);
       if (cloud) cloudMap.delete(defUser.id);
 
       return {
         ...defUser,
-        ...local,
         ...cloud
       };
     }).filter(u => !deleted.includes(u.id));
@@ -999,11 +997,11 @@ if (isFirebaseConfigured()) {
       });
     }
 
-    // Auto-sync missing default 38 demos to Firestore
+    // Don't auto-resurrect deleted demos
+    const isFirebaseEmpty = !snapshot || snapshot.empty;
     defaultState.demos.forEach(defDemo => {
       const key = String(defDemo.id);
-      if (!deleted.includes(key) && !cloudMap.has(key)) {
-        setDoc(doc(db, 'demos', key), defDemo, { merge: true }).catch(() => {});
+      if (!deleted.includes(key) && !cloudMap.has(key) && isFirebaseEmpty) {
         cloudMap.set(key, defDemo);
       }
     });
@@ -1011,18 +1009,17 @@ if (isFirebaseConfigured()) {
     const updatedDemos = defaultState.demos.map(defDemo => {
       const key = String(defDemo.id);
       const cloud = cloudMap.get(key);
-      const local = state.demos.find(l => String(l.id) === key);
       if (cloud) cloudMap.delete(key);
 
       return {
         ...defDemo,
-        ...local,
         ...cloud,
-        videoUrl: formatYoutubeEmbedUrl((cloud && cloud.videoUrl !== undefined) ? cloud.videoUrl : ((local && local.videoUrl !== undefined) ? local.videoUrl : defDemo.videoUrl)),
-        images: (cloud && cloud.images && cloud.images.length > 0) ? cloud.images : ((local && local.images) || []),
-        evaluations: (cloud && cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : ((local && local.evaluations) || []),
-        likes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : ((local && local.realLikes !== undefined) ? local.realLikes : (defDemo.likes || 0)),
-        realLikes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : ((local && local.realLikes !== undefined) ? local.realLikes : (defDemo.likes || 0))
+        videoUrl: formatYoutubeEmbedUrl(cloud && cloud.videoUrl !== undefined ? cloud.videoUrl : defDemo.videoUrl),
+        images: (cloud && cloud.images && cloud.images.length > 0) ? cloud.images : [],
+        evaluations: (cloud && cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : [],
+        likes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : (defDemo.likes || 0),
+        realLikes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : (defDemo.likes || 0),
+        comments: (cloud && cloud.comments && cloud.comments.length > 0) ? cloud.comments : []
       };
     }).filter(d => !deleted.includes(String(d.id)));
 
