@@ -46,6 +46,11 @@ export function renderNavbar() {
 
         <!-- Navigation Links & Logout / Profile -->
         <div class="flex items-center gap-4">
+          <!-- Sync Indicator -->
+          <div class="hidden lg:flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-600 rounded-full border border-green-500/20" title="Sincronizado en tiempo real">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+            <span class="text-[10px] font-bold uppercase tracking-widest">Live Sync</span>
+          </div>
           <nav class="flex items-center gap-1 text-xs font-semibold text-secondary">
             <a id="nav-home" href="#home" class="px-2.5 py-1.5 rounded-md hover:bg-surface-container hover:text-primary transition-colors flex items-center gap-1">
               <span class="material-symbols-outlined text-base">grid_view</span>
