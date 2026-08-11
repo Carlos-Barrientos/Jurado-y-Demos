@@ -1482,3 +1482,30 @@ export function resetState() {
   }
   window.location.reload();
 }
+
+// Escuchar cambios en otras pestañas para mantener todas las páginas sincronizadas
+window.addEventListener('storage', (e) => {
+  if (e.key === STORAGE_KEY && e.newValue) {
+    try {
+      const parsed = JSON.parse(e.newValue);
+      if (parsed) {
+        state.isAuthenticated = parsed.isAuthenticated;
+        state.activeUserId = parsed.activeUserId;
+        state.selectedCategory = parsed.selectedCategory;
+        state.selectedUnit = parsed.selectedUnit;
+        state.users = parsed.users || state.users;
+        state.demos = parsed.demos || state.demos;
+        state.posts = parsed.posts || state.posts;
+        if (state.activeUserId) {
+          state.currentUser = state.users.find(u => u.id === state.activeUserId) || null;
+        } else {
+          state.currentUser = null;
+        }
+        // Notificar a la interfaz que debe actualizarse en esta pestaña
+        window.dispatchEvent(new CustomEvent('state-updated'));
+      }
+    } catch(err) {
+      console.warn('Error sincronizando localStorage:', err);
+    }
+  }
+});
