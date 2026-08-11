@@ -955,40 +955,27 @@ if (isFirebaseConfigured()) {
       });
     }
 
-    // Don't auto-resurrect deleted users
-    const isFirebaseEmpty = !snapshot || snapshot.empty;
-    defaultState.users.forEach(defUser => {
-      // TEMP FIX: Always push Dario to cloud once so he exists in Firebase
-      if (defUser.id === 'usr-juez-dario' && !cloudMap.has(defUser.id)) {
-        setDoc(doc(db, 'users', defUser.id), defUser, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
-        cloudMap.set(defUser.id, defUser);
-      } else if (!deleted.includes(defUser.id) && !cloudMap.has(defUser.id) && isFirebaseEmpty) {
-        cloudMap.set(defUser.id, defUser);
-      }
-    });
+    const localMap = new Map((state.users || []).map(u => [u.id, u]));
+    const allUserIds = new Set([
+      ...defaultState.users.map(u => u.id),
+      ...localMap.keys(),
+      ...cloudMap.keys()
+    ]);
 
-    const updatedUsers = defaultState.users.map(defUser => {
-      const cloud = cloudMap.get(defUser.id);
-      const localUser = state.users.find(u => u.id === defUser.id);
-      if (cloud) cloudMap.delete(defUser.id);
+    const updatedUsers = [];
+    allUserIds.forEach(id => {
+      if (deleted.includes(id)) return;
 
-      return {
-        ...defUser,
-        ...(localUser || {}),
-        ...cloud
-      };
-    }).filter(u => !deleted.includes(u.id));
+      const defUser = defaultState.users.find(u => u.id === id);
+      const localUser = localMap.get(id);
+      const cloudUser = cloudMap.get(id);
 
-    cloudMap.forEach(cloudUser => {
-      if (!deleted.includes(cloudUser.id)) {
-        updatedUsers.push(cloudUser);
-      }
-    });
-
-    // PRESERVE LOCAL USERS NOT IN CLOUD OR DEFAULT
-    state.users.forEach(localUser => {
-      if (!defaultState.users.find(u => u.id === localUser.id) && !cloudMap.has(localUser.id) && !deleted.includes(localUser.id)) {
-        updatedUsers.push(localUser);
+      if (cloudUser || localUser || defUser) {
+        updatedUsers.push({
+          ...(defUser || {}),
+          ...(localUser || {}),
+          ...(cloudUser || {})
+        });
       }
     });
 
@@ -1025,55 +1012,39 @@ if (isFirebaseConfigured()) {
       });
     }
 
-    // Don't auto-resurrect deleted demos
-    const isFirebaseEmpty = !snapshot || snapshot.empty;
-    defaultState.demos.forEach(defDemo => {
-      const key = String(defDemo.id);
-      if (!deleted.includes(key) && !cloudMap.has(key) && isFirebaseEmpty) {
-        cloudMap.set(key, defDemo);
-      }
-    });
+    const localMap = new Map((state.demos || []).map(d => [String(d.id), d]));
+    const allDemoIds = new Set([
+      ...defaultState.demos.map(d => String(d.id)),
+      ...localMap.keys(),
+      ...cloudMap.keys()
+    ]);
 
-    const updatedDemos = defaultState.demos.map(defDemo => {
-      const key = String(defDemo.id);
-      const cloud = cloudMap.get(key);
-      const localDemo = state.demos.find(d => String(d.id) === key);
-      if (cloud) cloudMap.delete(key);
+    const updatedDemos = [];
+    allDemoIds.forEach(strId => {
+      if (deleted.includes(strId)) return;
 
-      const merged = {
-        ...defDemo,
-        ...(localDemo || {}),
-        ...cloud
-      };
+      const defDemo = defaultState.demos.find(d => String(d.id) === strId);
+      const localDemo = localMap.get(strId);
+      const cloudDemo = cloudMap.get(strId);
 
-      return {
-        ...merged,
-        videoUrl: formatYoutubeEmbedUrl(
-          cloud && cloud.videoUrl !== undefined ? cloud.videoUrl : 
-          (localDemo && localDemo.videoUrl !== undefined ? localDemo.videoUrl : defDemo.videoUrl)
-        ),
-        images: (cloud && cloud.images && cloud.images.length > 0) ? cloud.images : (localDemo?.images || []),
-        evaluations: (cloud && cloud.evaluations && cloud.evaluations.length > 0) ? cloud.evaluations : (localDemo?.evaluations || []),
-        likes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : (localDemo?.likes || defDemo.likes || 0),
-        realLikes: (cloud && cloud.realLikes !== undefined) ? cloud.realLikes : (localDemo?.realLikes || defDemo.likes || 0),
-        comments: (cloud && cloud.comments && cloud.comments.length > 0) ? cloud.comments : (localDemo?.comments || [])
-      };
-    }).filter(d => !deleted.includes(String(d.id)));
-
-    cloudMap.forEach(cloudDemo => {
-      if (!deleted.includes(String(cloudDemo.id))) {
+      if (cloudDemo || localDemo || defDemo) {
+        const merged = {
+          ...(defDemo || {}),
+          ...(localDemo || {}),
+          ...(cloudDemo || {})
+        };
         updatedDemos.push({
-          ...cloudDemo,
-          videoUrl: formatYoutubeEmbedUrl(cloudDemo.videoUrl)
+          ...merged,
+          videoUrl: formatYoutubeEmbedUrl(
+            cloudDemo?.videoUrl !== undefined ? cloudDemo.videoUrl : 
+            (localDemo?.videoUrl !== undefined ? localDemo.videoUrl : defDemo?.videoUrl)
+          ),
+          images: (cloudDemo?.images && cloudDemo.images.length > 0) ? cloudDemo.images : (localDemo?.images || defDemo?.images || []),
+          evaluations: (cloudDemo?.evaluations && cloudDemo.evaluations.length > 0) ? cloudDemo.evaluations : (localDemo?.evaluations || defDemo?.evaluations || []),
+          likes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (localDemo?.likes || defDemo?.likes || 0),
+          realLikes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (localDemo?.realLikes || defDemo?.likes || 0),
+          comments: (cloudDemo?.comments && cloudDemo.comments.length > 0) ? cloudDemo.comments : (localDemo?.comments || defDemo?.comments || [])
         });
-      }
-    });
-
-    // PRESERVE LOCAL DEMOS NOT IN CLOUD OR DEFAULT
-    state.demos.forEach(localDemo => {
-      const key = String(localDemo.id);
-      if (!defaultState.demos.find(d => String(d.id) === key) && !cloudMap.has(key) && !deleted.includes(key)) {
-        updatedDemos.push(localDemo);
       }
     });
 
@@ -1409,7 +1380,7 @@ export function updateUser(userId, data) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', userId), user).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+    setDoc(doc(db, 'users', userId), user, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }

@@ -33,6 +33,10 @@ export function handleRoute(e) {
   }
 
   const isStateUpdate = e && e.type === 'state-updated';
+  const hasOpenModal = Boolean(document.querySelector('.fixed.inset-0:not(.hidden)'));
+  if (isStateUpdate && hasOpenModal) {
+    return;
+  }
   
   // Only scroll to top on actual navigation, NOT on background data syncs
   if (!isStateUpdate) {
