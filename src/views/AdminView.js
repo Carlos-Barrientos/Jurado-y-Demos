@@ -325,10 +325,12 @@ function getAdminHtml() {
 function attachAdminEvents() {
   const syncBtn = document.getElementById('syncDatabaseBtn');
   if (syncBtn) {
-    syncBtn.addEventListener('click', () => {
-      if (confirm('¿Sincronizar y restaurar toda la base de datos a Firebase? Esto subirá todos los usuarios y proyectos base.')) {
-        resetState();
-        alert('Sincronización iniciada. Revisa Firebase en unos segundos.');
+    syncBtn.addEventListener('click', async () => {
+      if (confirm('¿Sincronizar y restaurar toda la base de datos a Firebase? Esto subirá todos los usuarios y proyectos base. Puede tomar unos segundos.')) {
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Sincronizando...';
+        await resetState();
+        alert('Sincronización completada con éxito.');
       }
     });
   }

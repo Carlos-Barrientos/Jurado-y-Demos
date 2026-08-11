@@ -1478,7 +1478,7 @@ export function addPost(title, content, category) {
   }
 }
 
-export function resetState() {
+export async function resetState() {
   localStorage.removeItem(STORAGE_KEY);
   state.isAuthenticated = false;
   state.activeUserId = null;
@@ -1492,8 +1492,13 @@ export function resetState() {
   state.posts = [...defaultState.posts];
   saveState();
   if (isFirebaseConfigured()) {
-    seedFirestoreUsers().catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
-    seedFirestoreDemos().catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+    try {
+      await seedFirestoreUsers();
+      await seedFirestoreDemos();
+    } catch (e) {
+      console.error('FIREBASE ERROR:', e); 
+      alert('Error al guardar en la nube: ' + e.message);
+    }
   }
   window.location.reload();
 }
