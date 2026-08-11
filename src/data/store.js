@@ -960,7 +960,7 @@ if (isFirebaseConfigured()) {
     defaultState.users.forEach(defUser => {
       // TEMP FIX: Always push Dario to cloud once so he exists in Firebase
       if (defUser.id === 'usr-juez-dario' && !cloudMap.has(defUser.id)) {
-        setDoc(doc(db, 'users', defUser.id), defUser, { merge: true }).catch(() => {});
+        setDoc(doc(db, 'users', defUser.id), defUser, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
         cloudMap.set(defUser.id, defUser);
       } else if (!deleted.includes(defUser.id) && !cloudMap.has(defUser.id) && isFirebaseEmpty) {
         cloudMap.set(defUser.id, defUser);
@@ -982,6 +982,13 @@ if (isFirebaseConfigured()) {
     cloudMap.forEach(cloudUser => {
       if (!deleted.includes(cloudUser.id)) {
         updatedUsers.push(cloudUser);
+      }
+    });
+
+    // PRESERVE LOCAL USERS NOT IN CLOUD OR DEFAULT
+    state.users.forEach(localUser => {
+      if (!defaultState.users.find(u => u.id === localUser.id) && !cloudMap.has(localUser.id) && !deleted.includes(localUser.id)) {
+        updatedUsers.push(localUser);
       }
     });
 
@@ -1062,6 +1069,14 @@ if (isFirebaseConfigured()) {
       }
     });
 
+    // PRESERVE LOCAL DEMOS NOT IN CLOUD OR DEFAULT
+    state.demos.forEach(localDemo => {
+      const key = String(localDemo.id);
+      if (!defaultState.demos.find(d => String(d.id) === key) && !cloudMap.has(key) && !deleted.includes(key)) {
+        updatedDemos.push(localDemo);
+      }
+    });
+
     state.demos = updatedDemos;
     saveState();
     window.dispatchEvent(new CustomEvent('state-updated'));
@@ -1134,7 +1149,7 @@ export function toggleFavorite(demoId) {
   }
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', state.currentUser.id), { savedDemoIds: state.currentUser.savedDemoIds }, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'users', state.currentUser.id), { savedDemoIds: state.currentUser.savedDemoIds }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
 }
 
@@ -1157,7 +1172,7 @@ export function addCommentToDemo(demoId, commentText) {
     demo.comments.push(newComment);
     saveState();
     if (isFirebaseConfigured()) {
-      setDoc(doc(db, 'demos', String(demoId)), { comments: demo.comments }, { merge: true }).catch(() => {});
+      setDoc(doc(db, 'demos', String(demoId)), { comments: demo.comments }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
     }
   }
 }
@@ -1194,7 +1209,7 @@ export function updateDemo(demoId, data) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', String(demoId)), demo, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'demos', String(demoId)), demo, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1215,7 +1230,7 @@ export function addDemoImage(demoId, imageUrl, caption) {
   demo.images.push(imgObj);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', String(demoId)), { images: demo.images }, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'demos', String(demoId)), { images: demo.images }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1226,7 +1241,7 @@ export function removeDemoImage(demoId, imageIndex) {
   demo.images.splice(imageIndex, 1);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', String(demoId)), { images: demo.images }, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'demos', String(demoId)), { images: demo.images }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1273,7 +1288,7 @@ export function submitJudgeEvaluation(demoId, scores, feedback) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations, rating: demo.rating }, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations, rating: demo.rating }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1299,7 +1314,7 @@ export function createUser(userData) {
   state.users.push(newUser);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', newId), newUser, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'users', newId), newUser, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1344,7 +1359,7 @@ export function createDemo(demoData, authorId) {
   state.demos.push(newDemo);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', String(newId)), newDemo, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'demos', String(newId)), newDemo, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1365,7 +1380,7 @@ export function assignDemo(demoId, authorId) {
         author: author.name,
         authorRole: author.roleTitle,
         authorAvatar: author.avatar
-      }, { merge: true }).catch(() => {});
+      }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
     }
     return true;
   }
@@ -1394,7 +1409,7 @@ export function updateUser(userId, data) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', userId), user).catch(() => {});
+    setDoc(doc(db, 'users', userId), user).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1413,7 +1428,7 @@ export function deleteUser(userId) {
   
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', userId), { isDeleted: true }, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'users', userId), { isDeleted: true }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1433,7 +1448,7 @@ export function deleteDemo(demoId) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', strId), { isDeleted: true }, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'demos', strId), { isDeleted: true }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1459,7 +1474,7 @@ export function addPost(title, content, category) {
   state.posts.unshift(newPost);
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'posts', newPost.id), newPost).catch(() => {});
+    setDoc(doc(db, 'posts', newPost.id), newPost).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
 }
 
@@ -1477,8 +1492,8 @@ export function resetState() {
   state.posts = [...defaultState.posts];
   saveState();
   if (isFirebaseConfigured()) {
-    seedFirestoreUsers().catch(() => {});
-    seedFirestoreDemos().catch(() => {});
+    seedFirestoreUsers().catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+    seedFirestoreDemos().catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   window.location.reload();
 }
