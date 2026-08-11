@@ -1,0 +1,23 @@
+[debug] [2026-08-11T06:12:37.841Z] ----------------------------------------------------------------------
+[debug] [2026-08-11T06:12:37.851Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Carlos Barrientos\AppData\Local\npm-cache\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\bin\firebase.js init dataconnect --project demo-no-project
+[debug] [2026-08-11T06:12:37.854Z] CLI Version:   15.26.0
+[debug] [2026-08-11T06:12:37.854Z] Platform:      win32
+[debug] [2026-08-11T06:12:37.854Z] Node Version:  v24.18.0
+[debug] [2026-08-11T06:12:37.855Z] Detected Agent: unknown
+[debug] [2026-08-11T06:12:37.855Z] Time:          Tue Aug 11 2026 00:12:37 GMT-0600 (hora estándar central)
+[debug] [2026-08-11T06:12:37.856Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-11T06:12:37.921Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\Carlos Barrientos\Documents\Desarrollos\Jurado y Demos
+
+[debug] [2026-08-11T06:13:32.247Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-08-11T06:13:32.248Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
