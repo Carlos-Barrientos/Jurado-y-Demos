@@ -526,23 +526,6 @@ const defaultState = {
       badges: ['Super Admin']
     },
 
-    // PARTICIPANTE INDIVIDUAL DIEGO LOPEZ
-    {
-      id: 'usr-part-diego',
-      name: 'Diego Lopez',
-      roleType: 'participant',
-      roleTitle: 'Líder del Proyecto Reto IA',
-      unit: 'Grupo Prosur',
-      unitClass: 'badge-unit-agrifood',
-      avatar: getAvatar('Diego Lopez'),
-      email: 'diego.lopez@prosur.com',
-      password: 'diegolopez2026',
-      bio: 'Participante oficial del Reto de Inteligencia Artificial Prosur.',
-      stats: { demosPublished: 1, totalViews: 0, totalLikes: 0, collaborations: 0 },
-      savedDemoIds: [],
-      badges: ['Participante Oficial']
-    },
-
     // JUECES (17)
     {
       id: 'usr-juez-dario',
@@ -944,13 +927,23 @@ if (isFirebaseConfigured()) {
   
   onSnapshot(collection(db, 'users'), (snapshot) => {
     const cloudMap = new Map();
-    const deleted = state.deletedUserIds || [];
+    if (!state.deletedUserIds) state.deletedUserIds = [];
 
     if (snapshot && !snapshot.empty) {
       snapshot.forEach(docSnap => {
-        const u = { id: docSnap.id, ...docSnap.data() };
-        if (!deleted.includes(u.id)) {
-          cloudMap.set(u.id, u);
+        const data = docSnap.data();
+        const userId = docSnap.id;
+        
+        if (data.isDeleted) {
+          if (!state.deletedUserIds.includes(userId)) {
+            state.deletedUserIds.push(userId);
+          }
+        } else {
+          const delIdx = state.deletedUserIds.indexOf(userId);
+          if (delIdx !== -1) {
+            state.deletedUserIds.splice(delIdx, 1);
+          }
+          cloudMap.set(userId, { id: userId, ...data });
         }
       });
     }
@@ -964,7 +957,7 @@ if (isFirebaseConfigured()) {
 
     const updatedUsers = [];
     allUserIds.forEach(id => {
-      if (deleted.includes(id)) return;
+      if (state.deletedUserIds.includes(id)) return;
 
       const defUser = defaultState.users.find(u => u.id === id);
       const localUser = localMap.get(id);
@@ -973,8 +966,8 @@ if (isFirebaseConfigured()) {
       if (cloudUser || localUser || defUser) {
         updatedUsers.push({
           ...(defUser || {}),
-          ...(localUser || {}),
-          ...(cloudUser || {})
+          ...(cloudUser || {}),
+          ...(localUser || {})
         });
       }
     });
@@ -991,7 +984,7 @@ if (isFirebaseConfigured()) {
 
   onSnapshot(collection(db, 'demos'), (snapshot) => {
     const cloudMap = new Map();
-    const deleted = state.deletedDemoIds || [];
+    if (!state.deletedDemoIds) state.deletedDemoIds = [];
 
     if (snapshot && !snapshot.empty) {
       snapshot.forEach(docSnap => {
@@ -1003,10 +996,11 @@ if (isFirebaseConfigured()) {
           if (!state.deletedDemoIds.includes(strId)) {
             state.deletedDemoIds.push(strId);
           }
-          if (!deleted.includes(strId)) {
-            deleted.push(strId);
+        } else {
+          const delIdx = state.deletedDemoIds.indexOf(strId);
+          if (delIdx !== -1) {
+            state.deletedDemoIds.splice(delIdx, 1);
           }
-        } else if (!deleted.includes(strId)) {
           cloudMap.set(strId, { id: demoId, ...data });
         }
       });
@@ -1021,7 +1015,7 @@ if (isFirebaseConfigured()) {
 
     const updatedDemos = [];
     allDemoIds.forEach(strId => {
-      if (deleted.includes(strId)) return;
+      if (state.deletedDemoIds.includes(strId)) return;
 
       const defDemo = defaultState.demos.find(d => String(d.id) === strId);
       const localDemo = localMap.get(strId);
@@ -1030,20 +1024,20 @@ if (isFirebaseConfigured()) {
       if (cloudDemo || localDemo || defDemo) {
         const merged = {
           ...(defDemo || {}),
-          ...(localDemo || {}),
-          ...(cloudDemo || {})
+          ...(cloudDemo || {}),
+          ...(localDemo || {})
         };
         updatedDemos.push({
           ...merged,
           videoUrl: formatYoutubeEmbedUrl(
-            cloudDemo?.videoUrl !== undefined ? cloudDemo.videoUrl : 
-            (localDemo?.videoUrl !== undefined ? localDemo.videoUrl : defDemo?.videoUrl)
+            localDemo?.videoUrl !== undefined ? localDemo.videoUrl : 
+            (cloudDemo?.videoUrl !== undefined ? cloudDemo.videoUrl : defDemo?.videoUrl)
           ),
-          images: (cloudDemo?.images && cloudDemo.images.length > 0) ? cloudDemo.images : (localDemo?.images || defDemo?.images || []),
-          evaluations: (cloudDemo?.evaluations && cloudDemo.evaluations.length > 0) ? cloudDemo.evaluations : (localDemo?.evaluations || defDemo?.evaluations || []),
-          likes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (localDemo?.likes || defDemo?.likes || 0),
-          realLikes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (localDemo?.realLikes || defDemo?.likes || 0),
-          comments: (cloudDemo?.comments && cloudDemo.comments.length > 0) ? cloudDemo.comments : (localDemo?.comments || defDemo?.comments || [])
+          images: (localDemo?.images && localDemo.images.length > 0) ? localDemo.images : (cloudDemo?.images || defDemo?.images || []),
+          evaluations: (localDemo?.evaluations && localDemo.evaluations.length > 0) ? localDemo.evaluations : (cloudDemo?.evaluations || defDemo?.evaluations || []),
+          likes: (localDemo?.likes !== undefined) ? localDemo.likes : (cloudDemo?.realLikes || defDemo?.likes || 0),
+          realLikes: (localDemo?.realLikes !== undefined) ? localDemo.realLikes : (cloudDemo?.realLikes || defDemo?.likes || 0),
+          comments: (localDemo?.comments && localDemo.comments.length > 0) ? localDemo.comments : (cloudDemo?.comments || defDemo?.comments || [])
         });
       }
     });
@@ -1177,10 +1171,17 @@ export function updateDemo(demoId, data) {
   if (data.videoUrl !== undefined) demo.videoUrl = formatYoutubeEmbedUrl(data.videoUrl);
   if (data.likes !== undefined) demo.likes = data.likes;
   if (data.realLikes !== undefined) demo.realLikes = data.realLikes;
+  demo.isDeleted = false;
+
+  if (state.deletedDemoIds) {
+    const strId = String(demoId);
+    const idx = state.deletedDemoIds.indexOf(strId);
+    if (idx !== -1) state.deletedDemoIds.splice(idx, 1);
+  }
 
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'demos', String(demoId)), demo, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+    setDoc(doc(db, 'demos', String(demoId)), { ...demo, isDeleted: false }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
@@ -1369,6 +1370,12 @@ export function updateUser(userId, data) {
   if (data.roleType) user.roleType = data.roleType;
   if (data.roleTitle) user.roleTitle = data.roleTitle;
   if (data.unit) user.unit = data.unit;
+  user.isDeleted = false;
+
+  if (state.deletedUserIds) {
+    const idx = state.deletedUserIds.indexOf(userId);
+    if (idx !== -1) state.deletedUserIds.splice(idx, 1);
+  }
 
   state.demos.forEach(d => {
     if (d.authorId === userId) {
@@ -1380,7 +1387,7 @@ export function updateUser(userId, data) {
 
   saveState();
   if (isFirebaseConfigured()) {
-    setDoc(doc(db, 'users', userId), user, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+    setDoc(doc(db, 'users', userId), { ...user, isDeleted: false }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
 }
