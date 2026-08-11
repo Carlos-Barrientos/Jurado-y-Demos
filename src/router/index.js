@@ -6,8 +6,9 @@ import { renderCommunityView } from '../views/CommunityView.js';
 import { renderProfileView } from '../views/ProfileView.js';
 import { renderLoginView } from '../views/LoginView.js';
 import { renderAdminView } from '../views/AdminView.js';
+import { renderRankingView } from '../views/RankingView.js';
 import { updateNavbarActiveState, renderNavbar } from '../components/Navbar.js';
-import { state, isAdmin } from '../data/store.js';
+import { state, isAdmin, canViewRanking } from '../data/store.js';
 
 export function initRouter() {
   window.addEventListener('hashchange', handleRoute);
@@ -74,6 +75,9 @@ export function handleRoute(e) {
   } else if (hash === '#admin' && isAdmin()) {
     appContainer.innerHTML = renderAdminView();
     updateNavbarActiveState('admin');
+  } else if (hash === '#ranking' && canViewRanking()) {
+    appContainer.innerHTML = renderRankingView();
+    updateNavbarActiveState('ranking');
   } else if (hash === '#profile') {
     appContainer.innerHTML = renderProfileView();
     updateNavbarActiveState('profile');

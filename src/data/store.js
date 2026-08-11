@@ -1103,6 +1103,31 @@ export function isAdmin() {
   return state.currentUser.roleType === 'admin';
 }
 
+export function isDario() {
+  if (!state.currentUser) return false;
+  return state.currentUser.id === 'usr-juez-dario' || 
+         state.currentUser.email === 'dario@prosur.com' ||
+         (state.currentUser.name && state.currentUser.name.toLowerCase().includes('dario')) ||
+         (state.currentUser.roleTitle && state.currentUser.roleTitle.toLowerCase().includes('director general'));
+}
+
+export function canViewRanking() {
+  return isAdmin() || isDario();
+}
+
+export function toggleDemoReadyForEvaluation(demoId, isReady) {
+  if (!isAdmin()) return false;
+  const demo = getDemoById(demoId);
+  if (!demo) return false;
+
+  demo.readyForEvaluation = Boolean(isReady);
+  saveState();
+  if (isFirebaseConfigured()) {
+    setDoc(doc(db, 'demos', String(demoId)), { readyForEvaluation: demo.readyForEvaluation }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+  }
+  return true;
+}
+
 export function toggleFavorite(demoId) {
   if (!state.currentUser) return;
   const numId = parseInt(demoId, 10);
@@ -1262,9 +1287,12 @@ export function removeDemoImage(demoId, imageIndex) {
   return true;
 }
 
-export function submitJudgeEvaluation(demoId, scores, feedback) {
+export function submitJudgeEvaluation(demoId, scores, feedback, isConfirmed = true) {
   const demo = getDemoById(demoId);
   if (!demo || !isJudge()) return false;
+
+  // Judges can only evaluate if demo has been dictamined/presented by admin
+  if (!demo.readyForEvaluation && !isAdmin()) return false;
 
   if (!demo.evaluations) demo.evaluations = [];
 
@@ -1277,7 +1305,7 @@ export function submitJudgeEvaluation(demoId, scores, feedback) {
 
   const existingIndex = demo.evaluations.findIndex(e => e.judgeId === state.currentUser.id);
   const evalData = {
-    id: 'eval-' + Date.now(),
+    id: existingIndex >= 0 ? demo.evaluations[existingIndex].id : 'eval-' + Date.now(),
     judgeId: state.currentUser.id,
     judgeName: state.currentUser.name,
     judgeRole: state.currentUser.roleTitle,
@@ -1290,7 +1318,8 @@ export function submitJudgeEvaluation(demoId, scores, feedback) {
       impact: parseInt(scores.impact)
     },
     average: avg,
-    feedback: feedback.trim()
+    feedback: feedback.trim(),
+    isConfirmed: Boolean(isConfirmed)
   };
 
   if (existingIndex >= 0) {
@@ -1307,6 +1336,21 @@ export function submitJudgeEvaluation(demoId, scores, feedback) {
     setDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations, rating: demo.rating }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
   }
   return true;
+}
+
+export function confirmJudgeEvaluation(demoId) {
+  const demo = getDemoById(demoId);
+  if (!demo || !isJudge() || !state.currentUser) return false;
+  const evalObj = (demo.evaluations || []).find(e => e.judgeId === state.currentUser.id);
+  if (evalObj) {
+    evalObj.isConfirmed = true;
+    saveState();
+    if (isFirebaseConfigured()) {
+      setDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+    }
+    return true;
+  }
+  return false;
 }
 
 export function createUser(userData) {

@@ -1,4 +1,4 @@
-import { state, isAdmin, createUser, updateUser, deleteUser, createDemo, deleteDemo, assignDemo, updateDemoVideoUrl, resetState, companies } from '../data/store.js';
+import { state, isAdmin, createUser, updateUser, deleteUser, createDemo, deleteDemo, assignDemo, updateDemoVideoUrl, toggleDemoReadyForEvaluation, resetState, companies } from '../data/store.js';
 
 export function renderAdminView() {
   if (!isAdmin()) {
@@ -182,12 +182,17 @@ function getAdminHtml() {
                       <h4 class="font-bold text-sm text-on-surface">${demo.title}</h4>
                       <p class="text-xs text-secondary">Autor: <span class="font-bold text-primary">${demo.author}</span></p>
                       
-                      <!-- Video Link Quick Edit Banner -->
-                      <div class="flex items-center gap-1.5 pt-1 text-xs">
+                      <!-- Video Link Quick Edit Banner & Presentation Dictamen -->
+                      <div class="flex flex-wrap items-center gap-2 pt-1 text-xs">
                         <span class="material-symbols-outlined text-sm text-primary">smart_display</span>
                         <span class="font-semibold text-secondary">Video:</span>
                         <button data-edit-video-id="${demo.id}" class="edit-video-btn inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded font-medium text-[11px] transition-colors" title="Editar link del video">
-                          <span class="material-symbols-outlined text-xs">edit</span> Editar Video Link
+                          <span class="material-symbols-outlined text-xs">edit</span> Editar Link
+                        </button>
+                        
+                        <button data-toggle-ready-id="${demo.id}" data-ready="${demo.readyForEvaluation ? 'true' : 'false'}" class="toggle-ready-btn inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-all shadow-sm ${demo.readyForEvaluation ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200' : 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200'}">
+                          <span class="material-symbols-outlined text-xs">${demo.readyForEvaluation ? 'check_circle' : 'pending'}</span>
+                          ${demo.readyForEvaluation ? 'Dictaminado: Ya Presentó' : 'Dictaminar: Listo para Evaluar'}
                         </button>
                       </div>
                     </div>
@@ -320,6 +325,18 @@ function getAdminHtml() {
 }
 
 function attachAdminEvents() {
+
+  // Toggle Demo Dictamen (Presented / Ready for Evaluation)
+  document.querySelectorAll('.toggle-ready-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const demoId = e.currentTarget.dataset.toggleReadyId;
+      const currentReady = e.currentTarget.dataset.ready === 'true';
+      const newReady = !currentReady;
+      if (toggleDemoReadyForEvaluation(demoId, newReady)) {
+        refreshAdminView();
+      }
+    });
+  });
 
   // Create User
   const createUserForm = document.getElementById('createUserForm');

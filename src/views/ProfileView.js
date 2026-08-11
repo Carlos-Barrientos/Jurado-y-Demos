@@ -26,9 +26,10 @@ function getProfileHtml() {
   const myDemos = state.demos.filter(d => d.authorId === user.id || d.author === user.name);
   const savedDemos = (user.savedDemoIds || []).map(id => getDemoById(id)).filter(Boolean);
 
-  // Judge specific lists
+  // Judge specific lists (only presented demos appear for evaluation)
   const evaluatedDemos = state.demos.filter(d => (d.evaluations || []).some(e => e.judgeId === user.id));
-  const pendingDemos = state.demos.filter(d => !(d.evaluations || []).some(e => e.judgeId === user.id));
+  const pendingDemos = state.demos.filter(d => Boolean(d.readyForEvaluation) && !(d.evaluations || []).some(e => e.judgeId === user.id));
+  const unpresentedCount = state.demos.filter(d => !d.readyForEvaluation && !(d.evaluations || []).some(e => e.judgeId === user.id)).length;
 
   return `
     <div class="max-w-[1440px] mx-auto px-4 md:px-12 py-8 space-y-8 animate-fadeIn">

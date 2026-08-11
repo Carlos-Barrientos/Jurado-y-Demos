@@ -1,4 +1,4 @@
-import { state, logout, isAdmin } from '../data/store.js';
+import { state, logout, isAdmin, canViewRanking } from '../data/store.js';
 import { handleRoute, navigateTo } from '../router/index.js';
 
 export function renderNavbar() {
@@ -64,6 +64,12 @@ export function renderNavbar() {
               <span class="material-symbols-outlined text-base">account_circle</span>
               <span class="hidden md:inline">Mi Perfil</span>
             </a>
+            ${canViewRanking() ? `
+              <a id="nav-ranking" href="#ranking" class="px-2.5 py-1.5 rounded-md hover:bg-amber-100 hover:text-amber-800 transition-colors flex items-center gap-1 text-amber-800 font-bold bg-amber-50 border border-amber-200">
+                <span class="material-symbols-outlined text-base">leaderboard</span>
+                <span class="hidden md:inline">Ranking</span>
+              </a>
+            ` : ''}
             ${isAdmin() ? `
               <a id="nav-admin" href="#admin" class="px-2.5 py-1.5 rounded-md hover:bg-surface-container hover:text-primary transition-colors flex items-center gap-1 text-primary">
                 <span class="material-symbols-outlined text-base">admin_panel_settings</span>

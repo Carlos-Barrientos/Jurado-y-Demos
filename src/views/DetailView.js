@@ -10,6 +10,7 @@ import {
   addDemoImage, 
   removeDemoImage,
   submitJudgeEvaluation, 
+  confirmJudgeEvaluation,
   addCommentToDemo, 
   editCommentInDemo,
   deleteCommentFromDemo,
@@ -268,71 +269,84 @@ function getDetailHtml(demo) {
 
           <!-- JUDGE EVALUATION WIDGET (Exclusive for Jurado Role) -->
           ${userIsJudge ? `
-            <div class="bg-gradient-to-br from-amber-500/10 via-amber-50/50 to-white p-6 rounded-2xl border-2 border-amber-400 shadow-md space-y-5">
-              <div class="flex items-center justify-between border-b border-amber-200 pb-3">
-                <div class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-amber-600 text-2xl">gavel</span>
-                  <h3 class="font-bold text-base text-amber-950">Panel de Calificación del Jurado</h3>
+            ${!demo.readyForEvaluation ? `
+              <div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-300 shadow-sm space-y-2 text-amber-950">
+                <div class="flex items-center gap-2 font-bold text-sm text-amber-900">
+                  <span class="material-symbols-outlined text-amber-600">pending_actions</span>
+                  <span>Pendiente de Dictamen del Administrador</span>
                 </div>
-                <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 text-[10px] font-bold uppercase">Jurado Oficial</span>
+                <p class="text-xs text-amber-900 leading-relaxed">
+                  Este proyecto aún no ha sido dictaminado como <b>Presentado</b> por el administrador. 
+                  Tan pronto como el participante exponga su proyecto y el administrador lo autorice, se habilitará el panel para que puedas calificar.
+                </p>
               </div>
-
-              <form id="judgeEvalForm" class="space-y-4">
-                <div class="space-y-3 text-xs">
-                  <div>
-                    <div class="flex justify-between font-bold text-on-surface mb-1">
-                      <span>Eficiencia Operativa (40%)</span>
-                      <span class="text-amber-700"><span id="valImpact">40</span> / 40</span>
-                    </div>
-                    <input type="range" id="scoreImpact" min="0" max="40" step="1" value="40" class="w-full accent-amber-600 cursor-pointer"/>
+            ` : `
+              <div class="bg-gradient-to-br from-amber-500/10 via-amber-50/50 to-white p-6 rounded-2xl border-2 border-amber-400 shadow-md space-y-5">
+                <div class="flex items-center justify-between border-b border-amber-200 pb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-600 text-2xl">gavel</span>
+                    <h3 class="font-bold text-base text-amber-950">Panel de Calificación del Jurado</h3>
                   </div>
-
-                  <div>
-                    <div class="flex justify-between font-bold text-on-surface mb-1">
-                      <span>Viabilidad y Escalabilidad (30%)</span>
-                      <span class="text-amber-700"><span id="valViab">30</span> / 30</span>
-                    </div>
-                    <input type="range" id="scoreViab" min="0" max="30" step="1" value="30" class="w-full accent-amber-600 cursor-pointer"/>
-                  </div>
-
-                  <div>
-                    <div class="flex justify-between font-bold text-on-surface mb-1">
-                      <span>Innovación y Aplicación de IA (20%)</span>
-                      <span class="text-amber-700"><span id="valInnov">20</span> / 20</span>
-                    </div>
-                    <input type="range" id="scoreInnov" min="0" max="20" step="1" value="20" class="w-full accent-amber-600 cursor-pointer"/>
-                  </div>
-
-                  <div>
-                    <div class="flex justify-between font-bold text-on-surface mb-1">
-                      <span>Claridad del Pitch (10%)</span>
-                      <span class="text-amber-700"><span id="valPitch">10</span> / 10</span>
-                    </div>
-                    <input type="range" id="scorePitch" min="0" max="10" step="1" value="10" class="w-full accent-amber-600 cursor-pointer"/>
-                  </div>
+                  <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 text-[10px] font-bold uppercase">Jurado Oficial</span>
                 </div>
 
-                <div class="bg-amber-100 p-3 rounded-lg flex items-center justify-between border border-amber-300">
-                  <span class="font-bold text-amber-900 text-sm">Puntuación Final:</span>
-                  <span class="text-xl font-black text-amber-600"><span id="valTotal">100</span>/100</span>
-                </div>
+                <form id="judgeEvalForm" class="space-y-4">
+                  <div class="space-y-3 text-xs">
+                    <div>
+                      <div class="flex justify-between font-bold text-on-surface mb-1">
+                        <span>Eficiencia Operativa (40%)</span>
+                        <span class="text-amber-700"><span id="valImpact">40</span> / 40</span>
+                      </div>
+                      <input type="range" id="scoreImpact" min="0" max="40" step="1" value="40" class="w-full accent-amber-600 cursor-pointer"/>
+                    </div>
 
-                <div>
-                  <label class="block text-xs font-bold text-on-surface mb-1">Observación Oficial del Jurado:</label>
-                  <textarea 
-                    id="judgeFeedbackInput" 
-                    rows="3" 
-                    placeholder="Escribe la evaluación final, fortalezas y recomendaciones..."
-                    class="w-full p-2.5 bg-white rounded-lg border border-amber-300 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none"
-                    required
-                  ></textarea>
-                </div>
+                    <div>
+                      <div class="flex justify-between font-bold text-on-surface mb-1">
+                        <span>Viabilidad y Escalabilidad (30%)</span>
+                        <span class="text-amber-700"><span id="valViab">30</span> / 30</span>
+                      </div>
+                      <input type="range" id="scoreViab" min="0" max="30" step="1" value="30" class="w-full accent-amber-600 cursor-pointer"/>
+                    </div>
 
-                <button type="submit" class="w-full py-2.5 bg-amber-600 text-white font-bold text-xs rounded-lg hover:bg-amber-700 transition-all shadow-md flex items-center justify-center gap-1.5">
-                  <span class="material-symbols-outlined text-base">verified</span> Emitir Calificación de Jurado
-                </button>
-              </form>
-            </div>
+                    <div>
+                      <div class="flex justify-between font-bold text-on-surface mb-1">
+                        <span>Innovación y Aplicación de IA (20%)</span>
+                        <span class="text-amber-700"><span id="valInnov">20</span> / 20</span>
+                      </div>
+                      <input type="range" id="scoreInnov" min="0" max="20" step="1" value="20" class="w-full accent-amber-600 cursor-pointer"/>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between font-bold text-on-surface mb-1">
+                        <span>Claridad del Pitch (10%)</span>
+                        <span class="text-amber-700"><span id="valPitch">10</span> / 10</span>
+                      </div>
+                      <input type="range" id="scorePitch" min="0" max="10" step="1" value="10" class="w-full accent-amber-600 cursor-pointer"/>
+                    </div>
+                  </div>
+
+                  <div class="bg-amber-100 p-3 rounded-lg flex items-center justify-between border border-amber-300">
+                    <span class="font-bold text-amber-900 text-sm">Puntuación Final:</span>
+                    <span class="text-xl font-black text-amber-600"><span id="valTotal">100</span>/100</span>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-on-surface mb-1">Observación Oficial del Jurado:</label>
+                    <textarea 
+                      id="judgeFeedbackInput" 
+                      rows="3" 
+                      placeholder="Escribe la evaluación final, fortalezas y recomendaciones..."
+                      class="w-full p-2.5 bg-white rounded-lg border border-amber-300 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                      required
+                    ></textarea>
+                  </div>
+
+                  <button type="submit" class="w-full py-2.5 bg-amber-600 text-white font-bold text-xs rounded-lg hover:bg-amber-700 transition-all shadow-md flex items-center justify-center gap-1.5">
+                    <span class="material-symbols-outlined text-base">verified</span> Emitir y Confirmar Calificación
+                  </button>
+                </form>
+              </div>
+            `}
           ` : ''}
 
           <!-- Display Submitted Official Judge Evaluations -->
@@ -355,9 +369,21 @@ function getDetailHtml(demo) {
                         <img src="${ev.judgeAvatar}" alt="${ev.judgeName}" class="w-6 h-6 rounded-full object-cover"/>
                         <span class="font-bold text-on-surface">${ev.judgeName}</span>
                       </div>
-                      <span class="px-2 py-0.5 bg-amber-500 text-white font-bold rounded text-[11px]">
-                        ★ ${ev.average.toFixed(0)} / 100
-                      </span>
+
+                      <div class="flex items-center gap-2">
+                        ${ev.isConfirmed ? `
+                          <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px] flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">verified</span> Confirmada
+                          </span>
+                        ` : (userIsJudge && ev.judgeId === activeUser.id ? `
+                          <button data-confirm-eval-demo-id="${demo.id}" class="confirm-eval-btn px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded text-[10px] flex items-center gap-1 transition-all">
+                            <span class="material-symbols-outlined text-xs">check_circle</span> Confirmar Evaluación
+                          </button>
+                        ` : '')}
+                        <span class="px-2 py-0.5 bg-amber-500 text-white font-bold rounded text-[11px]">
+                          ★ ${ev.average.toFixed(0)} / 100
+                        </span>
+                      </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-1 text-[11px] text-secondary py-1">
@@ -531,12 +557,25 @@ function attachDetailEventListeners(demoId) {
       };
       const feedback = document.getElementById('judgeFeedbackInput').value;
 
-      if (submitJudgeEvaluation(demoId, scores, feedback)) {
+      if (submitJudgeEvaluation(demoId, scores, feedback, true)) {
+        alert('Evaluación emitida y confirmada exitosamente.');
         const app = document.getElementById('app');
         if (app) app.innerHTML = renderDetailView(demoId);
       }
     });
   }
+
+  // Judge Confirm Button
+  document.querySelectorAll('.confirm-eval-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const demoIdToConfirm = e.currentTarget.dataset.confirmEvalDemoId;
+      if (confirmJudgeEvaluation(demoIdToConfirm)) {
+        alert('Evaluación confirmada oficialmente.');
+        const app = document.getElementById('app');
+        if (app) app.innerHTML = renderDetailView(demoIdToConfirm);
+      }
+    });
+  });
 
   // Like & Fav buttons
   const likeBtn = document.getElementById('likeBtn');
