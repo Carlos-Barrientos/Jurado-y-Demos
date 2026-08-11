@@ -22,6 +22,26 @@ import {
 
 export function renderDetailView(demoId) {
   const demo = getDemoById(demoId) || getDemoById(1);
+  const current = state.currentUser;
+  
+  if (current && current.roleType === 'judge' && !isAdmin() && !demo.readyForEvaluation) {
+    return `
+      <div class="max-w-[1440px] mx-auto px-4 py-16 text-center space-y-4">
+        <span class="material-symbols-outlined text-5xl text-amber-600">lock_clock</span>
+        <h2 class="text-2xl font-bold text-on-surface">Proyecto Pendiente de Presentación</h2>
+        <p class="text-sm text-secondary max-w-md mx-auto leading-relaxed">
+          Este proyecto aún no ha sido dictaminado como <b>Presentado</b> por el Administrador. 
+          Como integrante del Jurado, únicamente puedes acceder y visualizar proyectos autorizados para evaluación.
+        </p>
+        <div class="pt-2">
+          <a href="#home" class="px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-lg inline-flex items-center gap-2 hover:bg-primary-container transition-all shadow-md">
+            <span class="material-symbols-outlined">arrow_back</span> Volver a la Galería
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
   setTimeout(() => attachDetailEventListeners(demo.id), 50);
   return getDetailHtml(demo);
 }

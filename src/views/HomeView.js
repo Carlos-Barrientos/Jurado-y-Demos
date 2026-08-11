@@ -14,6 +14,8 @@ function getFilteredDemos() {
   
   if (current && current.roleType === 'participant' && !showAllForParticipant) {
     filteredDemos = state.demos.filter(d => d.authorId === current.id || d.author === current.name);
+  } else if (current && current.roleType === 'judge' && current.roleType !== 'admin') {
+    filteredDemos = state.demos.filter(d => Boolean(d.readyForEvaluation));
   }
 
   // Filter based on selected category / unit
