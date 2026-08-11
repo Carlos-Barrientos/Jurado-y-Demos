@@ -24,6 +24,9 @@ function getAdminHtml() {
           </div>
           <p class="text-sm text-secondary">Gestión completa de usuarios, asignación de demos y enlaces de video del sistema.</p>
         </div>
+        <button id="syncDatabaseBtn" class="px-4 py-2 bg-primary text-white font-bold rounded-lg shadow hover:bg-primary-container transition-colors flex items-center gap-2">
+          <span class="material-symbols-outlined">cloud_sync</span> Sincronizar Base de Datos (Firebase)
+        </button>
       </div>
 
       <!-- Main Layout Grid -->
@@ -320,6 +323,16 @@ function getAdminHtml() {
 }
 
 function attachAdminEvents() {
+  const syncBtn = document.getElementById('syncDatabaseBtn');
+  if (syncBtn) {
+    syncBtn.addEventListener('click', () => {
+      if (confirm('¿Sincronizar y restaurar toda la base de datos a Firebase? Esto subirá todos los usuarios y proyectos base.')) {
+        resetState();
+        alert('Sincronización iniciada. Revisa Firebase en unos segundos.');
+      }
+    });
+  }
+
   // Create User
   const createUserForm = document.getElementById('createUserForm');
   if (createUserForm) {
