@@ -6,6 +6,7 @@ import {
   isOwner, 
   isJudge, 
   isAdmin,
+  isDario,
   updateDemo, 
   addDemoImage, 
   removeDemoImage,
@@ -369,57 +370,59 @@ function getDetailHtml(demo) {
             `}
           ` : ''}
 
-          <!-- Display Submitted Official Judge Evaluations -->
-          <div class="bg-white p-6 rounded-2xl border border-surface-container-high space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="text-xs uppercase font-bold text-secondary tracking-wider">Calificaciones del Jurado (${evals.length})</h3>
-              <span class="text-sm font-extrabold text-amber-500 flex items-center gap-1">
-                <span class="material-symbols-outlined text-base fill">star</span> ${demo.rating} / 100
-              </span>
-            </div>
-
-            ${evals.length === 0 ? `
-              <p class="text-xs text-secondary text-center py-4">Este proyecto aún no ha sido evaluado formalmente por el Jurado.</p>
-            ` : `
-              <div class="space-y-4">
-                ${evals.map(ev => `
-                  <div class="p-4 bg-amber-50/40 rounded-xl border border-amber-200 space-y-2 text-xs">
-                    <div class="flex items-center justify-between border-b border-amber-100 pb-2">
-                      <div class="flex items-center gap-2">
-                        <img src="${ev.judgeAvatar}" alt="${ev.judgeName}" class="w-6 h-6 rounded-full object-cover"/>
-                        <span class="font-bold text-on-surface">${ev.judgeName}</span>
-                      </div>
-
-                      <div class="flex items-center gap-2">
-                        ${ev.isConfirmed ? `
-                          <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px] flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs">verified</span> Confirmada
-                          </span>
-                        ` : (userIsJudge && ev.judgeId === activeUser.id ? `
-                          <button data-confirm-eval-demo-id="${demo.id}" class="confirm-eval-btn px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded text-[10px] flex items-center gap-1 transition-all">
-                            <span class="material-symbols-outlined text-xs">check_circle</span> Confirmar Evaluación
-                          </button>
-                        ` : '')}
-                        <span class="px-2 py-0.5 bg-amber-500 text-white font-bold rounded text-[11px]">
-                          ★ ${ev.average.toFixed(0)} / 100
-                        </span>
-                      </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-1 text-[11px] text-secondary py-1">
-                      <span>Eficiencia: <b>${ev.scores.impact}</b>/40</span>
-                      <span>Viabilidad: <b>${ev.scores.viability}</b>/30</span>
-                      <span>Innovación: <b>${ev.scores.innovation}</b>/20</span>
-                      <span>Pitch: <b>${ev.scores.pitch}</b>/10</span>
-                    </div>
-
-                    <p class="text-on-surface italic leading-snug">"${ev.feedback}"</p>
-                    <span class="text-[10px] text-secondary block text-right">${ev.date}</span>
-                  </div>
-                `).join('')}
+          <!-- Display Submitted Official Judge Evaluations (Exclusive for Jurado, Admin & Dario) -->
+          ${(userIsJudge || isAdmin() || isDario()) ? `
+            <div class="bg-white p-6 rounded-2xl border border-surface-container-high space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs uppercase font-bold text-secondary tracking-wider">Calificaciones del Jurado (${evals.length})</h3>
+                <span class="text-sm font-extrabold text-amber-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-base fill">star</span> ${demo.rating} / 100
+                </span>
               </div>
-            `}
-          </div>
+
+              ${evals.length === 0 ? `
+                <p class="text-xs text-secondary text-center py-4">Este proyecto aún no ha sido evaluado formalmente por el Jurado.</p>
+              ` : `
+                <div class="space-y-4">
+                  ${evals.map(ev => `
+                    <div class="p-4 bg-amber-50/40 rounded-xl border border-amber-200 space-y-2 text-xs">
+                      <div class="flex items-center justify-between border-b border-amber-100 pb-2">
+                        <div class="flex items-center gap-2">
+                          <img src="${ev.judgeAvatar}" alt="${ev.judgeName}" class="w-6 h-6 rounded-full object-cover"/>
+                          <span class="font-bold text-on-surface">${ev.judgeName}</span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                          ${ev.isConfirmed ? `
+                            <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px] flex items-center gap-1">
+                              <span class="material-symbols-outlined text-xs">verified</span> Confirmada
+                            </span>
+                          ` : (userIsJudge && ev.judgeId === activeUser.id ? `
+                            <button data-confirm-eval-demo-id="${demo.id}" class="confirm-eval-btn px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded text-[10px] flex items-center gap-1 transition-all">
+                              <span class="material-symbols-outlined text-xs">check_circle</span> Confirmar Evaluación
+                            </button>
+                          ` : '')}
+                          <span class="px-2 py-0.5 bg-amber-500 text-white font-bold rounded text-[11px]">
+                            ★ ${ev.average.toFixed(0)} / 100
+                          </span>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-1 text-[11px] text-secondary py-1">
+                        <span>Eficiencia: <b>${ev.scores.impact}</b>/40</span>
+                        <span>Viabilidad: <b>${ev.scores.viability}</b>/30</span>
+                        <span>Innovación: <b>${ev.scores.innovation}</b>/20</span>
+                        <span>Pitch: <b>${ev.scores.pitch}</b>/10</span>
+                      </div>
+
+                      <p class="text-on-surface italic leading-snug">"${ev.feedback}"</p>
+                      <span class="text-[10px] text-secondary block text-right">${ev.date}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              `}
+            </div>
+          ` : ''}
 
           <!-- Author Profile Card -->
           <div class="bg-white p-6 rounded-2xl border border-surface-container-high space-y-4 shadow-sm">

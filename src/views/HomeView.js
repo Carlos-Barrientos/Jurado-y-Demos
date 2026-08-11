@@ -202,9 +202,11 @@ function renderDemoCard(demo) {
 
         <div class="flex items-center gap-3 font-medium">
           <span class="flex items-center gap-1 text-primary font-bold"><span class="material-symbols-outlined text-sm fill">favorite</span> ${demo.likes}</span>
-          <span class="flex items-center gap-1 text-amber-500 font-bold" title="${evalsCount} evaluaciones del Jurado">
-            <span class="material-symbols-outlined text-sm fill">star</span> ${demo.rating}
-          </span>
+          ${state.currentUser && state.currentUser.roleType !== 'participant' ? `
+            <span class="flex items-center gap-1 text-amber-500 font-bold" title="${evalsCount} evaluaciones del Jurado">
+              <span class="material-symbols-outlined text-sm fill">star</span> ${demo.rating}
+            </span>
+          ` : ''}
         </div>
       </div>
 
