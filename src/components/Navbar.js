@@ -1,4 +1,4 @@
-import { state, logout, isAdmin, canViewRanking } from '../data/store.js';
+import { state, logout, isAdmin, isJudge, canViewRanking } from '../data/store.js';
 import { handleRoute, navigateTo } from '../router/index.js';
 
 export function renderNavbar() {
@@ -64,6 +64,12 @@ export function renderNavbar() {
               <span class="material-symbols-outlined text-base">account_circle</span>
               <span class="hidden md:inline">Mi Perfil</span>
             </a>
+            ${isJudge() ? `
+              <a id="nav-quick-eval" href="#quick-eval" class="px-2.5 py-1.5 rounded-md hover:bg-amber-100 hover:text-amber-900 transition-colors flex items-center gap-1 text-amber-900 font-bold bg-amber-100/70 border border-amber-300">
+                <span class="material-symbols-outlined text-base">bolt</span>
+                <span class="hidden md:inline">Eval. Rápida</span>
+              </a>
+            ` : ''}
             ${canViewRanking() ? `
               <a id="nav-ranking" href="#ranking" class="px-2.5 py-1.5 rounded-md hover:bg-amber-100 hover:text-amber-800 transition-colors flex items-center gap-1 text-amber-800 font-bold bg-amber-50 border border-amber-200">
                 <span class="material-symbols-outlined text-base">leaderboard</span>

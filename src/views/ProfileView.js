@@ -59,7 +59,12 @@ function getProfileHtml() {
             </div>
           </div>
 
-          <div class="flex items-center gap-3 w-full sm:w-auto">
+          <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            ${userIsJudge ? `
+              <a href="#quick-eval" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-md transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">bolt</span> Abrir Evaluación Rápida
+              </a>
+            ` : ''}
             <span class="px-4 py-2 bg-surface-container rounded-lg text-xs font-bold text-secondary border border-surface-container-high">
               Rol Activo: ${userIsJudge ? 'Jurado Evaluador' : 'Participante / Creador'}
             </span>
