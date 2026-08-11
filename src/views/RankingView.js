@@ -391,6 +391,11 @@ function attachBreakdownButtons() {
                     </div>
 
                     <div class="flex items-center gap-2">
+                      ${ev.judgeId === state.currentUser.id ? `
+                        <a href="#demo/${demo.id}" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded text-[10px] flex items-center gap-1 transition-all shadow-sm">
+                          <span class="material-symbols-outlined text-xs">edit</span> Corregir Mi Calificación
+                        </a>
+                      ` : ''}
                       ${ev.isConfirmed ? `
                         <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px] flex items-center gap-1">
                           <span class="material-symbols-outlined text-xs">verified</span> Confirmada

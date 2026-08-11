@@ -55,182 +55,252 @@ function getDetailHtml(demo) {
   const formattedEmbed = formatYoutubeEmbedUrl(demo.videoUrl);
   const iframeSrc = formattedEmbed ? (formattedEmbed.includes('?') ? `${formattedEmbed}&autoplay=0` : `${formattedEmbed}?autoplay=0`) : '';
 
-  // Calculate judge evaluations average
+  // Calculate judge evaluations average and check if active user evaluated
   const evals = demo.evaluations || [];
   const hasEvals = evals.length > 0;
+  const myExistingEval = userIsJudge && activeUser ? evals.find(e => e.judgeId === activeUser.id) : null;
+
+  const initialImpact = myExistingEval ? (myExistingEval.scores?.impact !== undefined ? myExistingEval.scores.impact : 40) : 40;
+  const initialViab = myExistingEval ? (myExistingEval.scores?.viability !== undefined ? myExistingEval.scores.viability : 30) : 30;
+  const initialInnov = myExistingEval ? (myExistingEval.scores?.innovation !== undefined ? myExistingEval.scores.innovation : 20) : 20;
+  const initialPitch = myExistingEval ? (myExistingEval.scores?.pitch !== undefined ? myExistingEval.scores.pitch : 10) : 10;
+  const initialTotal = initialImpact + initialViab + initialInnov + initialPitch;
+  const initialFeedback = myExistingEval ? (myExistingEval.feedback || '') : '';
+
+  const modelBaseVal = demo.specs?.modelType || demo.modelBase || 'N/A';
+  const latencyVal = demo.specs?.latency || demo.latency || 'N/A';
+  const dataSourceVal = demo.specs?.dataSources || demo.dataSource || 'N/A';
+  const statusVal = demo.specs?.status || demo.deploymentStatus || 'En diseño';
 
   return `
     <div class="max-w-[1440px] mx-auto px-4 md:px-12 py-8 space-y-8 animate-fadeIn">
       
       <!-- Breadcrumbs & Role Indicator -->
       <div class="flex flex-wrap items-center justify-between gap-4">
-        <nav class="flex items-center gap-2 text-xs md:text-sm text-secondary">
+        <div class="flex items-center gap-2 text-xs font-semibold text-secondary">
           <a href="#home" class="hover:text-primary transition-colors flex items-center gap-1">
-            <span class="material-symbols-outlined text-base">home</span> Inicio
+            <span class="material-symbols-outlined text-sm">home</span> Galería
           </a>
-          <span class="material-symbols-outlined text-xs">chevron_right</span>
-          <a href="#home" class="hover:text-primary transition-colors">${demo.category}</a>
-          <span class="material-symbols-outlined text-xs">chevron_right</span>
-          <span class="text-on-surface font-semibold truncate max-w-xs">${demo.title}</span>
-        </nav>
+          <span>/</span>
+          <span class="text-on-surface font-bold truncate max-w-[200px] sm:max-w-none">${demo.title}</span>
+        </div>
 
-        <!-- Role Action Notice -->
-        ${userIsOwner ? `
-          <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold">
-            <span class="material-symbols-outlined text-sm">edit_note</span> Eres el autor de este proyecto (Modo Edición Habilitado)
-          </div>
-        ` : ''}
-
-        ${userIsJudge ? `
-          <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold">
-            <span class="material-symbols-outlined text-sm">gavel</span> Modo Jurado: Habilitado para Calificar
-          </div>
-        ` : ''}
+        <div class="flex items-center gap-2">
+          ${userIsOwner ? `
+            <button id="openEditModalBtn" class="px-3.5 py-1.5 bg-primary text-white font-semibold text-xs rounded-lg shadow hover:bg-primary-container transition-all flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">edit</span> Editar Proyecto
+            </button>
+            <button id="openImageModalBtn" class="px-3.5 py-1.5 bg-surface-container-high text-on-surface font-semibold text-xs rounded-lg border border-surface-container hover:bg-surface-container transition-all flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">cloud_upload</span> Cargar Archivos (${(demo.images || []).length})
+            </button>
+          ` : ''}
+        </div>
       </div>
 
-      <!-- Main Video & Header Grid -->
+      <!-- Main Grid Layout -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Video & Primary Content (Left 2 Columns) -->
-        <div class="lg:col-span-2 space-y-6">
+        <!-- Left 2 Cols: Video Player, Details, Tech Specs & Gallery -->
+        <div class="lg:col-span-2 space-y-8">
           
-          <!-- Embedded Player Container -->
-          <div class="bg-black rounded-2xl overflow-hidden shadow-xl aspect-video relative group">
-            <iframe 
-              src="${iframeSrc}" 
-              title="${demo.title}"
-              class="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowfullscreen
-            ></iframe>
+          <!-- Video Player Banner -->
+          <div class="bg-black rounded-2xl overflow-hidden shadow-xl aspect-video relative group border border-surface-container-high">
+            ${iframeSrc ? `
+              <iframe 
+                src="${iframeSrc}" 
+                title="${demo.title}"
+                class="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+              ></iframe>
+            ` : `
+              <div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-6 text-center space-y-2">
+                <span class="material-symbols-outlined text-5xl">video_off</span>
+                <p class="text-sm font-semibold">Video no disponible o enlace no especificado.</p>
+              </div>
+            `}
           </div>
 
           <!-- Title & Actions Bar -->
-          <div class="space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-              <span class="px-3 py-1 rounded-md text-xs font-bold ${demo.unitClass}">
-                ${demo.unit}
-              </span>
-              
-              <div class="flex flex-wrap items-center gap-2">
-                <!-- Participant Edit Buttons -->
-                ${userIsOwner ? `
-                  <button id="openEditModalBtn" class="px-4 py-2 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-container transition-all flex items-center gap-1.5 shadow-sm">
-                    <span class="material-symbols-outlined text-lg">edit</span> Editar Proyecto
-                  </button>
-                  <button id="openImageModalBtn" class="px-4 py-2 rounded-lg bg-surface-container-highest text-on-surface font-semibold text-sm hover:bg-surface-container-high transition-all flex items-center gap-1.5 border border-surface-container-high">
-                    <span class="material-symbols-outlined text-lg">add_photo_alternate</span> Cargar Imagen / Evidencia
-                  </button>
-                ` : ''}
+          <div class="bg-white p-6 md:p-8 rounded-2xl border border-surface-container-high space-y-4 shadow-sm">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div class="space-y-2 max-w-xl">
+                <div class="flex items-center gap-2">
+                  <span class="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                    ${demo.category}
+                  </span>
+                  <span class="text-xs text-secondary font-semibold">${demo.duration}</span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-on-surface leading-tight">${demo.title}</h1>
+                <p class="text-base font-semibold text-secondary leading-snug">${demo.subtitle}</p>
+              </div>
 
-                <!-- Standard Actions -->
-                <button id="likeBtn" class="px-3.5 py-2 rounded-lg bg-surface-container hover:bg-primary/10 hover:text-primary font-semibold text-sm text-secondary transition-all flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-lg text-primary fill">favorite</span>
-                  <span id="likeCount">${demo.likes}</span>
+              <!-- Like & Bookmark Buttons -->
+              <div class="flex items-center gap-3">
+                <button 
+                  id="likeBtn" 
+                  class="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-200 rounded-xl font-bold text-xs hover:bg-rose-100 transition-all flex items-center gap-1.5 shadow-sm"
+                >
+                  <span class="material-symbols-outlined text-lg fill">favorite</span> ${demo.likes} Me Gusta
                 </button>
-                <button id="favBtn" class="px-3.5 py-2 rounded-lg bg-surface-container hover:bg-primary/10 hover:text-primary font-semibold text-sm text-secondary transition-all flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-lg ${isFav ? 'text-primary fill' : ''}">bookmark</span>
+
+                <button 
+                  id="favBtn" 
+                  class="p-2.5 rounded-xl border border-surface-container hover:bg-surface-container transition-colors flex items-center justify-center ${isFav ? 'bg-amber-50 border-amber-300 text-amber-600' : 'bg-surface-container-low text-secondary'}"
+                  title="${isFav ? 'Quitar de guardados' : 'Guardar demo'}"
+                >
+                  <span class="material-symbols-outlined text-xl ${isFav ? 'fill text-amber-500' : ''}">bookmark</span>
                 </button>
               </div>
             </div>
 
-            <h1 class="text-2xl md:text-3xl font-bold text-on-surface leading-tight">
-              ${demo.title}
-            </h1>
-            <p class="text-base text-secondary font-medium leading-relaxed">
-              ${demo.subtitle}
-            </p>
+            <!-- Tags -->
+            <div class="flex flex-wrap gap-2 pt-2 border-t border-surface-container-high">
+              ${(demo.tags || []).map(tag => `
+                <span class="px-2.5 py-1 bg-surface-container text-tertiary text-xs rounded-md font-medium">#${tag}</span>
+              `).join('')}
+            </div>
           </div>
 
-            <!-- Section 1: Overview & New Metrics -->
-            <div class="bg-white p-6 rounded-xl border border-surface-container-high space-y-6">
-              <div>
-                <h3 class="text-lg font-bold text-on-surface mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-primary">description</span> Resumen del Proyecto (MVP)</h3>
-                <p class="text-sm text-secondary leading-relaxed">${demo.description}</p>
+          <!-- Project Information Tabs / Sections -->
+          <div class="space-y-6">
+            
+            <!-- Description Box -->
+            <div class="bg-white p-6 rounded-xl border border-surface-container-high space-y-3">
+              <h3 class="text-xs uppercase font-bold text-secondary tracking-wider">Descripción del Proyecto (MVP)</h3>
+              <p class="text-sm text-on-surface leading-relaxed">${demo.description}</p>
+            </div>
+
+            <!-- Problem & Impact Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-white p-6 rounded-xl border border-surface-container-high space-y-2">
+                <div class="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
+                  <span class="material-symbols-outlined text-base">report_problem</span> Problema Operativo a Resolver
+                </div>
+                <p class="text-xs text-on-surface leading-relaxed">${demo.problemStatement}</p>
               </div>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-surface-container">
-                <div>
-                  <h4 class="text-sm font-bold text-on-surface mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm text-error">warning</span> Problema Operativo a Resolver</h4>
-                  <p class="text-xs text-secondary leading-relaxed bg-error-container/20 p-3 rounded-lg border border-error-container">${demo.problemStatement}</p>
+
+              <div class="bg-emerald-50/70 p-6 rounded-xl border border-emerald-200 space-y-2">
+                <div class="flex items-center gap-2 text-emerald-800 font-bold text-xs uppercase tracking-wider">
+                  <span class="material-symbols-outlined text-base text-emerald-600">trending_up</span> Métricas de Impacto
                 </div>
-                <div>
-                  <h4 class="text-sm font-bold text-on-surface mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm text-emerald-600">monitoring</span> Métricas de Impacto (Antes y Después)</h4>
-                  <p class="text-xs text-secondary leading-relaxed bg-emerald-50 p-3 rounded-lg border border-emerald-200">${demo.impactMetrics}</p>
-                </div>
+                <p class="text-xs text-emerald-950 leading-relaxed font-medium">${demo.impactMetrics}</p>
               </div>
             </div>
 
-            <!-- Attached Image Evidence Gallery (Viewable by Judges & Participants) -->
-            <div class="bg-white p-6 rounded-xl border border-surface-container-high space-y-4">
-              <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold text-on-surface flex items-center gap-2">
-                  <span class="material-symbols-outlined text-primary">collections</span> Galería de Evidencias e Imágenes del Proyecto (${(demo.images || []).length})
+            <!-- Technical Specifications Grid (Ficha Técnica del Modelo) -->
+            <div class="bg-white p-6 rounded-2xl border border-surface-container-high space-y-4 shadow-sm">
+              <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+                <h3 class="text-base font-extrabold text-on-surface flex items-center gap-2">
+                  <span class="material-symbols-outlined text-rose-600 text-xl">memory</span> Ficha Técnica del Modelo
                 </h3>
                 ${userIsOwner ? `
-                  <button id="openImageModalBtn2" class="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">add</span> Añadir Imagen
+                  <button class="open-edit-specs-btn px-2.5 py-1 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">edit</span> Editar Ficha
                   </button>
                 ` : ''}
               </div>
 
-              ${(!demo.images || demo.images.length === 0) ? `
-                <div class="p-8 text-center bg-surface-bright rounded-lg border border-dashed border-surface-container-high">
-                  <span class="material-symbols-outlined text-3xl text-secondary mb-1">image_not_supported</span>
-                  <p class="text-xs text-secondary">No hay imágenes adjuntas. El participante puede cargar imágenes abajo para que el jurado las examine.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="p-3.5 bg-surface-bright rounded-xl border border-surface-container-high space-y-1">
+                  <span class="text-[10px] font-bold text-secondary uppercase tracking-wider block">Modelo Base</span>
+                  <span class="font-extrabold text-sm text-on-surface">${modelBaseVal}</span>
                 </div>
-              ` : `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  ${demo.images.map((img, idx) => `
-                    <div class="group relative rounded-lg border border-surface-container-high overflow-hidden bg-surface-bright">
-                      <img src="${img.url}" alt="${img.caption}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"/>
-                      <div class="p-3 bg-white border-t border-surface-container-high">
-                        <p class="text-xs text-secondary italic leading-snug">${img.caption || 'Sin pie de foto'}</p>
-                      </div>
-                      ${userIsOwner ? `
-                        <button data-del-img="${idx}" class="del-img-btn absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full hover:bg-red-600 transition-colors" title="Eliminar imagen">
-                          <span class="material-symbols-outlined text-sm">delete</span>
-                        </button>
-                      ` : ''}
-                    </div>
-                  `).join('')}
-                </div>
-              `}
-            </div>
 
-            <!-- Technical Specifications Grid -->
-            <div class="bg-surface-bright p-6 rounded-xl border border-surface-container-high space-y-4">
-              <h3 class="text-lg font-bold text-on-surface flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">memory</span> Ficha Técnica del Modelo
-              </h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div class="p-3 bg-white rounded-lg border border-surface-container">
-                  <span class="text-xs text-secondary uppercase font-semibold block mb-1">Modelo Base</span>
-                  <span class="font-bold text-on-surface">${demo.specs.modelType}</span>
+                <div class="p-3.5 bg-surface-bright rounded-xl border border-surface-container-high space-y-1">
+                  <span class="text-[10px] font-bold text-secondary uppercase tracking-wider block">Latencia Inferencia</span>
+                  <span class="font-extrabold text-sm text-on-surface">${latencyVal}</span>
                 </div>
-                <div class="p-3 bg-white rounded-lg border border-surface-container">
-                  <span class="text-xs text-secondary uppercase font-semibold block mb-1">Latencia Inferencia</span>
-                  <span class="font-bold text-on-surface">${demo.specs.latency}</span>
+
+                <div class="p-3.5 bg-surface-bright rounded-xl border border-surface-container-high space-y-1">
+                  <span class="text-[10px] font-bold text-secondary uppercase tracking-wider block">Fuente de Datos</span>
+                  <span class="font-extrabold text-sm text-on-surface">${dataSourceVal}</span>
                 </div>
-                <div class="p-3 bg-white rounded-lg border border-surface-container">
-                  <span class="text-xs text-secondary uppercase font-semibold block mb-1">Fuente de Datos</span>
-                  <span class="font-bold text-on-surface">${demo.specs.dataSources}</span>
-                </div>
-                <div class="p-3 bg-white rounded-lg border border-surface-container">
-                  <span class="text-xs text-secondary uppercase font-semibold block mb-1">Estado de Despliegue</span>
-                  <span class="font-bold text-emerald-600 flex items-center gap-1">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> ${demo.specs.status}
+
+                <div class="p-3.5 bg-surface-bright rounded-xl border border-surface-container-high space-y-1">
+                  <span class="text-[10px] font-bold text-secondary uppercase tracking-wider block">Estado de Despliegue</span>
+                  <span class="font-bold text-emerald-600 text-xs flex items-center gap-1.5 pt-0.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>${statusVal}</span>
                   </span>
                 </div>
               </div>
             </div>
 
+            <!-- Evidence Gallery & File Uploads -->
+            <div class="bg-white p-6 rounded-2xl border border-surface-container-high space-y-4 shadow-sm">
+              <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+                <h3 class="text-xs uppercase font-extrabold text-secondary tracking-wider flex items-center gap-2">
+                  <span class="material-symbols-outlined text-base text-primary">folder_open</span> Galería de Evidencias & Archivos (${(demo.images || []).length})
+                </h3>
+                ${userIsOwner ? `
+                  <button id="openImageModalBtn2" class="px-3 py-1 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">cloud_upload</span> Cargar Archivo (con Vista Previa)
+                  </button>
+                ` : ''}
+              </div>
+
+              ${(!demo.images || demo.images.length === 0) ? `
+                <p class="text-xs text-secondary italic py-6 text-center">No hay evidencias o archivos cargados aún.</p>
+              ` : `
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  ${demo.images.map((img, idx) => {
+                    const isDoc = img.type === 'document' || (!img.url.startsWith('data:image') && !img.url.match(/\.(jpeg|jpg|gif|png|webp|svg)/i));
+                    return `
+                      <div class="group relative rounded-xl border border-surface-container bg-surface-bright overflow-hidden shadow-sm hover:shadow-md transition-all">
+                        ${isDoc ? `
+                          <!-- Document Card -->
+                          <div class="p-4 flex flex-col justify-between h-36 space-y-2">
+                            <div class="flex items-start gap-3">
+                              <span class="material-symbols-outlined text-3xl text-primary p-2 bg-primary/10 rounded-lg">description</span>
+                              <div class="flex-1 min-w-0">
+                                <h4 class="font-bold text-xs text-on-surface truncate">${img.name || img.caption}</h4>
+                                <span class="text-[10px] text-secondary block">${img.size ? img.size + ' • ' : ''}${img.date || 'Documento'}</span>
+                              </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-surface-container-high">
+                              <button data-preview-idx="${idx}" class="preview-item-btn text-xs text-primary font-bold hover:underline flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs">visibility</span> Vista Previa
+                              </button>
+                              ${userIsOwner ? `
+                                <button data-remove-img-idx="${idx}" class="remove-img-btn text-[10px] text-error hover:underline font-bold">
+                                  Eliminar
+                                </button>
+                              ` : ''}
+                            </div>
+                          </div>
+                        ` : `
+                          <!-- Image Card -->
+                          <div class="aspect-video relative overflow-hidden bg-black/5">
+                            <img src="${img.url}" alt="${img.caption}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-between text-white text-[11px]">
+                              <p class="line-clamp-2 leading-tight font-medium">${img.caption}</p>
+                              <div class="flex items-center justify-between">
+                                <button data-preview-idx="${idx}" class="preview-item-btn text-[10px] bg-white/90 text-primary font-bold px-2 py-0.5 rounded flex items-center gap-0.5">
+                                  <span class="material-symbols-outlined text-xs">visibility</span> Vista Previa
+                                </button>
+                                ${userIsOwner ? `
+                                  <button data-remove-img-idx="${idx}" class="remove-img-btn text-[10px] bg-white/90 text-error font-bold px-2 py-0.5 rounded">
+                                    Eliminar
+                                  </button>
+                                ` : ''}
+                              </div>
+                            </div>
+                          </div>
+                        `}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `}
+            </div>
+
             <!-- Section Comments -->
             <div class="bg-white p-6 rounded-xl border border-surface-container-high space-y-4">
-              <h3 class="text-lg font-bold text-on-surface">Comentarios & Discusión (${demo.comments.length})</h3>
+              <h3 class="text-lg font-bold text-on-surface">Comentarios & Discusión (${(demo.comments || []).length})</h3>
               
               <div class="flex gap-3">
-                <img src="${activeUser.avatar}" alt="User" class="w-9 h-9 rounded-full object-cover"/>
+                <img src="${activeUser ? activeUser.avatar : ''}" alt="User" class="w-9 h-9 rounded-full object-cover"/>
                 <div class="flex-grow space-y-3">
                   <textarea 
                     id="commentInput"
@@ -306,7 +376,7 @@ function getDetailHtml(demo) {
                 <div class="flex items-center justify-between border-b border-amber-200 pb-3">
                   <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-amber-600 text-2xl">gavel</span>
-                    <h3 class="font-bold text-base text-amber-950">Panel de Calificación del Jurado</h3>
+                    <h3 class="font-bold text-base text-amber-950">${myExistingEval ? 'Editar Mi Calificación' : 'Panel de Calificación del Jurado'}</h3>
                   </div>
                   <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 text-[10px] font-bold uppercase">Jurado Oficial</span>
                 </div>
@@ -316,39 +386,39 @@ function getDetailHtml(demo) {
                     <div>
                       <div class="flex justify-between font-bold text-on-surface mb-1">
                         <span>Eficiencia Operativa (40%)</span>
-                        <span class="text-amber-700"><span id="valImpact">40</span> / 40</span>
+                        <span class="text-amber-700"><span id="valImpact">${initialImpact}</span> / 40</span>
                       </div>
-                      <input type="range" id="scoreImpact" min="0" max="40" step="1" value="40" class="w-full accent-amber-600 cursor-pointer"/>
+                      <input type="range" id="scoreImpact" min="0" max="40" step="1" value="${initialImpact}" class="w-full accent-amber-600 cursor-pointer"/>
                     </div>
 
                     <div>
                       <div class="flex justify-between font-bold text-on-surface mb-1">
                         <span>Viabilidad y Escalabilidad (30%)</span>
-                        <span class="text-amber-700"><span id="valViab">30</span> / 30</span>
+                        <span class="text-amber-700"><span id="valViab">${initialViab}</span> / 30</span>
                       </div>
-                      <input type="range" id="scoreViab" min="0" max="30" step="1" value="30" class="w-full accent-amber-600 cursor-pointer"/>
+                      <input type="range" id="scoreViab" min="0" max="30" step="1" value="${initialViab}" class="w-full accent-amber-600 cursor-pointer"/>
                     </div>
 
                     <div>
                       <div class="flex justify-between font-bold text-on-surface mb-1">
                         <span>Innovación y Aplicación de IA (20%)</span>
-                        <span class="text-amber-700"><span id="valInnov">20</span> / 20</span>
+                        <span class="text-amber-700"><span id="valInnov">${initialInnov}</span> / 20</span>
                       </div>
-                      <input type="range" id="scoreInnov" min="0" max="20" step="1" value="20" class="w-full accent-amber-600 cursor-pointer"/>
+                      <input type="range" id="scoreInnov" min="0" max="20" step="1" value="${initialInnov}" class="w-full accent-amber-600 cursor-pointer"/>
                     </div>
 
                     <div>
                       <div class="flex justify-between font-bold text-on-surface mb-1">
                         <span>Claridad del Pitch (10%)</span>
-                        <span class="text-amber-700"><span id="valPitch">10</span> / 10</span>
+                        <span class="text-amber-700"><span id="valPitch">${initialPitch}</span> / 10</span>
                       </div>
-                      <input type="range" id="scorePitch" min="0" max="10" step="1" value="10" class="w-full accent-amber-600 cursor-pointer"/>
+                      <input type="range" id="scorePitch" min="0" max="10" step="1" value="${initialPitch}" class="w-full accent-amber-600 cursor-pointer"/>
                     </div>
                   </div>
 
                   <div class="bg-amber-100 p-3 rounded-lg flex items-center justify-between border border-amber-300">
                     <span class="font-bold text-amber-900 text-sm">Puntuación Final:</span>
-                    <span class="text-xl font-black text-amber-600"><span id="valTotal">100</span>/100</span>
+                    <span class="text-xl font-black text-amber-600"><span id="valTotal">${initialTotal}</span>/100</span>
                   </div>
 
                   <div>
@@ -359,11 +429,11 @@ function getDetailHtml(demo) {
                       placeholder="Escribe la evaluación final, fortalezas y recomendaciones..."
                       class="w-full p-2.5 bg-white rounded-lg border border-amber-300 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none"
                       required
-                    ></textarea>
+                    >${initialFeedback}</textarea>
                   </div>
 
                   <button type="submit" class="w-full py-2.5 bg-amber-600 text-white font-bold text-xs rounded-lg hover:bg-amber-700 transition-all shadow-md flex items-center justify-center gap-1.5">
-                    <span class="material-symbols-outlined text-base">verified</span> Emitir y Confirmar Calificación
+                    <span class="material-symbols-outlined text-base">${myExistingEval ? 'edit' : 'verified'}</span> ${myExistingEval ? 'Corregir y Guardar Calificación' : 'Emitir y Confirmar Calificación'}
                   </button>
                 </form>
               </div>
@@ -393,6 +463,11 @@ function getDetailHtml(demo) {
                         </div>
 
                         <div class="flex items-center gap-2">
+                          ${ev.judgeId === activeUser.id ? `
+                            <button data-edit-my-eval="true" class="edit-my-eval-btn px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded text-[10px] flex items-center gap-1 transition-all shadow-sm">
+                              <span class="material-symbols-outlined text-xs">edit</span> Editar Mi Calificación
+                            </button>
+                          ` : ''}
                           ${ev.isConfirmed ? `
                             <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px] flex items-center gap-1">
                               <span class="material-symbols-outlined text-xs">verified</span> Confirmada
@@ -443,18 +518,21 @@ function getDetailHtml(demo) {
 
       </div>
 
-      <!-- MODAL 1: Edit Project Details (Participant Only) -->
+      <!-- MODAL 1: Edit Project Details & Ficha Técnica (Participant Only) -->
       ${userIsOwner ? `
         <div id="editProjectModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-          <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
+          <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fadeIn max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
-              <h3 class="font-bold text-lg text-on-surface">Editar Proyecto (Participante)</h3>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-xl">edit_note</span>
+                <h3 class="font-bold text-lg text-on-surface">Editar Proyecto & Ficha Técnica</h3>
+              </div>
               <button id="closeEditModalBtn" class="text-secondary hover:text-primary">
                 <span class="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <form id="editProjectForm" class="space-y-3 text-sm">
+            <form id="editProjectForm" class="space-y-4 text-sm">
               <div>
                 <label class="block font-semibold text-xs text-secondary mb-1">Título del Proyecto</label>
                 <input type="text" id="editTitle" value="${demo.title}" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none" required/>
@@ -492,6 +570,40 @@ function getDetailHtml(demo) {
                 <input type="url" id="editVideo" value="${demo.videoUrl}" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none" required/>
               </div>
 
+              <!-- Section: Ficha Técnica del Modelo -->
+              <div class="border-t border-surface-container-high pt-3 space-y-3">
+                <h4 class="font-bold text-xs uppercase tracking-wider text-rose-700 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">memory</span> Ficha Técnica del Modelo
+                </h4>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label class="block font-semibold text-secondary mb-1">Modelo Base</label>
+                    <input type="text" id="editModelBase" value="${modelBaseVal}" placeholder="ej. Gemini 1.5 Pro, GPT-4o" class="w-full p-2 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none"/>
+                  </div>
+
+                  <div>
+                    <label class="block font-semibold text-secondary mb-1">Latencia Inferencia</label>
+                    <input type="text" id="editLatency" value="${latencyVal}" placeholder="ej. 1.2s, < 500ms" class="w-full p-2 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none"/>
+                  </div>
+
+                  <div>
+                    <label class="block font-semibold text-secondary mb-1">Fuente de Datos</label>
+                    <input type="text" id="editDataSource" value="${dataSourceVal}" placeholder="ej. Excel Nómina + API n8n" class="w-full p-2 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none"/>
+                  </div>
+
+                  <div>
+                    <label class="block font-semibold text-secondary mb-1">Estado de Despliegue</label>
+                    <select id="editDeploymentStatus" class="w-full p-2 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none">
+                      <option value="En diseño" ${statusVal === 'En diseño' ? 'selected' : ''}>En diseño</option>
+                      <option value="Prueba de Concepto (PoC)" ${statusVal === 'Prueba de Concepto (PoC)' ? 'selected' : ''}>Prueba de Concepto (PoC)</option>
+                      <option value="MVP Operativo" ${statusVal === 'MVP Operativo' ? 'selected' : ''}>MVP Operativo</option>
+                      <option value="En producción" ${statusVal === 'En producción' ? 'selected' : ''}>En producción</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div class="flex justify-end gap-2 pt-2">
                 <button type="button" id="cancelEditBtn" class="px-4 py-2 bg-surface-container text-secondary font-semibold text-xs rounded-lg hover:bg-surface-container-high">Cancelar</button>
                 <button type="submit" class="px-5 py-2 bg-primary text-white font-semibold text-xs rounded-lg hover:bg-primary-container">Guardar Cambios</button>
@@ -501,12 +613,15 @@ function getDetailHtml(demo) {
         </div>
       ` : ''}
 
-      <!-- MODAL 2: Attach Evidence Image (Participant Only) -->
+      <!-- MODAL 2: Attach Evidence File with Live Preview -->
       ${userIsOwner ? `
         <div id="addImageModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
           <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
             <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
-              <h3 class="font-bold text-lg text-on-surface">Cargar Imagen de Evidencia</h3>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-xl">upload_file</span>
+                <h3 class="font-bold text-lg text-on-surface">Cargar Evidencia / Archivo</h3>
+              </div>
               <button id="closeImageModalBtn" class="text-secondary hover:text-primary">
                 <span class="material-symbols-outlined">close</span>
               </button>
@@ -516,36 +631,73 @@ function getDetailHtml(demo) {
               
               <!-- Local File Picker Option -->
               <div>
-                <label class="block font-semibold text-xs text-secondary mb-1">Seleccionar archivo de imagen local</label>
-                <input type="file" id="imageFileInput" accept="image/*" class="w-full p-2 border border-surface-container rounded-lg text-xs bg-surface-container-low"/>
+                <label class="block font-semibold text-xs text-secondary mb-1">Seleccionar archivo (Imágenes, PDF, Documentos)</label>
+                <input type="file" id="imageFileInput" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" class="w-full p-2 border border-surface-container rounded-lg text-xs bg-surface-container-low cursor-pointer"/>
               </div>
 
-              <div class="text-center text-xs text-secondary font-bold">O introduce una URL de imagen</div>
+              <div class="text-center text-xs text-secondary font-bold">O introduce una URL de archivo / imagen</div>
 
               <div>
-                <label class="block font-semibold text-xs text-secondary mb-1">URL de la Imagen</label>
+                <label class="block font-semibold text-xs text-secondary mb-1">URL de la Imagen o Documento</label>
                 <input type="url" id="imageUrlInput" placeholder="https://..." class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none"/>
+              </div>
+
+              <!-- Live Preview Box (Vista Previa en Vivo) -->
+              <div id="filePreviewBox" class="hidden p-3 bg-surface-bright rounded-xl border border-dashed border-primary/40 space-y-2">
+                <div class="flex items-center justify-between text-xs font-bold text-primary">
+                  <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">visibility</span> Vista Previa:</span>
+                  <span id="previewFileInfo" class="text-[10px] text-secondary"></span>
+                </div>
+                <div id="previewMediaContainer" class="flex items-center justify-center min-h-[100px] bg-white rounded-lg overflow-hidden border border-surface-container">
+                  <!-- Dynamic preview rendered by JS -->
+                </div>
               </div>
 
               <div>
                 <label class="block font-semibold text-xs text-secondary mb-1">Pie de foto / Descripción para el Jurado</label>
-                <input type="text" id="imageCaptionInput" placeholder="ej. Diagrama de flujo de datos en tiempo real..." class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none"/>
+                <input type="text" id="imageCaptionInput" placeholder="ej. Pruebas de ejecución del modelo / Documento PDF de evidencia..." class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none"/>
               </div>
 
               <div class="flex justify-end gap-2 pt-2">
                 <button type="button" id="cancelImageBtn" class="px-4 py-2 bg-surface-container text-secondary font-semibold text-xs rounded-lg hover:bg-surface-container-high">Cancelar</button>
-                <button type="submit" class="px-5 py-2 bg-primary text-white font-semibold text-xs rounded-lg hover:bg-primary-container">Subir Imagen</button>
+                <button type="submit" class="px-5 py-2 bg-primary text-white font-semibold text-xs rounded-lg hover:bg-primary-container flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">cloud_upload</span> Subir Evidencia
+                </button>
               </div>
             </form>
           </div>
         </div>
       ` : ''}
 
+      <!-- MODAL 3: Lightbox Preview Modal for Images and Documents -->
+      <div id="lightboxModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-3xl w-full p-6 space-y-4 shadow-2xl overflow-hidden animate-fadeIn relative">
+          <button id="closeLightboxBtn" class="absolute top-4 right-4 p-2 bg-surface-container text-secondary hover:text-on-surface rounded-full">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+          
+          <h3 id="lightboxTitle" class="font-bold text-lg text-on-surface pr-8">Vista Previa de Evidencia</h3>
+
+          <div id="lightboxContent" class="flex items-center justify-center bg-black/5 rounded-xl min-h-[300px] max-h-[70vh] overflow-auto p-4">
+            <!-- Dynamic Content -->
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-secondary border-t border-surface-container-high pt-3">
+            <span id="lightboxCaption" class="italic font-medium text-on-surface"></span>
+            <a id="lightboxDownloadBtn" href="#" target="_blank" download class="px-3 py-1.5 bg-primary text-white font-bold rounded-lg hover:bg-primary-container flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">download</span> Abrir / Descargar
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
   `;
 }
 
 function attachDetailEventListeners(demoId) {
+  const demo = getDemoById(demoId);
+
   // Range sliders live value update
   const calculateTotal = () => {
     const impact = parseInt(document.getElementById('scoreImpact')?.value || 0);
@@ -573,29 +725,28 @@ function attachDetailEventListeners(demoId) {
     judgeForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const scores = {
-        impact: parseInt(document.getElementById('scoreImpact').value),
-        viability: parseInt(document.getElementById('scoreViab').value),
-        innovation: parseInt(document.getElementById('scoreInnov').value),
-        pitch: parseInt(document.getElementById('scorePitch').value)
+        impact: document.getElementById('scoreImpact').value,
+        viability: document.getElementById('scoreViab').value,
+        innovation: document.getElementById('scoreInnov').value,
+        pitch: document.getElementById('scorePitch').value
       };
       const feedback = document.getElementById('judgeFeedbackInput').value;
 
       if (submitJudgeEvaluation(demoId, scores, feedback, true)) {
-        alert('Evaluación emitida y confirmada exitosamente.');
+        alert('¡Calificación guardada y confirmada con éxito!');
         const app = document.getElementById('app');
         if (app) app.innerHTML = renderDetailView(demoId);
       }
     });
   }
 
-  // Judge Confirm Button
+  // Judge Confirm Evaluation buttons
   document.querySelectorAll('.confirm-eval-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const demoIdToConfirm = e.currentTarget.dataset.confirmEvalDemoId;
-      if (confirmJudgeEvaluation(demoIdToConfirm)) {
-        alert('Evaluación confirmada oficialmente.');
+    btn.addEventListener('click', () => {
+      if (confirmJudgeEvaluation(demoId)) {
+        alert('¡Calificación del jurado confirmada!');
         const app = document.getElementById('app');
-        if (app) app.innerHTML = renderDetailView(demoIdToConfirm);
+        if (app) app.innerHTML = renderDetailView(demoId);
       }
     });
   });
@@ -604,14 +755,10 @@ function attachDetailEventListeners(demoId) {
   const likeBtn = document.getElementById('likeBtn');
   if (likeBtn) {
     likeBtn.addEventListener('click', () => {
-      const demo = getDemoById(demoId);
-      if (demo) {
-        demo.likes = (demo.likes || 0) + 1;
-        demo.realLikes = demo.likes;
-        updateDemo(demo.id, { likes: demo.likes, realLikes: demo.likes });
-        const countSpan = document.getElementById('likeCount');
-        if (countSpan) countSpan.innerText = demo.likes;
-      }
+      if (!demo.likes) demo.likes = 0;
+      demo.likes++;
+      const app = document.getElementById('app');
+      if (app) app.innerHTML = renderDetailView(demoId);
     });
   }
 
@@ -624,30 +771,30 @@ function attachDetailEventListeners(demoId) {
     });
   }
 
-  // Comment Posting
+  // Comment submission
   const postCommentBtn = document.getElementById('postCommentBtn');
   if (postCommentBtn) {
     postCommentBtn.addEventListener('click', () => {
       const input = document.getElementById('commentInput');
-      if (input && input.value.trim() !== '') {
-        addCommentToDemo(demoId, input.value);
+      if (input && input.value.trim()) {
+        addCommentToDemo(demoId, input.value.trim());
         const app = document.getElementById('app');
         if (app) app.innerHTML = renderDetailView(demoId);
       }
     });
   }
 
-  // Comment Editing & Deleting
+  // Edit & Delete Comment buttons
   document.querySelectorAll('.edit-comment-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const commentId = e.currentTarget.dataset.editCommentId;
       const card = document.querySelector(`[data-comment-id="${commentId}"]`);
       if (card) {
         const textP = card.querySelector('.comment-text-p');
-        const form = card.querySelector('.edit-comment-form');
-        if (textP && form) {
+        const editForm = card.querySelector('.edit-comment-form');
+        if (textP && editForm) {
           textP.classList.add('hidden');
-          form.classList.remove('hidden');
+          editForm.classList.remove('hidden');
         }
       }
     });
@@ -655,14 +802,12 @@ function attachDetailEventListeners(demoId) {
 
   document.querySelectorAll('.cancel-edit-comment-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const card = e.currentTarget.closest('[data-comment-id]');
-      if (card) {
-        const textP = card.querySelector('.comment-text-p');
-        const form = card.querySelector('.edit-comment-form');
-        if (textP && form) {
-          form.classList.add('hidden');
-          textP.classList.remove('hidden');
-        }
+      const form = e.currentTarget.closest('.edit-comment-form');
+      if (form) {
+        const card = form.closest('[data-comment-id]');
+        const textP = card ? card.querySelector('.comment-text-p') : null;
+        form.classList.add('hidden');
+        if (textP) textP.classList.remove('hidden');
       }
     });
   });
@@ -670,12 +815,23 @@ function attachDetailEventListeners(demoId) {
   document.querySelectorAll('.edit-comment-form').forEach(form => {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const commentId = form.dataset.commentId;
-      const input = form.querySelector('.edit-comment-input');
-      if (input && input.value.trim() !== '') {
+      const commentId = e.currentTarget.dataset.commentId;
+      const input = e.currentTarget.querySelector('.edit-comment-input');
+      if (input && input.value.trim()) {
         editCommentInDemo(demoId, commentId, input.value.trim());
         const app = document.getElementById('app');
         if (app) app.innerHTML = renderDetailView(demoId);
+      }
+    });
+  });
+
+  document.querySelectorAll('.edit-my-eval-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const form = document.getElementById('judgeEvalForm');
+      if (form) {
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const feedbackElem = document.getElementById('judgeFeedbackInput');
+        if (feedbackElem) feedbackElem.focus();
       }
     });
   });
@@ -691,11 +847,22 @@ function attachDetailEventListeners(demoId) {
     });
   });
 
-  // Edit Modal controls
+  // Edit Modal controls (Project & Tech Specs)
   const openEditBtn = document.getElementById('openEditModalBtn');
   const editModal = document.getElementById('editProjectModal');
   const closeEditBtn = document.getElementById('closeEditModalBtn');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+  const openSpecsBtns = document.querySelectorAll('.open-edit-specs-btn');
+  openSpecsBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (editModal) {
+        editModal.classList.remove('hidden');
+        const specField = document.getElementById('editModelBase');
+        if (specField) specField.focus();
+      }
+    });
+  });
 
   if (openEditBtn && editModal) {
     openEditBtn.addEventListener('click', () => editModal.classList.remove('hidden'));
@@ -713,7 +880,11 @@ function attachDetailEventListeners(demoId) {
           description: document.getElementById('editDescription').value,
           problemStatement: document.getElementById('editProblem').value,
           impactMetrics: document.getElementById('editMetrics').value,
-          videoUrl: document.getElementById('editVideo').value
+          videoUrl: document.getElementById('editVideo').value,
+          modelBase: document.getElementById('editModelBase')?.value || 'N/A',
+          latency: document.getElementById('editLatency')?.value || 'N/A',
+          dataSource: document.getElementById('editDataSource')?.value || 'N/A',
+          deploymentStatus: document.getElementById('editDeploymentStatus')?.value || 'En diseño'
         };
         updateDemo(demoId, updated);
         const app = document.getElementById('app');
@@ -722,7 +893,7 @@ function attachDetailEventListeners(demoId) {
     }
   }
 
-  // Image Modal controls
+  // Image & File Modal controls
   const openImgBtn1 = document.getElementById('openImageModalBtn');
   const openImgBtn2 = document.getElementById('openImageModalBtn2');
   const imgModal = document.getElementById('addImageModal');
@@ -737,37 +908,134 @@ function attachDetailEventListeners(demoId) {
   if (closeImgBtn) closeImgBtn.addEventListener('click', hideImgModal);
   if (cancelImgBtn) cancelImgBtn.addEventListener('click', hideImgModal);
 
+  // Live File Preview Listener for Upload Modal
+  const fileInput = document.getElementById('imageFileInput');
+  const urlInput = document.getElementById('imageUrlInput');
+  const previewBox = document.getElementById('filePreviewBox');
+  const previewContainer = document.getElementById('previewMediaContainer');
+  const previewInfo = document.getElementById('previewFileInfo');
+
+  const updateLivePreview = () => {
+    if (!previewBox || !previewContainer) return;
+
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      const file = fileInput.files[0];
+      const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+      if (previewInfo) previewInfo.innerText = `${file.name} (${fileSize})`;
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          previewContainer.innerHTML = `<img src="${e.target.result}" class="max-h-48 object-contain rounded"/>`;
+          previewBox.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewContainer.innerHTML = `
+          <div class="p-4 text-center space-y-2">
+            <span class="material-symbols-outlined text-4xl text-primary">description</span>
+            <p class="font-bold text-xs text-on-surface">${file.name}</p>
+            <span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded">${file.type || 'Documento'}</span>
+          </div>
+        `;
+        previewBox.classList.remove('hidden');
+      }
+    } else if (urlInput && urlInput.value.trim()) {
+      const url = urlInput.value.trim();
+      if (previewInfo) previewInfo.innerText = 'Vista previa de URL';
+      previewContainer.innerHTML = `<img src="${url}" class="max-h-48 object-contain rounded" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-4 text-center text-xs text-secondary\\'><span class=\\'material-symbols-outlined text-3xl block text-primary\\'>link</span> Archivo / Enlace listo</div>';"/>`;
+      previewBox.classList.remove('hidden');
+    } else {
+      previewBox.classList.add('hidden');
+    }
+  };
+
+  if (fileInput) fileInput.addEventListener('change', updateLivePreview);
+  if (urlInput) urlInput.addEventListener('input', updateLivePreview);
+
   const addImgForm = document.getElementById('addImageForm');
   if (addImgForm) {
     addImgForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const fileInput = document.getElementById('imageFileInput');
-      const urlInput = document.getElementById('imageUrlInput').value.trim();
-      const caption = document.getElementById('imageCaptionInput').value.trim();
+      const urlInput = document.getElementById('imageUrlInput')?.value.trim();
+      const caption = document.getElementById('imageCaptionInput')?.value.trim();
 
-      if (fileInput.files && fileInput.files[0]) {
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+        const fileType = file.type.startsWith('image/') ? 'image' : 'document';
         const reader = new FileReader();
         reader.onload = (event) => {
-          addDemoImage(demoId, event.target.result, caption);
+          addDemoImage(demoId, event.target.result, caption, file.name, fileSize, fileType);
           const app = document.getElementById('app');
           if (app) app.innerHTML = renderDetailView(demoId);
         };
-        reader.readAsDataURL(fileInput.files[0]);
+        reader.readAsDataURL(file);
       } else if (urlInput) {
-        addDemoImage(demoId, urlInput, caption);
+        addDemoImage(demoId, urlInput, caption, 'Enlace de Evidencia', '', 'image');
         const app = document.getElementById('app');
         if (app) app.innerHTML = renderDetailView(demoId);
       }
     });
   }
 
-  // Image Delete Buttons
-  document.querySelectorAll('.del-img-btn').forEach(btn => {
+  // Remove Image/File button
+  document.querySelectorAll('.remove-img-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const idx = parseInt(e.currentTarget.dataset.delImg, 10);
-      removeDemoImage(demoId, idx);
-      const app = document.getElementById('app');
-      if (app) app.innerHTML = renderDetailView(demoId);
+      const idx = parseInt(e.currentTarget.dataset.removeImgIdx);
+      if (confirm('¿Deseas eliminar este archivo de evidencia?')) {
+        removeDemoImage(demoId, idx);
+        const app = document.getElementById('app');
+        if (app) app.innerHTML = renderDetailView(demoId);
+      }
+    });
+  });
+
+  // Lightbox Preview Modal logic
+  const lightboxModal = document.getElementById('lightboxModal');
+  const lightboxTitle = document.getElementById('lightboxTitle');
+  const lightboxContent = document.getElementById('lightboxContent');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+  const lightboxDownloadBtn = document.getElementById('lightboxDownloadBtn');
+  const closeLightboxBtn = document.getElementById('closeLightboxBtn');
+
+  if (closeLightboxBtn && lightboxModal) {
+    closeLightboxBtn.addEventListener('click', () => lightboxModal.classList.add('hidden'));
+  }
+
+  document.querySelectorAll('.preview-item-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const idx = parseInt(e.currentTarget.dataset.previewIdx);
+      const item = demo.images ? demo.images[idx] : null;
+      if (!item || !lightboxModal) return;
+
+      if (lightboxTitle) lightboxTitle.innerText = item.name || item.caption || 'Vista Previa de Evidencia';
+      if (lightboxCaption) lightboxCaption.innerText = item.caption || item.name || '';
+      if (lightboxDownloadBtn) {
+        lightboxDownloadBtn.href = item.url;
+        lightboxDownloadBtn.download = item.name || 'evidencia';
+      }
+
+      const isDoc = item.type === 'document' || (!item.url.startsWith('data:image') && !item.url.match(/\.(jpeg|jpg|gif|png|webp|svg)/i));
+      if (isDoc) {
+        lightboxContent.innerHTML = `
+          <div class="p-8 text-center space-y-4">
+            <span class="material-symbols-outlined text-6xl text-primary">description</span>
+            <div>
+              <h4 class="font-bold text-base text-on-surface">${item.name || 'Documento de Evidencia'}</h4>
+              <p class="text-xs text-secondary">${item.size ? item.size : ''}</p>
+            </div>
+            <a href="${item.url}" target="_blank" download class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-container text-xs transition-all shadow">
+              <span class="material-symbols-outlined text-sm">download</span> Descargar / Ver Documento
+            </a>
+          </div>
+        `;
+      } else {
+        lightboxContent.innerHTML = `<img src="${item.url}" alt="${item.caption}" class="max-h-[65vh] object-contain rounded-lg shadow"/>`;
+      }
+
+      lightboxModal.classList.remove('hidden');
     });
   });
 }
