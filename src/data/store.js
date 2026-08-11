@@ -1030,14 +1030,14 @@ if (isFirebaseConfigured()) {
         updatedDemos.push({
           ...merged,
           videoUrl: formatYoutubeEmbedUrl(
-            localDemo?.videoUrl !== undefined ? localDemo.videoUrl : 
-            (cloudDemo?.videoUrl !== undefined ? cloudDemo.videoUrl : defDemo?.videoUrl)
+            cloudDemo?.videoUrl !== undefined && cloudDemo.videoUrl !== '' ? cloudDemo.videoUrl : 
+            (localDemo?.videoUrl !== undefined ? localDemo.videoUrl : defDemo?.videoUrl || '')
           ),
-          images: (localDemo?.images && localDemo.images.length > 0) ? localDemo.images : (cloudDemo?.images || defDemo?.images || []),
-          evaluations: (localDemo?.evaluations && localDemo.evaluations.length > 0) ? localDemo.evaluations : (cloudDemo?.evaluations || defDemo?.evaluations || []),
-          likes: (localDemo?.likes !== undefined) ? localDemo.likes : (cloudDemo?.realLikes || defDemo?.likes || 0),
-          realLikes: (localDemo?.realLikes !== undefined) ? localDemo.realLikes : (cloudDemo?.realLikes || defDemo?.likes || 0),
-          comments: (localDemo?.comments && localDemo.comments.length > 0) ? localDemo.comments : (cloudDemo?.comments || defDemo?.comments || [])
+          images: (cloudDemo?.images && cloudDemo.images.length > 0) ? cloudDemo.images : (localDemo?.images || defDemo?.images || []),
+          evaluations: (cloudDemo?.evaluations && cloudDemo.evaluations.length > 0) ? cloudDemo.evaluations : (localDemo?.evaluations || defDemo?.evaluations || []),
+          likes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (localDemo?.likes || defDemo?.likes || 0),
+          realLikes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (localDemo?.realLikes || defDemo?.likes || 0),
+          comments: (cloudDemo?.comments && cloudDemo.comments.length > 0) ? cloudDemo.comments : (localDemo?.comments || defDemo?.comments || [])
         });
       }
     });
@@ -1129,17 +1129,61 @@ export function addCommentToDemo(demoId, commentText) {
     const newComment = {
       id: 'c-' + Date.now(),
       author: state.currentUser.name,
+      authorId: state.currentUser.id,
       avatar: state.currentUser.avatar,
       role: state.currentUser.roleTitle || state.currentUser.role,
       date: 'Justo ahora',
       text: commentText.trim()
     };
+    if (!demo.comments) demo.comments = [];
     demo.comments.push(newComment);
     saveState();
     if (isFirebaseConfigured()) {
       setDoc(doc(db, 'demos', String(demoId)), { comments: demo.comments }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
     }
   }
+}
+
+export function editCommentInDemo(demoId, commentId, newText) {
+  const demo = getDemoById(demoId);
+  if (!demo || !newText.trim() || !state.currentUser) return false;
+
+  if (!demo.comments) demo.comments = [];
+  const comment = demo.comments.find(c => c.id === commentId);
+  if (!comment) return false;
+
+  const isAuthor = comment.authorId ? (comment.authorId === state.currentUser.id) : (comment.author === state.currentUser.name);
+  if (!isAuthor && !isAdmin()) return false;
+
+  comment.text = newText.trim();
+  comment.date = 'Editado recientemente';
+
+  saveState();
+  if (isFirebaseConfigured()) {
+    setDoc(doc(db, 'demos', String(demoId)), { comments: demo.comments }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+  }
+  return true;
+}
+
+export function deleteCommentFromDemo(demoId, commentId) {
+  const demo = getDemoById(demoId);
+  if (!demo || !state.currentUser) return false;
+
+  if (!demo.comments) demo.comments = [];
+  const idx = demo.comments.findIndex(c => c.id === commentId);
+  if (idx === -1) return false;
+
+  const comment = demo.comments[idx];
+  const isAuthor = comment.authorId ? (comment.authorId === state.currentUser.id) : (comment.author === state.currentUser.name);
+  if (!isAuthor && !isAdmin()) return false;
+
+  demo.comments.splice(idx, 1);
+
+  saveState();
+  if (isFirebaseConfigured()) {
+    setDoc(doc(db, 'demos', String(demoId)), { comments: demo.comments }, { merge: true }).catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al guardar en la nube: ' + e.message); });
+  }
+  return true;
 }
 
 export function formatYoutubeEmbedUrl(url) {

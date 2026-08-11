@@ -11,6 +11,8 @@ import {
   removeDemoImage,
   submitJudgeEvaluation, 
   addCommentToDemo, 
+  editCommentInDemo,
+  deleteCommentFromDemo,
   isFavorite, 
   toggleFavorite,
   formatYoutubeEmbedUrl,
@@ -223,15 +225,37 @@ function getDetailHtml(demo) {
               </div>
 
               <div class="space-y-3 pt-2">
-                ${demo.comments.map(c => `
-                  <div class="p-4 bg-surface-bright rounded-lg border border-surface-container-high space-y-1">
-                    <div class="flex items-center justify-between">
-                      <span class="font-bold text-xs text-on-surface">${c.author} <span class="font-normal text-secondary">(${c.role})</span></span>
-                      <span class="text-[10px] text-secondary">${c.date}</span>
+                ${(demo.comments || []).map(c => {
+                  const canEdit = activeUser && (c.authorId === activeUser.id || c.author === activeUser.name || isAdmin());
+                  return `
+                    <div class="p-4 bg-surface-bright rounded-lg border border-surface-container-high space-y-2" data-comment-id="${c.id}">
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-xs text-on-surface">${c.author} <span class="font-normal text-secondary">(${c.role})</span></span>
+                        <div class="flex items-center gap-2">
+                          <span class="text-[10px] text-secondary">${c.date}</span>
+                          ${canEdit ? `
+                            <button data-edit-comment-id="${c.id}" class="edit-comment-btn text-xs text-primary hover:underline flex items-center gap-0.5">
+                              <span class="material-symbols-outlined text-xs">edit</span> Editar
+                            </button>
+                            <button data-del-comment-id="${c.id}" class="del-comment-btn text-xs text-error hover:underline flex items-center gap-0.5">
+                              <span class="material-symbols-outlined text-xs">delete</span>
+                            </button>
+                          ` : ''}
+                        </div>
+                      </div>
+                      <p class="comment-text-p text-xs text-on-surface">${c.text}</p>
+                      
+                      <!-- Hidden Inline Edit Form -->
+                      <form class="edit-comment-form hidden space-y-2 text-xs pt-1" data-comment-id="${c.id}">
+                        <textarea class="edit-comment-input w-full p-2 bg-white rounded border border-surface-container text-xs focus:outline-none focus:border-primary" rows="2" required>${c.text}</textarea>
+                        <div class="flex justify-end gap-2">
+                          <button type="button" class="cancel-edit-comment-btn px-2.5 py-1 bg-surface-container text-secondary font-semibold text-xs rounded hover:bg-surface-container-high">Cancelar</button>
+                          <button type="submit" class="px-3 py-1 bg-primary text-white font-semibold text-xs rounded hover:bg-primary-container">Guardar</button>
+                        </div>
+                      </form>
                     </div>
-                    <p class="text-xs text-on-surface">${c.text}</p>
-                  </div>
-                `).join('')}
+                  `;
+                }).join('')}
               </div>
             </div>
 
@@ -550,6 +574,60 @@ function attachDetailEventListeners(demoId) {
       }
     });
   }
+
+  // Comment Editing & Deleting
+  document.querySelectorAll('.edit-comment-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const commentId = e.currentTarget.dataset.editCommentId;
+      const card = document.querySelector(`[data-comment-id="${commentId}"]`);
+      if (card) {
+        const textP = card.querySelector('.comment-text-p');
+        const form = card.querySelector('.edit-comment-form');
+        if (textP && form) {
+          textP.classList.add('hidden');
+          form.classList.remove('hidden');
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll('.cancel-edit-comment-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const card = e.currentTarget.closest('[data-comment-id]');
+      if (card) {
+        const textP = card.querySelector('.comment-text-p');
+        const form = card.querySelector('.edit-comment-form');
+        if (textP && form) {
+          form.classList.add('hidden');
+          textP.classList.remove('hidden');
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll('.edit-comment-form').forEach(form => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const commentId = form.dataset.commentId;
+      const input = form.querySelector('.edit-comment-input');
+      if (input && input.value.trim() !== '') {
+        editCommentInDemo(demoId, commentId, input.value.trim());
+        const app = document.getElementById('app');
+        if (app) app.innerHTML = renderDetailView(demoId);
+      }
+    });
+  });
+
+  document.querySelectorAll('.del-comment-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const commentId = e.currentTarget.dataset.delCommentId;
+      if (confirm('¿Estás seguro de eliminar este comentario?')) {
+        deleteCommentFromDemo(demoId, commentId);
+        const app = document.getElementById('app');
+        if (app) app.innerHTML = renderDetailView(demoId);
+      }
+    });
+  });
 
   // Edit Modal controls
   const openEditBtn = document.getElementById('openEditModalBtn');
