@@ -1242,6 +1242,28 @@ export function updateDemo(demoId, data) {
   if (data.realLikes !== undefined) demo.realLikes = data.realLikes;
   demo.isDeleted = false;
 
+  // Technical Specs Sheet Support
+  if (!demo.specs) demo.specs = {};
+  if (data.modelBase !== undefined || data.modelType !== undefined) {
+    const val = data.modelBase !== undefined ? data.modelBase : data.modelType;
+    demo.specs.modelType = val;
+    demo.modelBase = val;
+  }
+  if (data.latency !== undefined) {
+    demo.specs.latency = data.latency;
+    demo.latency = data.latency;
+  }
+  if (data.dataSource !== undefined || data.dataSources !== undefined) {
+    const val = data.dataSource !== undefined ? data.dataSource : data.dataSources;
+    demo.specs.dataSources = val;
+    demo.dataSource = val;
+  }
+  if (data.deploymentStatus !== undefined || data.status !== undefined) {
+    const val = data.deploymentStatus !== undefined ? data.deploymentStatus : data.status;
+    demo.specs.status = val;
+    demo.deploymentStatus = val;
+  }
+
   if (state.deletedDemoIds) {
     const strId = String(demoId);
     const idx = state.deletedDemoIds.indexOf(strId);
@@ -1259,14 +1281,19 @@ export function updateDemoVideoUrl(demoId, videoUrl) {
   return updateDemo(demoId, { videoUrl });
 }
 
-export function addDemoImage(demoId, imageUrl, caption) {
+export function addDemoImage(demoId, imageUrl, caption, fileName = '', fileSize = '', fileType = '') {
   const demo = getDemoById(demoId);
   if (!demo || (!isOwner(demo) && !isAdmin())) return false;
   
   if (!demo.images) demo.images = [];
+  const isImg = fileType === 'image' || (!fileType && (imageUrl.startsWith('data:image') || imageUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)/i)));
   const imgObj = {
     url: imageUrl,
-    caption: caption || 'Evidencia cargada por el participante'
+    caption: caption || fileName || 'Evidencia cargada por el participante',
+    name: fileName || 'Archivo de Evidencia',
+    size: fileSize || '',
+    type: isImg ? 'image' : 'document',
+    date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
   };
   demo.images.push(imgObj);
   saveState();
