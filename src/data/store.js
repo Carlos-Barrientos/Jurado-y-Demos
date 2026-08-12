@@ -966,8 +966,8 @@ if (isFirebaseConfigured()) {
       if (cloudUser || localUser || defUser) {
         updatedUsers.push({
           ...(defUser || {}),
-          ...(cloudUser || {}),
-          ...(localUser || {})
+          ...(localUser || {}),
+          ...(cloudUser || {})
         });
       }
     });
@@ -1024,8 +1024,8 @@ if (isFirebaseConfigured()) {
       if (cloudDemo || localDemo || defDemo) {
         const merged = {
           ...(defDemo || {}),
-          ...(cloudDemo || {}),
-          ...(localDemo || {})
+          ...(localDemo || {}),
+          ...(cloudDemo || {})
         };
         updatedDemos.push({
           ...merged,
@@ -1033,11 +1033,11 @@ if (isFirebaseConfigured()) {
             cloudDemo?.videoUrl !== undefined && cloudDemo.videoUrl !== '' ? cloudDemo.videoUrl : 
             (localDemo?.videoUrl !== undefined ? localDemo.videoUrl : defDemo?.videoUrl || '')
           ),
-          images: (cloudDemo?.images && cloudDemo.images.length > 0) ? cloudDemo.images : (localDemo?.images || defDemo?.images || []),
-          evaluations: (cloudDemo?.evaluations && cloudDemo.evaluations.length > 0) ? cloudDemo.evaluations : (localDemo?.evaluations || defDemo?.evaluations || []),
-          likes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (localDemo?.likes || defDemo?.likes || 0),
+          images: (cloudDemo?.images !== undefined) ? cloudDemo.images : (localDemo?.images || defDemo?.images || []),
+          evaluations: (cloudDemo?.evaluations !== undefined) ? cloudDemo.evaluations : (localDemo?.evaluations || defDemo?.evaluations || []),
+          likes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (cloudDemo?.likes !== undefined ? cloudDemo.likes : (localDemo?.likes || defDemo?.likes || 0)),
           realLikes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (localDemo?.realLikes || defDemo?.likes || 0),
-          comments: (cloudDemo?.comments && cloudDemo.comments.length > 0) ? cloudDemo.comments : (localDemo?.comments || defDemo?.comments || [])
+          comments: (cloudDemo?.comments !== undefined) ? cloudDemo.comments : (localDemo?.comments || defDemo?.comments || [])
         });
       }
     });
@@ -1252,12 +1252,12 @@ export function updateDemo(demoId, data) {
   const demo = getDemoById(demoId);
   if (!demo || (!isOwner(demo) && !isAdmin())) return false;
 
-  if (data.title) demo.title = data.title;
-  if (data.subtitle) demo.subtitle = data.subtitle;
-  if (data.description) demo.description = data.description;
-  if (data.category) demo.category = data.category;
-  if (data.problemStatement) demo.problemStatement = data.problemStatement;
-  if (data.impactMetrics) demo.impactMetrics = data.impactMetrics;
+  if (data.title !== undefined) demo.title = data.title;
+  if (data.subtitle !== undefined) demo.subtitle = data.subtitle;
+  if (data.description !== undefined) demo.description = data.description;
+  if (data.category !== undefined) demo.category = data.category;
+  if (data.problemStatement !== undefined) demo.problemStatement = data.problemStatement;
+  if (data.impactMetrics !== undefined) demo.impactMetrics = data.impactMetrics;
   if (data.videoUrl !== undefined) demo.videoUrl = formatYoutubeEmbedUrl(data.videoUrl);
   if (data.likes !== undefined) demo.likes = data.likes;
   if (data.realLikes !== undefined) demo.realLikes = data.realLikes;
