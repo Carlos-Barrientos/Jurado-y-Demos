@@ -1215,6 +1215,13 @@ export function formatYoutubeEmbedUrl(url) {
   if (!url) return '';
   url = url.trim();
   
+  // Facebook Videos & Reels & fb.watch
+  if (url.includes('facebook.com') || url.includes('fb.watch')) {
+    if (url.includes('facebook.com/plugins/video.php')) return url;
+    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`;
+  }
+
+  // YouTube
   if (url.includes('youtube.com/embed/')) {
     return url;
   }
@@ -1223,9 +1230,23 @@ export function formatYoutubeEmbedUrl(url) {
   if (watchMatch && watchMatch[1]) {
     return `https://www.youtube.com/embed/${watchMatch[1]}`;
   }
+
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeoMatch && vimeoMatch[1]) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+
+  // Loom
+  const loomMatch = url.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/);
+  if (loomMatch && loomMatch[1]) {
+    return `https://www.loom.com/embed/${loomMatch[1]}`;
+  }
   
   return url;
 }
+
+export const formatVideoEmbedUrl = formatYoutubeEmbedUrl;
 
 export function updateDemo(demoId, data) {
   const demo = getDemoById(demoId);

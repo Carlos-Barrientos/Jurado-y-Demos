@@ -1,5 +1,4 @@
-// View 2: Detalle de Demo (with Participant Editing, Image Gallery & Judge Evaluation Panel)
-
+import { uploadFileToStorage } from '../data/firebase.js';
 import { 
   state, 
   getDemoById, 
@@ -953,25 +952,92 @@ function attachDetailEventListeners(demoId) {
   if (fileInput) fileInput.addEventListener('change', updateLivePreview);
   if (urlInput) urlInput.addEventListener('input', updateLivePreview);
 
+// Helper to optimize image fallback at high resolution (1080p/1920p 85% quality) without exceeding Firestore limit
+function compressImageHighQuality(file, maxDimension = 1920, quality = 0.85) {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.readAsDataURL(file);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
   const addImgForm = document.getElementById('addImageForm');
   if (addImgForm) {
-    addImgForm.addEventListener('submit', (e) => {
+    addImgForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fileInput = document.getElementById('imageFileInput');
       const urlInput = document.getElementById('imageUrlInput')?.value.trim();
       const caption = document.getElementById('imageCaptionInput')?.value.trim();
+      const submitBtn = addImgForm.querySelector('button[type="submit"]');
+      const origBtnText = submitBtn ? submitBtn.innerText : 'Guardar Evidencia';
 
       if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
         const fileSize = (file.size / 1024).toFixed(1) + ' KB';
         const fileType = file.type.startsWith('image/') ? 'image' : 'document';
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          addDemoImage(demoId, event.target.result, caption, file.name, fileSize, fileType);
-          const app = document.getElementById('app');
-          if (app) app.innerHTML = renderDetailView(demoId);
-        };
-        reader.readAsDataURL(file);
+        
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerText = 'Subiendo evidencia...';
+        }
+
+        try {
+          // 1. Try uploading original 100% uncompressed file to Firebase Cloud Storage
+          const cloudUrl = await uploadFileToStorage(file, `evidences/${demoId}/${Date.now()}_${file.name}`);
+          
+          if (cloudUrl) {
+            addDemoImage(demoId, cloudUrl, caption, file.name, fileSize, fileType);
+          } else {
+            // 2. High-quality balanced fallback if Cloud Storage is offline/unreachable
+            if (fileType === 'document' && file.size > 700 * 1024) {
+              alert('El documento PDF es superior a 700 KB. Por favor sube una versión de tamaño regular o comparte un enlace URL (Google Drive / OneDrive) para no exceder la capacidad del documento.');
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = origBtnText;
+              }
+              return;
+            }
+
+            const optimizedDataUrl = await compressImageHighQuality(file, 1920, 0.85);
+            addDemoImage(demoId, optimizedDataUrl, caption, file.name, fileSize, fileType);
+          }
+        } catch (err) {
+          console.error('Upload failed:', err);
+          alert('Error al procesar el archivo: ' + err.message);
+        }
+
+        const app = document.getElementById('app');
+        if (app) app.innerHTML = renderDetailView(demoId);
+
       } else if (urlInput) {
         addDemoImage(demoId, urlInput, caption, 'Enlace de Evidencia', '', 'image');
         const app = document.getElementById('app');

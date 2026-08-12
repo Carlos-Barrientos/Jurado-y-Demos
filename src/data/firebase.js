@@ -22,7 +22,7 @@ import {
   orderBy, 
   addDoc 
 } from 'firebase/firestore';
-import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, uploadString, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Official Firebase configuration for Reto IA Prosur
 export const firebaseConfig = {
@@ -46,6 +46,20 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
+// Helper to upload files to Cloud Storage and return public URL
+export async function uploadFileToStorage(file, path) {
+  if (!isFirebaseConfigured()) return null;
+  try {
+    const storageRef = ref(storage, path);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading file to Firebase Storage:', error);
+    return null;
+  }
+}
+
 export {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -65,5 +79,6 @@ export {
   addDoc,
   ref,
   uploadString,
+  uploadBytes,
   getDownloadURL
 };
