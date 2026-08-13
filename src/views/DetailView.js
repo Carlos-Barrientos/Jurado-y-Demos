@@ -20,17 +20,19 @@ import {
   companies
 } from '../data/store.js';
 
+let detailRenderToken = 0;
+
 export function renderDetailView(demoId) {
   const demo = getDemoById(demoId) || getDemoById(1);
   const current = state.currentUser;
-  
+
   if (current && current.roleType === 'judge' && !isAdmin() && !demo.readyForEvaluation) {
     return `
       <div class="max-w-[1440px] mx-auto px-4 py-16 text-center space-y-4">
         <span class="material-symbols-outlined text-5xl text-amber-600">lock_clock</span>
         <h2 class="text-2xl font-bold text-on-surface">Proyecto Pendiente de Presentación</h2>
         <p class="text-sm text-secondary max-w-md mx-auto leading-relaxed">
-          Este proyecto aún no ha sido dictaminado como <b>Presentado</b> por el Administrador. 
+          Este proyecto aún no ha sido dictaminado como <b>Presentado</b> por el Administrador.
           Como integrante del Jurado, únicamente puedes acceder y visualizar proyectos autorizados para evaluación.
         </p>
         <div class="pt-2">
@@ -42,7 +44,13 @@ export function renderDetailView(demoId) {
     `;
   }
 
-  setTimeout(() => attachDetailEventListeners(demo.id), 50);
+  // Firestore's realtime listener can trigger a second render (via 'state-updated')
+  // milliseconds after this one, e.g. right after an upload/delete calls setDoc.
+  // Only the attach scheduled by the LAST render wins, so listeners never stack on the same DOM.
+  const renderToken = ++detailRenderToken;
+  setTimeout(() => {
+    if (renderToken === detailRenderToken) attachDetailEventListeners(demo.id);
+  }, 50);
   return getDetailHtml(demo);
 }
 
