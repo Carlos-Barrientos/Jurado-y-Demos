@@ -94,8 +94,9 @@ function getDetailHtml(demo) {
           <span class="text-on-surface font-bold truncate max-w-[200px] sm:max-w-none">${demo.title}</span>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           ${userIsOwner ? `
+            <div id="googleCalendarBtnContainer" class="inline-flex items-center"></div>
             <button id="openEditModalBtn" class="px-3.5 py-1.5 bg-primary text-white font-semibold text-xs rounded-lg shadow hover:bg-primary-container transition-all flex items-center gap-1">
               <span class="material-symbols-outlined text-sm">edit</span> Editar Proyecto
             </button>
@@ -532,6 +533,25 @@ function getDetailHtml(demo) {
               </div>
             </div>
           </div>
+
+          <!-- Participant Appointment Scheduling Card (Exclusive for Project Owner / Participant) -->
+          ${userIsOwner ? `
+            <div class="bg-gradient-to-br from-rose-50 via-white to-red-50/50 p-6 rounded-2xl border border-red-200 shadow-sm space-y-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-red-600/10 text-red-600 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-xl">calendar_month</span>
+                </div>
+                <div>
+                  <h4 class="font-bold text-xs text-red-950">Asesoría y Acompañamiento</h4>
+                  <span class="text-[10px] font-semibold text-red-700 block">Exclusivo para integrantes del proyecto</span>
+                </div>
+              </div>
+              <p class="text-xs text-secondary leading-relaxed">
+                ¿Tienes dudas técnicas o requieres asesoría con el equipo del Reto IA? Programa una sesión personalizada aquí:
+              </p>
+              <div id="googleCalendarCardContainer" class="pt-1 flex items-center"></div>
+            </div>
+          ` : ''}
 
         </div>
 
@@ -1124,4 +1144,71 @@ function compressImageHighQuality(file, maxDimension = 1920, quality = 0.85) {
       lightboxModal.classList.remove('hidden');
     });
   });
+
+  // Initialize Google Calendar Appointment Scheduling Button for project participants
+  const isParticipantOrAdmin = isOwner(demo) || isAdmin();
+  if (isParticipantOrAdmin) {
+    initGoogleCalendarButton();
+  }
+}
+
+function initGoogleCalendarButton() {
+  const scheduleUrl = 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ1kGEyYSVMTM1_DhUhuQ_tIhECD6ahnD91HQ_IDrZFkEbLikWVSn0K--ZY0LpjfXmWbfn5-pWUM?gv=true';
+  const targets = [
+    document.getElementById('googleCalendarBtnContainer'),
+    document.getElementById('googleCalendarCardContainer')
+  ].filter(Boolean);
+
+  if (targets.length === 0) return;
+
+  const loadOnTarget = (targetEl) => {
+    if (!targetEl) return;
+    targetEl.innerHTML = '';
+    if (window.calendar && window.calendar.schedulingButton && typeof window.calendar.schedulingButton.load === 'function') {
+      try {
+        window.calendar.schedulingButton.load({
+          url: scheduleUrl,
+          color: '#D50000',
+          label: 'Programar una cita',
+          target: targetEl,
+        });
+      } catch (e) {
+        console.warn('Error loading Google Calendar scheduling button:', e);
+        renderFallbackCalendarBtn(targetEl, scheduleUrl);
+      }
+    } else {
+      renderFallbackCalendarBtn(targetEl, scheduleUrl);
+    }
+  };
+
+  const tryLoadAll = () => {
+    targets.forEach(t => loadOnTarget(t));
+  };
+
+  if (window.calendar && window.calendar.schedulingButton) {
+    tryLoadAll();
+  } else {
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if (window.calendar && window.calendar.schedulingButton) {
+        clearInterval(interval);
+        tryLoadAll();
+      } else if (attempts > 12) {
+        clearInterval(interval);
+        tryLoadAll();
+      }
+    }, 200);
+  }
+}
+
+function renderFallbackCalendarBtn(targetEl, url) {
+  if (!targetEl || targetEl.children.length > 0) return;
+  const btn = document.createElement('a');
+  btn.href = url;
+  btn.target = '_blank';
+  btn.rel = 'noopener noreferrer';
+  btn.className = 'px-3.5 py-1.5 bg-[#D50000] text-white font-semibold text-xs rounded-lg shadow hover:bg-red-700 transition-all inline-flex items-center gap-1.5';
+  btn.innerHTML = '<span class="material-symbols-outlined text-sm">calendar_month</span> Programar una cita';
+  targetEl.appendChild(btn);
 }
