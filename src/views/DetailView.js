@@ -17,6 +17,7 @@ import {
   isFavorite, 
   toggleFavorite,
   formatYoutubeEmbedUrl,
+  isDirectVideoFile,
   companies
 } from '../data/store.js';
 
@@ -59,7 +60,8 @@ function getDetailHtml(demo) {
   const userIsOwner = isOwner(demo) || isAdmin();
   const userIsJudge = isJudge();
   const activeUser = state.currentUser;
-  const formattedEmbed = formatYoutubeEmbedUrl(demo.videoUrl);
+  const isDirectVideo = isDirectVideoFile(demo.videoUrl);
+  const formattedEmbed = isDirectVideo ? '' : formatYoutubeEmbedUrl(demo.videoUrl);
   const iframeSrc = formattedEmbed ? (formattedEmbed.includes('?') ? `${formattedEmbed}&autoplay=0` : `${formattedEmbed}?autoplay=0`) : '';
 
   // Calculate judge evaluations average and check if active user evaluated
@@ -112,7 +114,17 @@ function getDetailHtml(demo) {
           
           <!-- Video Player Banner -->
           <div class="bg-black rounded-2xl overflow-hidden shadow-xl aspect-video relative group border border-surface-container-high">
-            ${iframeSrc ? `
+            ${isDirectVideo ? `
+              <video 
+                src="${demo.videoUrl}" 
+                controls 
+                playsinline 
+                preload="metadata"
+                class="w-full h-full object-contain bg-black"
+              >
+                Tu navegador no soporta la reproducción directa de video HTML5.
+              </video>
+            ` : iframeSrc ? `
               <iframe 
                 src="${iframeSrc}" 
                 title="${demo.title}"
@@ -573,8 +585,8 @@ function getDetailHtml(demo) {
               </div>
 
               <div>
-                <label class="block font-semibold text-xs text-secondary mb-1">Enlace de Video (YouTube Embed URL)</label>
-                <input type="url" id="editVideo" value="${demo.videoUrl}" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none" required/>
+                <label class="block font-semibold text-xs text-secondary mb-1">Enlace o Archivo de Video (YouTube, Google Drive o archivo local ej. /contaanalytics.mp4)</label>
+                <input type="text" id="editVideo" value="${demo.videoUrl || ''}" placeholder="https://www.youtube.com/... o /contaanalytics.mp4" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none text-xs font-mono"/>
               </div>
 
               <!-- Section: Ficha Técnica del Modelo -->

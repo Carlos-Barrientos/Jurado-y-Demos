@@ -107,7 +107,8 @@ export const rawTeamsData = [
     projectTitle: 'ContaAnalytics',
     problem: 'Grandes volúmenes de información financiera y operativa dispersos en múltiples archivos Excel/PDF entre sucursales, dificultando el análisis y retrasando reportes.',
     solution: 'ContaAnalytics: plataforma inteligente de análisis y visualización de datos que transforma automáticamente archivos de sucursales en dashboards ejecutivos, KPIs de inventarios, ventas, compras, gastos y costos.',
-    metrics: 'Reducción drástica del tiempo de consolidación financiera, eliminación de errores manuales y disponibilidad de datos 24/7 para toma de decisiones.'
+    metrics: 'Reducción drástica del tiempo de consolidación financiera, eliminación de errores manuales y disponibilidad de datos 24/7 para toma de decisiones.',
+    videoUrl: '/contaanalytics.mp4'
   },
   {
     name: 'OpTeam',
@@ -455,6 +456,7 @@ const defaultDemosList = rawTeamsData.map((t, idx) => ({
   rating: 0,
   duration: '3:30',
   thumbnail: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800',
+  videoUrl: t.videoUrl || '',
   
   specs: {
     modelType: 'Solución de IA Prosur',
@@ -1211,9 +1213,33 @@ export function deleteCommentFromDemo(demoId, commentId) {
   return true;
 }
 
+export function isDirectVideoFile(url) {
+  if (!url) return false;
+  const cleanUrl = url.split('?')[0].toLowerCase().trim();
+  return cleanUrl.endsWith('.mp4') || 
+         cleanUrl.endsWith('.webm') || 
+         cleanUrl.endsWith('.ogg') || 
+         cleanUrl.endsWith('.mov') ||
+         url.startsWith('/videos/') ||
+         (url.startsWith('/') && cleanUrl.endsWith('.mp4')) ||
+         url.startsWith('blob:') ||
+         url.startsWith('data:video/');
+}
+
 export function formatYoutubeEmbedUrl(url) {
   if (!url) return '';
   url = url.trim();
+
+  // If direct video file, return as is
+  if (isDirectVideoFile(url)) {
+    return url;
+  }
+
+  // Google Drive preview embed
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+  }
 
   // YouTube
   if (url.includes('youtube.com/embed/')) {

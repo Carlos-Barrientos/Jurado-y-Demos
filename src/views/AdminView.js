@@ -305,9 +305,9 @@ function getAdminHtml() {
             </div>
 
             <div>
-              <label class="block font-semibold text-xs text-secondary mb-1">Enlace del Video (URL Embed o Directa)</label>
-              <input type="url" id="editVideoUrlInput" required placeholder="https://www.youtube.com/embed/..." class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none font-mono text-xs"/>
-              <p class="text-[11px] text-secondary mt-1">Soporta enlaces embed de YouTube (https://www.youtube.com/embed/...) o videos MP4.</p>
+              <label class="block font-semibold text-xs text-secondary mb-1">Enlace o Archivo de Video</label>
+              <input type="text" id="editVideoUrlInput" required placeholder="https://www.youtube.com/embed/... o /contaanalytics.mp4" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none font-mono text-xs"/>
+              <p class="text-[11px] text-secondary mt-1">Soporta enlaces de YouTube, Google Drive, Loom, Vimeo o archivos directos (.mp4, /contaanalytics.mp4).</p>
             </div>
 
             <div class="flex justify-end gap-2 pt-2 border-t border-surface-container-high">
