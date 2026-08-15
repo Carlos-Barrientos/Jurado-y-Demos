@@ -212,7 +212,16 @@ function getDetailHtml(demo) {
             <!-- Tab 3: Infografía -->
             <div id="mediaContainerInfographic" class="${defaultTab === 'infographic' ? '' : 'hidden'} w-full h-full bg-slate-900 flex items-center justify-center relative overflow-hidden">
               ${hasInfographic ? `
-                <img src="${demo.infographicUrl}" alt="Infografía ${demo.title}" class="w-full h-full object-contain cursor-zoom-in infographic-preview-img"/>
+                ${demo.infographicUrl.endsWith('.pdf') || demo.infographicUrl.startsWith('data:application/pdf') ? `
+                  <iframe src="${demo.infographicUrl}" class="w-full h-full border-0 bg-white" title="Infografía PDF"></iframe>
+                ` : `
+                  <img 
+                    src="${demo.infographicUrl}" 
+                    alt="Infografía ${demo.title}" 
+                    class="w-full h-full object-contain cursor-zoom-in infographic-preview-img"
+                    onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-8 text-center text-white/70 space-y-2\\'><span class=\\'material-symbols-outlined text-5xl text-amber-400\\'>broken_image</span><p class=\\'text-sm font-bold text-white\\'>No se pudo cargar la imagen desde este enlace.</p><p class=\\'text-xs text-white/60\\'>Puedes subir el archivo directamente desde tu equipo en Editar Proyecto.</p></div>';"
+                  />
+                `}
                 <div class="absolute bottom-3 right-3 flex items-center gap-2">
                   <button type="button" id="zoomInfographicBtn" class="px-3.5 py-1.5 bg-black/80 hover:bg-black text-white text-xs font-bold rounded-lg shadow backdrop-blur-md flex items-center gap-1 transition-all">
                     <span class="material-symbols-outlined text-sm">zoom_in</span> Ampliar
@@ -222,10 +231,15 @@ function getDetailHtml(demo) {
                   </a>
                 </div>
               ` : `
-                <div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-6 text-center space-y-2">
+                <div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-6 text-center space-y-3">
                   <span class="material-symbols-outlined text-5xl text-rose-400">dashboard</span>
                   <p class="text-sm font-semibold text-white">Infografía ejecutiva no cargada aún.</p>
-                  <p class="text-xs text-white/60">El equipo o administrador pueden adjuntarla desde el botón Editar Proyecto.</p>
+                  <p class="text-xs text-white/60">Sube la infografía de tu solución para que el jurado pueda revisarla.</p>
+                  ${userIsOwner ? `
+                    <button type="button" id="triggerUploadInfographicBtn" class="px-4 py-2 bg-primary text-white font-bold text-xs rounded-xl shadow-lg hover:bg-primary-container transition-all inline-flex items-center gap-1.5 cursor-pointer">
+                      <span class="material-symbols-outlined text-sm">cloud_upload</span> Cargar Infografía Ahora
+                    </button>
+                  ` : ''}
                 </div>
               `}
             </div>
@@ -712,8 +726,26 @@ function getDetailHtml(demo) {
                 </div>
 
                 <div>
-                  <label class="block font-semibold text-xs text-secondary mb-1">📊 Enlace / URL de la Infografía Ejecutiva</label>
-                  <input type="text" id="editInfographic" value="${demo.infographicUrl || ''}" placeholder="https://... (URL de imagen o PDF de la infografía)" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none text-xs font-mono"/>
+                  <label class="block font-semibold text-xs text-secondary mb-1">📊 Infografía Ejecutiva (Cargar Archivo o Enlace)</label>
+                  <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                      <label class="px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg cursor-pointer text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                        <span class="material-symbols-outlined text-sm">upload_file</span> Cargar Imagen / PDF desde tu equipo
+                        <input type="file" id="editInfographicFileInput" accept="image/*,application/pdf" class="hidden"/>
+                      </label>
+                      <span id="editInfographicFileName" class="text-xs text-secondary italic truncate max-w-[200px]">Ningún archivo seleccionado</span>
+                    </div>
+
+                    <!-- Live Preview Box -->
+                    <div id="editInfographicPreviewBox" class="hidden p-2 bg-surface-container-low rounded-lg border border-surface-container text-center">
+                      <div id="editInfographicPreviewContent"></div>
+                    </div>
+
+                    <div>
+                      <span class="text-[10px] text-secondary font-medium block mb-0.5">O pegar enlace web / URL:</span>
+                      <input type="text" id="editInfographic" value="${demo.infographicUrl || ''}" placeholder="https://... o data:image/..." class="w-full p-2 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none text-xs font-mono"/>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1040,6 +1072,47 @@ function attachDetailEventListeners(demoId) {
         if (app) app.innerHTML = renderDetailView(demoId);
       });
     }
+
+    // Infographic File Upload Input Listener
+    const infoFileInput = document.getElementById('editInfographicFileInput');
+    const infoFileName = document.getElementById('editInfographicFileName');
+    const infoUrlInput = document.getElementById('editInfographic');
+    const infoPreviewBox = document.getElementById('editInfographicPreviewBox');
+    const infoPreviewContent = document.getElementById('editInfographicPreviewContent');
+
+    if (infoFileInput) {
+      infoFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          if (infoFileName) infoFileName.innerText = file.name;
+          
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            const dataUrl = evt.target.result;
+            if (infoUrlInput) infoUrlInput.value = dataUrl;
+            if (infoPreviewBox && infoPreviewContent) {
+              infoPreviewBox.classList.remove('hidden');
+              if (file.type.startsWith('image/')) {
+                infoPreviewContent.innerHTML = `<img src="${dataUrl}" class="max-h-36 mx-auto object-contain rounded"/>`;
+              } else {
+                infoPreviewContent.innerHTML = `<div class="p-2 text-xs font-bold text-primary flex items-center justify-center gap-1"><span class="material-symbols-outlined text-base">picture_as_pdf</span> ${file.name}</div>`;
+              }
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  }
+
+  // Trigger Upload Infographic button in empty state
+  const triggerUploadBtn = document.getElementById('triggerUploadInfographicBtn');
+  if (triggerUploadBtn && editModal) {
+    triggerUploadBtn.addEventListener('click', () => {
+      editModal.classList.remove('hidden');
+      const infoFileInput = document.getElementById('editInfographicFileInput');
+      if (infoFileInput) infoFileInput.click();
+    });
   }
 
   // Media Tabs Switcher logic (Summary Video, Full Demo, Infographic)

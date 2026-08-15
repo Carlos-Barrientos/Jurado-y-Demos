@@ -790,6 +790,38 @@ const defaultState = {
       badges: ['Jurado']
     },
 
+    // USUARIOS DE SOLO VISTA / OBSERVADORES (Acceso total a todos los videos y demos)
+    {
+      id: 'usr-viewer-observador',
+      name: 'Observador Prosur',
+      roleType: 'viewer',
+      roleTitle: 'Invitado / Solo Lectura',
+      unit: 'Grupo Prosur',
+      unitClass: 'badge-unit-agrifood',
+      avatar: getAvatar('Observador Prosur'),
+      email: 'observador@prosur.com',
+      password: 'prosur2026',
+      bio: 'Usuario de solo vista para explorar todos los proyectos y videos del Reto IA.',
+      stats: { evaluationsDone: 0, pendingEvaluations: 0 },
+      savedDemoIds: [],
+      badges: ['Solo Vista', 'Acceso a Videos']
+    },
+    {
+      id: 'usr-viewer-invitado',
+      name: 'Invitado Especial',
+      roleType: 'viewer',
+      roleTitle: 'Acceso General (Solo Vista)',
+      unit: 'Grupo Prosur',
+      unitClass: 'badge-unit-agrifood',
+      avatar: getAvatar('Invitado Especial'),
+      email: 'invitado@prosur.com',
+      password: 'demo',
+      bio: 'Usuario invitado de solo vista con acceso completo a todos los demos y videos.',
+      stats: { evaluationsDone: 0, pendingEvaluations: 0 },
+      savedDemoIds: [],
+      badges: ['Solo Vista']
+    },
+
     // ALL EQUIPOS / TEAMS FROM GOOGLE SHEET AS PARTICIPANTS
     ...participantUsers
   ],
@@ -800,7 +832,7 @@ const defaultState = {
   posts: []
 };
 
-const CURRENT_DATA_VERSION = 3;
+const CURRENT_DATA_VERSION = 4;
 
 // Load initial state with localStorage persistence
 function loadInitialState() {
@@ -1281,6 +1313,22 @@ export function formatYoutubeEmbedUrl(url) {
 
 export const formatVideoEmbedUrl = formatYoutubeEmbedUrl;
 
+export function formatImageUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:image') || trimmed.startsWith('data:application/pdf') || trimmed.startsWith('blob:') || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+
+  // Google Drive
+  const driveMatch = trimmed.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+  }
+
+  return trimmed;
+}
+
 export function updateDemo(demoId, data) {
   const demo = getDemoById(demoId);
   if (!demo || (!isOwner(demo) && !isAdmin())) return false;
@@ -1293,7 +1341,7 @@ export function updateDemo(demoId, data) {
   if (data.impactMetrics !== undefined) demo.impactMetrics = data.impactMetrics;
   if (data.videoUrl !== undefined) demo.videoUrl = formatYoutubeEmbedUrl(data.videoUrl);
   if (data.summaryVideoUrl !== undefined) demo.summaryVideoUrl = formatYoutubeEmbedUrl(data.summaryVideoUrl);
-  if (data.infographicUrl !== undefined) demo.infographicUrl = data.infographicUrl;
+  if (data.infographicUrl !== undefined) demo.infographicUrl = formatImageUrl(data.infographicUrl);
   if (data.likes !== undefined) demo.likes = data.likes;
   if (data.realLikes !== undefined) demo.realLikes = data.realLikes;
   demo.isDeleted = false;
