@@ -249,9 +249,17 @@ function renderQuickEvalRows(demosList, user) {
 
         <!-- Video Embed Preview Button -->
         <td class="p-3.5 text-center align-middle">
-          <a href="#demo/${demo.id}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg font-bold text-xs transition-all shadow-sm">
-            <span class="material-symbols-outlined text-sm">smart_display</span> Ver Demo
-          </a>
+          <div class="inline-flex flex-col items-center gap-1">
+            <a href="#demo/${demo.id}" class="inline-flex items-center gap-1 px-3 py-1.5 ${demo.summaryVideoUrl ? 'bg-amber-500 hover:bg-amber-600 text-white font-black' : 'bg-primary/10 text-primary hover:bg-primary hover:text-white font-bold'} rounded-lg text-xs transition-all shadow-sm">
+              <span class="material-symbols-outlined text-sm">${demo.summaryVideoUrl ? 'bolt' : 'smart_display'}</span>
+              <span>${demo.summaryVideoUrl ? '⚡ Ver Resumen' : 'Ver Demo'}</span>
+            </a>
+            ${demo.infographicUrl ? `
+              <span class="inline-flex items-center gap-0.5 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                <span class="material-symbols-outlined text-[12px]">dashboard</span> Infografía
+              </span>
+            ` : ''}
+          </div>
         </td>
 
         <!-- Evaluation Status Badge -->

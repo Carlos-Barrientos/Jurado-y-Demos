@@ -457,6 +457,8 @@ const defaultDemosList = rawTeamsData.map((t, idx) => ({
   duration: '3:30',
   thumbnail: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800',
   videoUrl: t.videoUrl || '',
+  summaryVideoUrl: t.summaryVideoUrl || '',
+  infographicUrl: t.infographicUrl || '',
   
   specs: {
     modelType: 'Solución de IA Prosur',
@@ -490,6 +492,9 @@ defaultDemosList.push({
   rating: 0,
   duration: '4:00',
   thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
+  videoUrl: '',
+  summaryVideoUrl: '',
+  infographicUrl: '',
   
   specs: {
     modelType: 'Full-Stack SPA + Firebase',
@@ -837,7 +842,9 @@ function loadInitialState() {
             ...d,
             likes: d.realLikes || 0,
             views: d.realViews || 0,
-            videoUrl: formatYoutubeEmbedUrl(d.videoUrl)
+            videoUrl: formatYoutubeEmbedUrl(d.videoUrl),
+            summaryVideoUrl: formatYoutubeEmbedUrl(d.summaryVideoUrl),
+            infographicUrl: d.infographicUrl || ''
           }));
 
         let activeUser = null;
@@ -1035,6 +1042,12 @@ if (isFirebaseConfigured()) {
             cloudDemo?.videoUrl !== undefined && cloudDemo.videoUrl !== '' ? cloudDemo.videoUrl : 
             (localDemo?.videoUrl !== undefined ? localDemo.videoUrl : defDemo?.videoUrl || '')
           ),
+          summaryVideoUrl: formatYoutubeEmbedUrl(
+            cloudDemo?.summaryVideoUrl !== undefined && cloudDemo.summaryVideoUrl !== '' ? cloudDemo.summaryVideoUrl : 
+            (localDemo?.summaryVideoUrl !== undefined ? localDemo.summaryVideoUrl : defDemo?.summaryVideoUrl || '')
+          ),
+          infographicUrl: (cloudDemo?.infographicUrl !== undefined && cloudDemo.infographicUrl !== '') ? cloudDemo.infographicUrl :
+            (localDemo?.infographicUrl !== undefined ? localDemo.infographicUrl : defDemo?.infographicUrl || ''),
           images: (cloudDemo?.images !== undefined) ? cloudDemo.images : (localDemo?.images || defDemo?.images || []),
           evaluations: (cloudDemo?.evaluations !== undefined) ? cloudDemo.evaluations : (localDemo?.evaluations || defDemo?.evaluations || []),
           likes: (cloudDemo?.realLikes !== undefined) ? cloudDemo.realLikes : (cloudDemo?.likes !== undefined ? cloudDemo.likes : (localDemo?.likes || defDemo?.likes || 0)),
@@ -1279,6 +1292,8 @@ export function updateDemo(demoId, data) {
   if (data.problemStatement !== undefined) demo.problemStatement = data.problemStatement;
   if (data.impactMetrics !== undefined) demo.impactMetrics = data.impactMetrics;
   if (data.videoUrl !== undefined) demo.videoUrl = formatYoutubeEmbedUrl(data.videoUrl);
+  if (data.summaryVideoUrl !== undefined) demo.summaryVideoUrl = formatYoutubeEmbedUrl(data.summaryVideoUrl);
+  if (data.infographicUrl !== undefined) demo.infographicUrl = data.infographicUrl;
   if (data.likes !== undefined) demo.likes = data.likes;
   if (data.realLikes !== undefined) demo.realLikes = data.realLikes;
   demo.isDeleted = false;
@@ -1318,8 +1333,15 @@ export function updateDemo(demoId, data) {
   return true;
 }
 
-export function updateDemoVideoUrl(demoId, videoUrl) {
-  return updateDemo(demoId, { videoUrl });
+export function updateDemoVideoUrl(demoId, videoUrl, summaryVideoUrl = undefined, infographicUrl = undefined) {
+  const payload = { videoUrl };
+  if (summaryVideoUrl !== undefined) payload.summaryVideoUrl = summaryVideoUrl;
+  if (infographicUrl !== undefined) payload.infographicUrl = infographicUrl;
+  return updateDemo(demoId, payload);
+}
+
+export function updateDemoMedia(demoId, mediaData) {
+  return updateDemo(demoId, mediaData);
 }
 
 export function addDemoImage(demoId, imageUrl, caption, fileName = '', fileSize = '', fileType = '') {

@@ -305,15 +305,32 @@ function getAdminHtml() {
             </div>
 
             <div>
-              <label class="block font-semibold text-xs text-secondary mb-1">Enlace o Archivo de Video</label>
-              <input type="text" id="editVideoUrlInput" required placeholder="https://www.youtube.com/embed/... o /contaanalytics.mp4" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none font-mono text-xs"/>
-              <p class="text-[11px] text-secondary mt-1">Soporta enlaces de YouTube, Google Drive, Loom, Vimeo o archivos directos (.mp4, /contaanalytics.mp4).</p>
+              <label class="block font-semibold text-xs text-amber-800 mb-1 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">bolt</span> ⚡ Video Resumen (YouTube Embed o Enlace)
+              </label>
+              <input type="text" id="editSummaryVideoUrlInput" placeholder="https://youtu.be/... o https://www.youtube.com/embed/..." class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none font-mono text-xs"/>
+              <p class="text-[11px] text-secondary mt-0.5">Video corto recomendado para evaluación rápida del jurado.</p>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-xs text-secondary mb-1 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">movie</span> 🎬 Demo Completa / Técnica (YouTube, Drive o Local)
+              </label>
+              <input type="text" id="editVideoUrlInput" placeholder="https://www.youtube.com/embed/... o /contaanalytics.mp4" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none font-mono text-xs"/>
+              <p class="text-[11px] text-secondary mt-0.5">Video con la demostración técnica completa.</p>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-xs text-secondary mb-1 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">dashboard</span> 📊 Infografía Ejecutiva (URL de Imagen o Documento)
+              </label>
+              <input type="text" id="editInfographicUrlInput" placeholder="https://... (URL de imagen o archivo)" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none font-mono text-xs"/>
             </div>
 
             <div class="flex justify-end gap-2 pt-2 border-t border-surface-container-high">
               <button type="button" id="cancelEditVideoBtn" class="px-4 py-2 bg-surface-container text-secondary font-semibold text-xs rounded-lg hover:bg-surface-container-high">Cancelar</button>
               <button type="submit" class="px-5 py-2 bg-primary text-white font-semibold text-xs rounded-lg hover:bg-primary-container flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">save</span> Guardar Video
+                <span class="material-symbols-outlined text-sm">save</span> Guardar Multimedia
               </button>
             </div>
           </form>
@@ -483,11 +500,15 @@ function attachAdminEvents() {
       if (demo && editVideoModal) {
         const idInput = document.getElementById('editVideoDemoId');
         const titleInput = document.getElementById('editVideoDemoTitle');
+        const summaryUrlInput = document.getElementById('editSummaryVideoUrlInput');
         const urlInput = document.getElementById('editVideoUrlInput');
+        const infographicUrlInput = document.getElementById('editInfographicUrlInput');
 
         if (idInput) idInput.value = demo.id;
         if (titleInput) titleInput.value = demo.title;
+        if (summaryUrlInput) summaryUrlInput.value = demo.summaryVideoUrl || '';
         if (urlInput) urlInput.value = demo.videoUrl || '';
+        if (infographicUrlInput) infographicUrlInput.value = demo.infographicUrl || '';
 
         editVideoModal.classList.remove('hidden');
       }
@@ -499,9 +520,12 @@ function attachAdminEvents() {
     editVideoForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const demoId = document.getElementById('editVideoDemoId')?.value || '';
+      const summaryVideoUrl = (document.getElementById('editSummaryVideoUrlInput')?.value || '').trim();
       const videoUrl = (document.getElementById('editVideoUrlInput')?.value || '').trim();
-      if (updateDemoVideoUrl(demoId, videoUrl)) {
-        alert('Enlace de video actualizado exitosamente.');
+      const infographicUrl = (document.getElementById('editInfographicUrlInput')?.value || '').trim();
+
+      if (updateDemoMedia(demoId, { videoUrl, summaryVideoUrl, infographicUrl })) {
+        alert('Multimedia del proyecto actualizada exitosamente.');
         if (editVideoModal) editVideoModal.classList.add('hidden');
         refreshAdminView();
       }

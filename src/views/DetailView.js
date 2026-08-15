@@ -60,9 +60,23 @@ function getDetailHtml(demo) {
   const userIsOwner = isOwner(demo) || isAdmin();
   const userIsJudge = isJudge();
   const activeUser = state.currentUser;
-  const isDirectVideo = isDirectVideoFile(demo.videoUrl);
-  const formattedEmbed = isDirectVideo ? '' : formatYoutubeEmbedUrl(demo.videoUrl);
-  const iframeSrc = formattedEmbed ? (formattedEmbed.includes('?') ? `${formattedEmbed}&autoplay=0` : `${formattedEmbed}?autoplay=0`) : '';
+
+  const hasSummary = Boolean(demo.summaryVideoUrl && demo.summaryVideoUrl.trim());
+  const hasFull = Boolean(demo.videoUrl && demo.videoUrl.trim());
+  const hasInfographic = Boolean(demo.infographicUrl && demo.infographicUrl.trim());
+
+  // Default active tab: summary if available, otherwise full, otherwise infographic
+  const defaultTab = hasSummary ? 'summary' : (hasFull ? 'full' : (hasInfographic ? 'infographic' : 'summary'));
+
+  // Video formats for Summary Video
+  const isDirectSummary = isDirectVideoFile(demo.summaryVideoUrl);
+  const formattedSummaryEmbed = isDirectSummary ? '' : formatYoutubeEmbedUrl(demo.summaryVideoUrl);
+  const summaryIframeSrc = formattedSummaryEmbed ? (formattedSummaryEmbed.includes('?') ? `${formattedSummaryEmbed}&autoplay=0` : `${formattedSummaryEmbed}?autoplay=0`) : '';
+
+  // Video formats for Full Video
+  const isDirectFull = isDirectVideoFile(demo.videoUrl);
+  const formattedFullEmbed = isDirectFull ? '' : formatYoutubeEmbedUrl(demo.videoUrl);
+  const fullIframeSrc = formattedFullEmbed ? (formattedFullEmbed.includes('?') ? `${formattedFullEmbed}&autoplay=0` : `${formattedFullEmbed}?autoplay=0`) : '';
 
   // Calculate judge evaluations average and check if active user evaluated
   const evals = demo.evaluations || [];
@@ -111,34 +125,111 @@ function getDetailHtml(demo) {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         <!-- Left 2 Cols: Video Player, Details, Tech Specs & Gallery -->
-        <div class="lg:col-span-2 space-y-8">
+        <div class="lg:col-span-2 space-y-6">
           
-          <!-- Video Player Banner -->
-          <div class="bg-black rounded-2xl overflow-hidden shadow-xl aspect-video relative group border border-surface-container-high">
-            ${isDirectVideo ? `
-              <video 
-                src="${demo.videoUrl}" 
-                controls 
-                playsinline 
-                preload="metadata"
-                class="w-full h-full object-contain bg-black"
+          <!-- Media Tabs Switcher (Resumen / Demo Completa / Infografía) -->
+          <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-surface-container-high shadow-sm">
+            <div class="flex flex-wrap items-center gap-2">
+              <button 
+                type="button" 
+                data-media-tab="summary" 
+                class="media-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${defaultTab === 'summary' ? 'bg-primary text-white shadow' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}"
               >
-                Tu navegador no soporta la reproducción directa de video HTML5.
-              </video>
-            ` : iframeSrc ? `
-              <iframe 
-                src="${iframeSrc}" 
-                title="${demo.title}"
-                class="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-              ></iframe>
-            ` : `
-              <div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-6 text-center space-y-2">
-                <span class="material-symbols-outlined text-5xl">video_off</span>
-                <p class="text-sm font-semibold">Video no disponible o enlace no especificado.</p>
-              </div>
-            `}
+                <span class="material-symbols-outlined text-sm text-amber-300">bolt</span>
+                <span>⚡ Video Resumen</span>
+                <span class="px-1.5 py-0.5 bg-amber-400 text-amber-950 rounded text-[9px] font-black tracking-wide uppercase">Jurado</span>
+              </button>
+
+              <button 
+                type="button" 
+                data-media-tab="full" 
+                class="media-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${defaultTab === 'full' ? 'bg-primary text-white shadow' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}"
+              >
+                <span class="material-symbols-outlined text-sm">movie</span>
+                <span>Demo Completa</span>
+              </button>
+
+              <button 
+                type="button" 
+                data-media-tab="infographic" 
+                class="media-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${defaultTab === 'infographic' ? 'bg-primary text-white shadow' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}"
+              >
+                <span class="material-symbols-outlined text-sm">dashboard</span>
+                <span>Infografía Ejecutiva</span>
+                ${hasInfographic ? `<span class="w-2 h-2 rounded-full bg-emerald-500"></span>` : ''}
+              </button>
+            </div>
+
+            <div class="text-[11px] text-secondary font-medium hidden sm:block">
+              ${hasSummary ? '⭐ Resumen optimizado para evaluación' : 'Selecciona una pestaña de contenido'}
+            </div>
+          </div>
+
+          <!-- Video Player & Media Banner -->
+          <div class="bg-black rounded-2xl overflow-hidden shadow-xl aspect-video relative group border border-surface-container-high">
+            
+            <!-- Tab 1: Video Resumen -->
+            <div id="mediaContainerSummary" class="${defaultTab === 'summary' ? '' : 'hidden'} w-full h-full">
+              ${isDirectSummary ? `
+                <video src="${demo.summaryVideoUrl}" controls playsinline preload="metadata" class="w-full h-full object-contain bg-black"></video>
+              ` : summaryIframeSrc ? `
+                <iframe 
+                  src="${summaryIframeSrc}" 
+                  title="${demo.title} - Video Resumen"
+                  class="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen
+                ></iframe>
+              ` : `
+                <div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-6 text-center space-y-2">
+                  <span class="material-symbols-outlined text-5xl text-amber-400">bolt</span>
+                  <p class="text-sm font-semibold text-white">Video Resumen no asignado todavía.</p>
+                  <p class="text-xs text-white/60">Puedes ver la Demo Completa o Infografía en las pestañas superiores.</p>
+                </div>
+              `}
+            </div>
+
+            <!-- Tab 2: Demo Completa -->
+            <div id="mediaContainerFull" class="${defaultTab === 'full' ? '' : 'hidden'} w-full h-full">
+              ${isDirectFull ? `
+                <video src="${demo.videoUrl}" controls playsinline preload="metadata" class="w-full h-full object-contain bg-black"></video>
+              ` : fullIframeSrc ? `
+                <iframe 
+                  src="${fullIframeSrc}" 
+                  title="${demo.title} - Demo Completa"
+                  class="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen
+                ></iframe>
+              ` : `
+                <div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-6 text-center space-y-2">
+                  <span class="material-symbols-outlined text-5xl">video_off</span>
+                  <p class="text-sm font-semibold text-white">Video completo no especificado.</p>
+                </div>
+              `}
+            </div>
+
+            <!-- Tab 3: Infografía -->
+            <div id="mediaContainerInfographic" class="${defaultTab === 'infographic' ? '' : 'hidden'} w-full h-full bg-slate-900 flex items-center justify-center relative overflow-hidden">
+              ${hasInfographic ? `
+                <img src="${demo.infographicUrl}" alt="Infografía ${demo.title}" class="w-full h-full object-contain cursor-zoom-in infographic-preview-img"/>
+                <div class="absolute bottom-3 right-3 flex items-center gap-2">
+                  <button type="button" id="zoomInfographicBtn" class="px-3.5 py-1.5 bg-black/80 hover:bg-black text-white text-xs font-bold rounded-lg shadow backdrop-blur-md flex items-center gap-1 transition-all">
+                    <span class="material-symbols-outlined text-sm">zoom_in</span> Ampliar
+                  </button>
+                  <a href="${demo.infographicUrl}" target="_blank" download class="px-3.5 py-1.5 bg-primary text-white text-xs font-bold rounded-lg shadow flex items-center gap-1 hover:bg-primary-container transition-all">
+                    <span class="material-symbols-outlined text-sm">download</span> Descargar
+                  </a>
+                </div>
+              ` : `
+                <div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-6 text-center space-y-2">
+                  <span class="material-symbols-outlined text-5xl text-rose-400">dashboard</span>
+                  <p class="text-sm font-semibold text-white">Infografía ejecutiva no cargada aún.</p>
+                  <p class="text-xs text-white/60">El equipo o administrador pueden adjuntarla desde el botón Editar Proyecto.</p>
+                </div>
+              `}
+            </div>
+
           </div>
 
           <!-- Title & Actions Bar -->
@@ -604,9 +695,26 @@ function getDetailHtml(demo) {
                 <textarea id="editMetrics" rows="2" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none" required>${demo.impactMetrics}</textarea>
               </div>
 
-              <div>
-                <label class="block font-semibold text-xs text-secondary mb-1">Enlace o Archivo de Video (YouTube, Google Drive o archivo local ej. /contaanalytics.mp4)</label>
-                <input type="text" id="editVideo" value="${demo.videoUrl || ''}" placeholder="https://www.youtube.com/... o /contaanalytics.mp4" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none text-xs font-mono"/>
+              <!-- Media Links Section (Videos e Infografía) -->
+              <div class="border-t border-surface-container-high pt-3 space-y-3">
+                <h4 class="font-bold text-xs uppercase tracking-wider text-amber-700 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">smart_display</span> Videos e Infografía del Proyecto
+                </h4>
+
+                <div>
+                  <label class="block font-semibold text-xs text-secondary mb-1">⚡ Video Resumen (YouTube Embed o URL - Recomendado Jurado)</label>
+                  <input type="text" id="editSummaryVideo" value="${demo.summaryVideoUrl || ''}" placeholder="https://youtu.be/... o https://www.youtube.com/embed/..." class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none text-xs font-mono"/>
+                </div>
+
+                <div>
+                  <label class="block font-semibold text-xs text-secondary mb-1">🎬 Demo Técnica Completa (YouTube, Google Drive o archivo local)</label>
+                  <input type="text" id="editVideo" value="${demo.videoUrl || ''}" placeholder="https://www.youtube.com/... o /contaanalytics.mp4" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none text-xs font-mono"/>
+                </div>
+
+                <div>
+                  <label class="block font-semibold text-xs text-secondary mb-1">📊 Enlace / URL de la Infografía Ejecutiva</label>
+                  <input type="text" id="editInfographic" value="${demo.infographicUrl || ''}" placeholder="https://... (URL de imagen o PDF de la infografía)" class="w-full p-2.5 bg-surface-container-low rounded-lg border border-surface-container focus:border-primary focus:outline-none text-xs font-mono"/>
+                </div>
               </div>
 
               <!-- Section: Ficha Técnica del Modelo -->
@@ -919,7 +1027,9 @@ function attachDetailEventListeners(demoId) {
           description: document.getElementById('editDescription').value,
           problemStatement: document.getElementById('editProblem').value,
           impactMetrics: document.getElementById('editMetrics').value,
-          videoUrl: document.getElementById('editVideo').value,
+          summaryVideoUrl: (document.getElementById('editSummaryVideo')?.value || '').trim(),
+          videoUrl: (document.getElementById('editVideo')?.value || '').trim(),
+          infographicUrl: (document.getElementById('editInfographic')?.value || '').trim(),
           modelBase: document.getElementById('editModelBase')?.value || 'N/A',
           latency: document.getElementById('editLatency')?.value || 'N/A',
           dataSource: document.getElementById('editDataSource')?.value || 'N/A',
@@ -931,6 +1041,32 @@ function attachDetailEventListeners(demoId) {
       });
     }
   }
+
+  // Media Tabs Switcher logic (Summary Video, Full Demo, Infographic)
+  document.querySelectorAll('.media-tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const targetTab = e.currentTarget.dataset.mediaTab;
+
+      // Update active styling of buttons
+      document.querySelectorAll('.media-tab-btn').forEach(b => {
+        const isSelected = b.dataset.mediaTab === targetTab;
+        b.className = `media-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+          isSelected 
+            ? 'bg-primary text-white shadow' 
+            : 'bg-surface-container text-secondary hover:bg-surface-container-high'
+        }`;
+      });
+
+      // Toggle container visibilities without reloading view (preserves all form/eval state)
+      const cSummary = document.getElementById('mediaContainerSummary');
+      const cFull = document.getElementById('mediaContainerFull');
+      const cInfographic = document.getElementById('mediaContainerInfographic');
+
+      if (cSummary) cSummary.classList.toggle('hidden', targetTab !== 'summary');
+      if (cFull) cFull.classList.toggle('hidden', targetTab !== 'full');
+      if (cInfographic) cInfographic.classList.toggle('hidden', targetTab !== 'infographic');
+    });
+  });
 
   // Image & File Modal controls
   const openImgBtn1 = document.getElementById('openImageModalBtn');
@@ -1144,6 +1280,26 @@ function compressImageHighQuality(file, maxDimension = 1920, quality = 0.85) {
       lightboxModal.classList.remove('hidden');
     });
   });
+
+  // Infographic Zoom / Lightbox Preview
+  const openInfographicModal = () => {
+    if (!lightboxModal || !demo.infographicUrl) return;
+    if (lightboxTitle) lightboxTitle.innerText = `Infografía: ${demo.title}`;
+    if (lightboxCaption) lightboxCaption.innerText = 'Infografía ejecutiva para evaluación del proyecto';
+    if (lightboxDownloadBtn) {
+      lightboxDownloadBtn.href = demo.infographicUrl;
+      lightboxDownloadBtn.download = `Infografia_${demo.title}`;
+    }
+    if (lightboxContent) {
+      lightboxContent.innerHTML = `<img src="${demo.infographicUrl}" alt="Infografía" class="max-h-[75vh] max-w-full object-contain rounded-lg shadow-2xl"/>`;
+    }
+    lightboxModal.classList.remove('hidden');
+  };
+
+  const zoomInfoBtn = document.getElementById('zoomInfographicBtn');
+  const infoImg = document.querySelector('.infographic-preview-img');
+  if (zoomInfoBtn) zoomInfoBtn.addEventListener('click', openInfographicModal);
+  if (infoImg) infoImg.addEventListener('click', openInfographicModal);
 
   // Initialize Google Calendar Appointment Scheduling Button for project participants
   const isParticipantOrAdmin = isOwner(demo) || isAdmin();
