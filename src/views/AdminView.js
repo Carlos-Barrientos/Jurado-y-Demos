@@ -1,4 +1,4 @@
-import { state, isAdmin, createUser, updateUser, deleteUser, createDemo, deleteDemo, assignDemo, updateDemo, updateDemoMedia, updateDemoVideoUrl, toggleDemoReadyForEvaluation, resetState, companies } from '../data/store.js';
+import { state, isAdmin, createUser, updateUser, deleteUser, createDemo, deleteDemo, assignDemo, updateDemo, updateDemoMedia, updateDemoVideoUrl, toggleDemoReadyForEvaluation, resetState, compressImageFile, companies } from '../data/store.js';
 
 let adminCompanyFilter = 'all';
 let adminSearchQuery = '';
@@ -778,25 +778,25 @@ function attachAdminEvents() {
     const adminInfoPreviewContent = document.getElementById('editAdminInfographicPreviewContent');
 
     if (adminInfoFileInput) {
-      adminInfoFileInput.addEventListener('change', (e) => {
+      adminInfoFileInput.addEventListener('change', async (e) => {
         if (e.target.files && e.target.files[0]) {
           const file = e.target.files[0];
           if (adminInfoFileName) adminInfoFileName.innerText = file.name;
           
-          const reader = new FileReader();
-          reader.onload = (evt) => {
-            const dataUrl = evt.target.result;
-            if (adminInfoUrlInput) adminInfoUrlInput.value = dataUrl;
-            if (adminInfoPreviewBox && adminInfoPreviewContent) {
-              adminInfoPreviewBox.classList.remove('hidden');
-              if (file.type.startsWith('image/')) {
-                adminInfoPreviewContent.innerHTML = `<img src="${dataUrl}" class="max-h-32 mx-auto object-contain rounded"/>`;
-              } else {
-                adminInfoPreviewContent.innerHTML = `<div class="p-2 text-xs font-bold text-primary flex items-center justify-center gap-1"><span class="material-symbols-outlined text-base">picture_as_pdf</span> ${file.name}</div>`;
-              }
+          if (adminInfoPreviewBox && adminInfoPreviewContent) {
+            adminInfoPreviewBox.classList.remove('hidden');
+            adminInfoPreviewContent.innerHTML = `<div class="p-2 text-xs text-secondary animate-pulse">Optimizando y procesando archivo...</div>`;
+          }
+
+          const dataUrl = await compressImageFile(file, 1600, 1600, 0.82);
+          if (adminInfoUrlInput) adminInfoUrlInput.value = dataUrl;
+          if (adminInfoPreviewBox && adminInfoPreviewContent) {
+            if (file.type.startsWith('image/')) {
+              adminInfoPreviewContent.innerHTML = `<img src="${dataUrl}" class="max-h-32 mx-auto object-contain rounded shadow"/>`;
+            } else {
+              adminInfoPreviewContent.innerHTML = `<div class="p-2 text-xs font-bold text-primary flex items-center justify-center gap-1"><span class="material-symbols-outlined text-base">picture_as_pdf</span> ${file.name}</div>`;
             }
-          };
-          reader.readAsDataURL(file);
+          }
         }
       });
     }

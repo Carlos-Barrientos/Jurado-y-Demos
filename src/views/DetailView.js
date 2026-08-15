@@ -18,6 +18,7 @@ import {
   toggleFavorite,
   formatYoutubeEmbedUrl,
   isDirectVideoFile,
+  compressImageFile,
   companies
 } from '../data/store.js';
 
@@ -1081,25 +1082,25 @@ function attachDetailEventListeners(demoId) {
     const infoPreviewContent = document.getElementById('editInfographicPreviewContent');
 
     if (infoFileInput) {
-      infoFileInput.addEventListener('change', (e) => {
+      infoFileInput.addEventListener('change', async (e) => {
         if (e.target.files && e.target.files[0]) {
           const file = e.target.files[0];
           if (infoFileName) infoFileName.innerText = file.name;
           
-          const reader = new FileReader();
-          reader.onload = (evt) => {
-            const dataUrl = evt.target.result;
-            if (infoUrlInput) infoUrlInput.value = dataUrl;
-            if (infoPreviewBox && infoPreviewContent) {
-              infoPreviewBox.classList.remove('hidden');
-              if (file.type.startsWith('image/')) {
-                infoPreviewContent.innerHTML = `<img src="${dataUrl}" class="max-h-36 mx-auto object-contain rounded"/>`;
-              } else {
-                infoPreviewContent.innerHTML = `<div class="p-2 text-xs font-bold text-primary flex items-center justify-center gap-1"><span class="material-symbols-outlined text-base">picture_as_pdf</span> ${file.name}</div>`;
-              }
+          if (infoPreviewBox && infoPreviewContent) {
+            infoPreviewBox.classList.remove('hidden');
+            infoPreviewContent.innerHTML = `<div class="p-2 text-xs text-secondary animate-pulse">Optimizando y procesando archivo...</div>`;
+          }
+
+          const dataUrl = await compressImageFile(file, 1600, 1600, 0.82);
+          if (infoUrlInput) infoUrlInput.value = dataUrl;
+          if (infoPreviewBox && infoPreviewContent) {
+            if (file.type.startsWith('image/')) {
+              infoPreviewContent.innerHTML = `<img src="${dataUrl}" class="max-h-36 mx-auto object-contain rounded shadow"/>`;
+            } else {
+              infoPreviewContent.innerHTML = `<div class="p-2 text-xs font-bold text-primary flex items-center justify-center gap-1"><span class="material-symbols-outlined text-base">picture_as_pdf</span> ${file.name}</div>`;
             }
-          };
-          reader.readAsDataURL(file);
+          }
         }
       });
     }
