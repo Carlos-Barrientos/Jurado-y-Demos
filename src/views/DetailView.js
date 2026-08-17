@@ -11,6 +11,7 @@ import {
   removeDemoImage,
   submitJudgeEvaluation, 
   confirmJudgeEvaluation,
+  deleteJudgeEvaluation,
   addCommentToDemo, 
   editCommentInDemo,
   deleteCommentFromDemo,
@@ -558,9 +559,16 @@ function getDetailHtml(demo) {
                     >${initialFeedback}</textarea>
                   </div>
 
-                  <button type="submit" class="w-full py-2.5 bg-amber-600 text-white font-bold text-xs rounded-lg hover:bg-amber-700 transition-all shadow-md flex items-center justify-center gap-1.5">
-                    <span class="material-symbols-outlined text-base">${myExistingEval ? 'edit' : 'verified'}</span> ${myExistingEval ? 'Corregir y Guardar Calificación' : 'Emitir y Confirmar Calificación'}
-                  </button>
+                  <div class="flex items-center gap-2">
+                    ${myExistingEval ? `
+                      <button type="button" id="deleteJudgeEvalBtn" class="px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 hover:border-rose-300 font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-base">delete</span> Borrar Mi Calificación
+                      </button>
+                    ` : ''}
+                    <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-bold text-xs rounded-lg hover:bg-amber-700 transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                      <span class="material-symbols-outlined text-base">${myExistingEval ? 'edit' : 'verified'}</span> ${myExistingEval ? 'Corregir y Guardar Calificación' : 'Emitir y Confirmar Calificación'}
+                    </button>
+                  </div>
                 </form>
               </div>
             `}
@@ -591,7 +599,10 @@ function getDetailHtml(demo) {
                         <div class="flex items-center gap-2">
                           ${ev.judgeId === activeUser.id ? `
                             <button data-edit-my-eval="true" class="edit-my-eval-btn px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded text-[10px] flex items-center gap-1 transition-all shadow-sm">
-                              <span class="material-symbols-outlined text-xs">edit</span> Editar Mi Calificación
+                              <span class="material-symbols-outlined text-xs">edit</span> Editar
+                            </button>
+                            <button data-delete-single-eval-id="${demo.id}" class="delete-single-eval-btn px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded text-[10px] flex items-center gap-1 transition-all shadow-sm">
+                              <span class="material-symbols-outlined text-xs">delete</span> Borrar
                             </button>
                           ` : ''}
                           ${ev.isConfirmed ? `
@@ -919,6 +930,33 @@ function attachDetailEventListeners(demoId) {
       }
     });
   }
+
+  // Judge Delete Evaluation Button
+  const deleteEvalBtn = document.getElementById('deleteJudgeEvalBtn');
+  if (deleteEvalBtn) {
+    deleteEvalBtn.addEventListener('click', () => {
+      if (confirm(`¿Estás seguro de que deseas BORRAR tu calificación para "${demo.title}"?\n\nEl proyecto volverá a quedar como Pendiente sin afectar las calificaciones de otros jurados.`)) {
+        if (deleteJudgeEvaluation(demoId)) {
+          alert('Tu calificación ha sido eliminada exitosamente.');
+          const app = document.getElementById('app');
+          if (app) app.innerHTML = renderDetailView(demoId);
+        }
+      }
+    });
+  }
+
+  document.querySelectorAll('.delete-single-eval-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const targetDemoId = e.currentTarget.dataset.deleteSingleEvalId;
+      if (confirm(`¿Estás seguro de que deseas BORRAR tu calificación para "${demo.title}"?\n\nEl proyecto volverá a quedar como Pendiente sin afectar las calificaciones de otros jurados.`)) {
+        if (deleteJudgeEvaluation(targetDemoId)) {
+          alert('Tu calificación ha sido eliminada exitosamente.');
+          const app = document.getElementById('app');
+          if (app) app.innerHTML = renderDetailView(targetDemoId);
+        }
+      }
+    });
+  });
 
   // Judge Confirm Evaluation buttons
   document.querySelectorAll('.confirm-eval-btn').forEach(btn => {

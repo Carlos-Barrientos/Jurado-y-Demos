@@ -1,6 +1,4 @@
-// View: Evaluación Rápida del Jurado (Quick Evaluation Table Matrix)
-
-import { state, isJudge, isAdmin, getDemoById, submitJudgeEvaluation, formatYoutubeEmbedUrl, companies } from '../data/store.js';
+import { state, isJudge, isAdmin, getDemoById, submitJudgeEvaluation, deleteJudgeEvaluation, formatYoutubeEmbedUrl, companies } from '../data/store.js';
 
 export function renderQuickEvalView() {
   if (!isJudge()) {
@@ -177,11 +175,16 @@ function getQuickEvalHtml() {
               ></textarea>
             </div>
 
-            <div class="flex justify-end gap-2 pt-2 border-t border-surface-container-high">
-              <button type="button" id="cancelQuickEvalModalBtn" class="px-4 py-2 bg-surface-container text-secondary font-semibold text-xs rounded-lg hover:bg-surface-container-high">Cancelar</button>
-              <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-md transition-all flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm">verified</span> Emitir y Confirmar Calificación
+            <div class="flex items-center justify-between pt-3 border-t border-surface-container-high">
+              <button type="button" id="deleteModalQuickEvalBtn" class="hidden px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">delete</span> Borrar Mi Calificación
               </button>
+              <div class="flex items-center gap-2 ml-auto">
+                <button type="button" id="cancelQuickEvalModalBtn" class="px-4 py-2 bg-surface-container text-secondary font-semibold text-xs rounded-lg hover:bg-surface-container-high">Cancelar</button>
+                <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-md transition-all flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-sm">verified</span> Emitir y Confirmar Calificación
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -280,13 +283,25 @@ function renderQuickEvalRows(demosList, user) {
 
         <!-- Action / Quick Grade Button -->
         <td class="p-3.5 text-center align-middle">
-          <button 
-            data-quick-eval-id="${demo.id}" 
-            class="open-quick-eval-btn px-3.5 py-2 ${hasMyEval ? 'bg-surface-container hover:bg-amber-100 text-amber-900' : 'bg-amber-600 hover:bg-amber-700 text-white shadow-md'} font-bold text-xs rounded-xl transition-all inline-flex items-center gap-1.5"
-          >
-            <span class="material-symbols-outlined text-sm">${hasMyEval ? 'edit' : 'gavel'}</span>
-            ${hasMyEval ? 'Editar Calificación' : '⚡ Calificar Rápido'}
-          </button>
+          <div class="inline-flex items-center gap-1.5">
+            <button 
+              data-quick-eval-id="${demo.id}" 
+              class="open-quick-eval-btn px-3 py-2 ${hasMyEval ? 'bg-surface-container hover:bg-amber-100 text-amber-900' : 'bg-amber-600 hover:bg-amber-700 text-white shadow-md'} font-bold text-xs rounded-xl transition-all inline-flex items-center gap-1.5"
+            >
+              <span class="material-symbols-outlined text-sm">${hasMyEval ? 'edit' : 'gavel'}</span>
+              ${hasMyEval ? 'Editar' : '⚡ Calificar Rápido'}
+            </button>
+            ${hasMyEval ? `
+              <button 
+                data-delete-quick-eval-id="${demo.id}" 
+                data-demo-title="${demo.title}"
+                title="Borrar mi calificación de este proyecto"
+                class="delete-quick-eval-btn p-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 hover:border-rose-300 rounded-xl transition-all inline-flex items-center justify-center cursor-pointer shadow-sm"
+              >
+                <span class="material-symbols-outlined text-sm">delete</span>
+              </button>
+            ` : ''}
+          </div>
         </td>
       </tr>
     `;
@@ -335,6 +350,7 @@ function attachRowButtons() {
   const titleElem = document.getElementById('quickEvalModalTitle');
   const subTitleElem = document.getElementById('quickEvalModalSubtitle');
   const feedbackInput = document.getElementById('quickEvalFeedback');
+  const deleteModalBtn = document.getElementById('deleteModalQuickEvalBtn');
 
   document.querySelectorAll('.open-quick-eval-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -349,6 +365,14 @@ function attachRowButtons() {
       // Populate existing evaluation scores if present
       const user = state.currentUser;
       const existing = (demo.evaluations || []).find(ev => ev.judgeId === user.id);
+
+      if (deleteModalBtn) {
+        if (existing) {
+          deleteModalBtn.classList.remove('hidden');
+        } else {
+          deleteModalBtn.classList.add('hidden');
+        }
+      }
 
       const impact = existing ? (existing.scores?.impact || 40) : 40;
       const viab = existing ? (existing.scores?.viability || 30) : 30;
@@ -374,6 +398,40 @@ function attachRowButtons() {
       modal.classList.remove('hidden');
     });
   });
+
+  // Direct row delete button
+  document.querySelectorAll('.delete-quick-eval-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const demoId = e.currentTarget.dataset.deleteQuickEvalId;
+      const demoTitle = e.currentTarget.dataset.demoTitle || 'este proyecto';
+      if (confirm(`¿Estás seguro de que deseas BORRAR tu calificación para "${demoTitle}"?\n\nEl proyecto volverá a quedar como Pendiente sin afectar ninguna otra calificación.`)) {
+        if (deleteJudgeEvaluation(demoId)) {
+          alert('Tu calificación ha sido eliminada exitosamente.');
+          const app = document.getElementById('app');
+          if (app) app.innerHTML = renderQuickEvalView();
+        }
+      }
+    });
+  });
+
+  // Modal delete button
+  if (deleteModalBtn) {
+    deleteModalBtn.addEventListener('click', () => {
+      const demoId = demoIdInput?.value;
+      if (!demoId) return;
+      const demo = getDemoById(demoId);
+      const title = demo ? demo.title : 'este proyecto';
+      if (confirm(`¿Estás seguro de que deseas BORRAR tu calificación para "${title}"?\n\nEl proyecto volverá a quedar como Pendiente.`)) {
+        if (deleteJudgeEvaluation(demoId)) {
+          alert('Tu calificación ha sido eliminada exitosamente.');
+          modal.classList.add('hidden');
+          const app = document.getElementById('app');
+          if (app) app.innerHTML = renderQuickEvalView();
+        }
+      }
+    });
+  }
 
   const closeBtn = document.getElementById('closeQuickEvalModalBtn');
   const cancelBtn = document.getElementById('cancelQuickEvalModalBtn');

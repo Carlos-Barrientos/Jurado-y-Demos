@@ -1568,6 +1568,34 @@ export function confirmJudgeEvaluation(demoId) {
   return false;
 }
 
+export function deleteJudgeEvaluation(demoId, judgeId = null) {
+  const demo = getDemoById(demoId);
+  const activeUser = state.currentUser;
+  const targetJudgeId = judgeId || (activeUser ? activeUser.id : null);
+  if (!demo || !targetJudgeId || (!isJudge() && !isAdmin())) return false;
+
+  if (!demo.evaluations) demo.evaluations = [];
+  const initialCount = demo.evaluations.length;
+  demo.evaluations = demo.evaluations.filter(e => e.judgeId !== targetJudgeId);
+
+  if (demo.evaluations.length < initialCount) {
+    if (demo.evaluations.length > 0) {
+      const totalAvg = demo.evaluations.reduce((sum, e) => sum + e.average, 0) / demo.evaluations.length;
+      demo.rating = parseInt(totalAvg.toFixed(0));
+    } else {
+      demo.rating = 0;
+    }
+
+    saveState();
+    if (isFirebaseConfigured()) {
+      setDoc(doc(db, 'demos', String(demoId)), { evaluations: demo.evaluations, rating: demo.rating }, { merge: true })
+        .catch(e => { console.error('FIREBASE ERROR:', e); alert('Error al actualizar en la nube: ' + e.message); });
+    }
+    return true;
+  }
+  return false;
+}
+
 export function createUser(userData) {
   if (!isAdmin()) return false;
   const newId = 'usr-' + Date.now();
