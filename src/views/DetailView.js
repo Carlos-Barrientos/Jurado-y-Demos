@@ -656,15 +656,15 @@ function getDetailHtml(demo) {
             <div class="bg-gradient-to-br from-rose-50 via-white to-red-50/50 p-6 rounded-2xl border border-red-200 shadow-sm space-y-3">
               <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-xl bg-red-600/10 text-red-600 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-xl">calendar_month</span>
+                  <span class="material-symbols-outlined text-xl">event_available</span>
                 </div>
                 <div>
-                  <h4 class="font-bold text-xs text-red-950">Asesoría y Acompañamiento</h4>
+                  <h4 class="font-bold text-xs text-red-950">Agendar Demo en Vivo (21 de Agosto)</h4>
                   <span class="text-[10px] font-semibold text-red-700 block">Exclusivo para integrantes del proyecto</span>
                 </div>
               </div>
               <p class="text-xs text-secondary leading-relaxed">
-                ¿Tienes dudas técnicas o requieres asesoría con el equipo del Reto IA? Programa una sesión personalizada aquí:
+                ¿Listo para presentar tu solución funcional y escalable? Agenda el horario de tu presentación y demo en vivo ante el jurado calificador para este <b>21 de agosto</b>:
               </p>
               <div id="googleCalendarCardContainer" class="pt-1 flex items-center"></div>
             </div>
@@ -1437,7 +1437,7 @@ function initGoogleCalendarButton() {
         window.calendar.schedulingButton.load({
           url: scheduleUrl,
           color: '#D50000',
-          label: 'Programar una cita',
+          label: 'Agendar Demo (21 de Agosto)',
           target: targetEl,
         });
       } catch (e) {
@@ -1477,6 +1477,6 @@ function renderFallbackCalendarBtn(targetEl, url) {
   btn.target = '_blank';
   btn.rel = 'noopener noreferrer';
   btn.className = 'px-3.5 py-1.5 bg-[#D50000] text-white font-semibold text-xs rounded-lg shadow hover:bg-red-700 transition-all inline-flex items-center gap-1.5';
-  btn.innerHTML = '<span class="material-symbols-outlined text-sm">calendar_month</span> Programar una cita';
+  btn.innerHTML = '<span class="material-symbols-outlined text-sm">event_available</span> Agendar Demo (21 de Agosto)';
   targetEl.appendChild(btn);
 }
